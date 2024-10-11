@@ -9,8 +9,8 @@ export default function GameCanvasComponent() {
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      canvas.width = 800;
-      canvas.height = 600;
+      canvas.width = 800 * (3 / 4);
+      canvas.height = 600 * (3 / 4);
       const ctx = canvas.getContext("2d");
       setcontext(ctx);
 
@@ -20,7 +20,7 @@ export default function GameCanvasComponent() {
       img.onload = () => {
         if (ctx) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, canvas.width / 2 - 464 / 2, canvas.height / 2 - 328 / 2, 464, 328);
         }
       };
     }
@@ -28,7 +28,7 @@ export default function GameCanvasComponent() {
 
   return (
     <div>
-      <canvas ref={canvasRef} className="bg-red-200 mt-3 rounded-md"></canvas>
+      <canvas id="game-canvas" ref={canvasRef} className="mt-3 rounded-md w-1/4"></canvas>
     </div>
   );
 }

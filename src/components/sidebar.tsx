@@ -12,7 +12,7 @@ const tableData = [
 
 export default function SidebarComponent() {
   return (
-    <div id="sidebar" className="p-5 w-1/2">
+    <div id="sidebar" className="p-5 w-1/4">
       <h2 className="flex items-center justify-center m-3">
         <Image src={"/logo.png"} alt="logo" width={36} height={36} className="mt-0 me-3" />
         <a href="https://atdlab.jp">AT&D Lab.</a>
