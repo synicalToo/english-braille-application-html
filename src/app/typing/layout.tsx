@@ -1,11 +1,13 @@
+import { ThemeProvider } from "@/components/theme-provider";
+
 interface TypingLayoutProps {
   children: React.ReactNode;
 }
 
 export default function RootLayout({ children }: TypingLayoutProps) {
   return (
-    <main className="bg-neutral-100 min-h-screen">
-      <div>{children}</div>
-    </main>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      {children}
+    </ThemeProvider>
   );
 }
