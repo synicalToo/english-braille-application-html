@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,6 +9,8 @@ import { useTheme } from "next-themes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import BrailleBox from "@/components/braille-box";
+import BrailleData from "@/components/data/braille-data";
 
 const Sidebar = () => {
   const [openItems, setOpenItems] = useState<string[]>([]);
@@ -25,26 +27,29 @@ const Sidebar = () => {
       </div>
       <div className="flex-1">
         <Accordion type="multiple" value={openItems} onValueChange={setOpenItems} className="w-full">
-          {["item-1", "item-2", "item-3", "item-4", "item-5", "item-6"].map((item, index) => (
-            <AccordionItem key={item} value={item} className="w-full">
+          {BrailleData.map((section) => (
+            <AccordionItem key={section.heading} value={section.heading} className="w-full border-b dark:border-gray-600">
               <AccordionTrigger
-                onClick={() => toggleItem(item)}
+                onClick={() => toggleItem(section.heading)}
                 className={cn(
                   "custom-accordion-trigger text-lg font-semibold p-3 w-full",
-                  `${openItems.includes(item) ? "bg-blue-300" : "bg-white"}`,
-                  `${openItems.includes(item) ? "dark:bg-gray-700" : "dark:bg-gray-800"}`
+                  `${openItems.includes(section.heading) ? "bg-blue-300" : "bg-white"}`,
+                  `${openItems.includes(section.heading) ? "dark:bg-gray-700" : "dark:bg-gray-800"}`
                 )}
               >
-                Section {index + 1}
+                {section.heading}
               </AccordionTrigger>
               <AccordionContent className="w-full">
-                <ul className="pl-6 py-2 w-full">
-                  {[1, 2, 3, 4, 5, 6].map((subItem) => (
-                    <li key={subItem} className="py-1">
-                      Item {subItem + index * 3}
-                    </li>
+                <div className="p-4 flex flex-wrap">
+                  {section.items.map((item) => (
+                    <div key={item.title} className="flex flex-col mb-2 mr-4 bg-blue-200">
+                      <span className="text-lg font-bold">{item.title}</span>
+                      <BrailleBox>
+                        <span className="text-black text-2xl">{item.content}</span>
+                      </BrailleBox>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -59,46 +64,59 @@ const MainContent = () => {
   const [showSettings, setShowSettings] = useState(false);
   const { theme, setTheme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [mounted, setMounted] = useState(false); // New state to track if the component is mounted
+
+  useEffect(() => {
+    setMounted(true); // Set mounted to true after the component mounts
+  }, []);
+
+  if (!mounted) return null; // Prevent rendering until mounted
 
   return (
     <div className="flex flex-col">
-      <div className="flex-grow p-4 border border-gray-300 rounded">
-        <h2 className="text-4xl text-center">Braille Typing Game</h2>
+      <div className="flex-grow p-4 border rounded border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800">
+        <h2 className="text-4xl text-center pb-3 text-black dark:text-white">Braille Typing Game</h2>
 
         <div className="mb-4">
           <canvas ref={canvasRef} className="w-full" width={800} height={600} />
         </div>
 
         <div className="flex items-center justify-center space-x-10">
-          <Button>Free Typing</Button>
-          <Button>Start Game</Button>
+          <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white ">Free Typing</Button>
+          <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white">Start Game</Button>
         </div>
       </div>
       <div className="p-4 flex justify-center items-center space-x-5">
-        <Dialog open={showKeyboardMap} onOpenChange={setShowKeyboardMap}>
-          <DialogTrigger asChild>
-            <Button className="mr-2">Keyboard Map</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <img src="/path-to-keyboard-map-image.png" alt="Keyboard Map" />
-          </DialogContent>
-        </Dialog>
+        <Sheet open={showKeyboardMap} onOpenChange={setShowKeyboardMap} modal>
+          <SheetTrigger asChild>
+            <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white">Keyboard Map</Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="flex flex-col items-start p-4">
+            <h2 className="text-lg font-semibold mb-2 text-black dark:text-white">Keyboard Map</h2>
+            <div className="flex justify-center w-full">
+              <img src="/keyboard_mapping.png" alt="Keyboard Map" className="max-w-full h-auto" />
+            </div>
+          </SheetContent>
+        </Sheet>
+
         <Sheet open={showSettings} onOpenChange={setShowSettings}>
           <SheetTrigger asChild>
-            <Button className="mr-2">Settings</Button>
+            <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white">Settings</Button>
           </SheetTrigger>
           <SheetContent>
-            <h2 className="text-lg font-semibold mb-4">Settings</h2>
+            <h2 className="text-lg font-semibold mb-4 text-black dark:text-white">Settings</h2>
             {/* Add your settings options here */}
           </SheetContent>
         </Sheet>
-        {/* <Switch checked={theme === "dark"} onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")} /> */}
+
         <Switch
           id="theme-toggle"
           checked={theme === "dark"}
           onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
         />
-        <label htmlFor="theme-toggle">{theme === "dark" ? "Dark Mode" : "Light Mode"}</label>
+        <label htmlFor="theme-toggle" className="text-lg text-black dark:text-white">
+          {theme === "dark" ? "Dark Mode" : "Light Mode"}
+        </label>
       </div>
     </div>
   );

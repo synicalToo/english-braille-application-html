@@ -1,26 +1,16 @@
 import React from "react";
+import localFont from "next/font/local";
+import { cn } from "@/lib/utils";
 
 interface BrailleBoxProps {
   children: React.ReactNode;
 }
 
+const brailleFont = localFont({ src: "../app/fonts/sixbraille20.woff2" });
+
 export default function BrailleBox({ children }: BrailleBoxProps) {
   return (
-    <div
-      style={{
-        padding: "0px", // Increase padding
-        margin: "0px",
-        backgroundColor: "#FFFFFF",
-        border: "1px solid #777",
-        borderRadius: "2px",
-        boxShadow: "1px 2px 2px #ddd",
-        fontFamily: "sixbraille20",
-        fontSize: "150%", // Increase font size
-        display: "flex", // Flexbox for centering text
-        alignItems: "center", // Center vertically
-        justifyContent: "center", // Center horizontally
-      }}
-    >
+    <div className={cn("p-0 m-0 text-sm bg-white border border-gray-600 rounded-sm shadow-md", brailleFont.className)}>
       {children}
     </div>
   );
