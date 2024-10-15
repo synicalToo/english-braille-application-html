@@ -74,30 +74,90 @@ const MainContent = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageSrc, setImageSrc] = useState("/perkins_brailler.png");
   const [showButtons, setShowButtons] = useState(true);
+  const [currentMode, setCurrentMode] = useState<"none" | "game" | "freeTyping">("none");
+  const [countdownInterval, setCountdownInterval] = useState<NodeJS.Timeout | null>(null);
+
+  const clearCanvas = () => {
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+    }
+  };
 
   const handleStartGame = () => {
-    startGame(canvasRef, setImageSrc);
+    clearCanvas();
     setShowButtons(false);
+    setCurrentMode("game");
+    setImageSrc("");
+    startCountdown(3);
   };
 
   const handleFreeTyping = () => {
-    startFreeTyping(canvasRef, setImageSrc);
+    clearCanvas();
     setShowButtons(false);
+    setCurrentMode("freeTyping");
+    setImageSrc("/brailler_paper.png");
+    startFreeTyping(canvasRef, setImageSrc);
   };
 
   const handleClose = () => {
+    clearCanvas();
     setShowButtons(true);
     setImageSrc("/perkins_brailler.png");
+    setCurrentMode("none");
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      setCountdownInterval(null);
+    }
+  };
+
+  const startCountdown = (seconds: number) => {
+    let remainingTime = seconds;
+
+    drawCountdown(remainingTime);
+
+    const interval = setInterval(() => {
+      if (remainingTime > 0) {
+        clearCanvas();
+        drawCountdown(remainingTime);
+        remainingTime--;
+      } else {
+        clearInterval(interval);
+        setImageSrc("/brick.jpg");
+        startGame(canvasRef, setImageSrc);
+      }
+    }, 1000);
+
+    setCountdownInterval(interval);
+  };
+
+  const drawCountdown = (time: number) => {
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        ctx.font = "48px sans-serif";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText(time.toString(), canvasRef.current.width / 2, canvasRef.current.height / 2);
+      }
+    }
   };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "g") {
-        handleStartGame();
-      } else if (event.key === "e") {
-        handleFreeTyping();
-      } else if (event.key === "x") {
-        handleClose();
+      if (currentMode === "none") {
+        if (event.key === "g") {
+          handleStartGame();
+        } else if (event.key === "e") {
+          handleFreeTyping();
+        }
+      } else if (currentMode === "game" || currentMode === "freeTyping") {
+        if (event.key === "x") {
+          handleClose();
+        }
       }
     };
 
@@ -106,7 +166,7 @@ const MainContent = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [currentMode]);
 
   return (
     <div className="flex flex-col relative">
@@ -119,7 +179,7 @@ const MainContent = () => {
         <h2 className="text-4xl text-center pb-3 text-black dark:text-white">Braille Typing Game</h2>
 
         <div className="mb-4">
-          <Canvas imageSrc={imageSrc} />
+          <Canvas imageSrc={imageSrc} ref={canvasRef} />
         </div>
 
         {showButtons && (
