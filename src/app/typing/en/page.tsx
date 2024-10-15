@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
@@ -12,6 +12,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 import BrailleBox from "@/components/braille-box";
 import BrailleData from "@/components/data/braille-data";
+import Canvas from "@/components/canvas";
+import { startGame, startFreeTyping } from "@/utils/script";
 
 const Sidebar = () => {
   const [openItems, setOpenItems] = useState<string[]>([]);
@@ -21,7 +23,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="h-full flex flex-col w-full">
+    <div className="h-full flex flex-col">
       <div className="p-4 flex items-center justify-center">
         <Image src="/logo.png" alt="AT&D Lab Logo" width={36} height={36} className="mr-2" />
         <a href="https://atdlab.jp/index.html#contact" className="text-lg font-semibold">
@@ -36,8 +38,7 @@ const Sidebar = () => {
                 onClick={() => toggleItem(section.heading)}
                 className={cn(
                   "custom-accordion-trigger text-lg font-semibold p-3 w-full hover:border-4 hover:border-blue-300",
-                  `${openItems.includes(section.heading) ? "bg-blue-200" : "bg-white"}`,
-                  `${openItems.includes(section.heading) ? "dark:bg-gray-700" : "dark:bg-gray-700"}`
+                  `${openItems.includes(section.heading) ? "bg-blue-200 dark:bg-gray-700" : "bg-white dark:bg-gray-700"}`
                 )}
               >
                 {section.heading}
@@ -45,11 +46,15 @@ const Sidebar = () => {
               <AccordionContent className="w-full">
                 <div className="p-4 flex flex-wrap">
                   {section.items.map((item) => (
-                    <div key={item.title} className="flex flex-col mb-2 mr-4 bg-blue-200">
-                      <span className="text-lg font-bold">{item.title}</span>
-                      <BrailleBox>
-                        <span className="text-black text-2xl">{item.content}</span>
-                      </BrailleBox>
+                    <div key={item.title} className={cn("flex flex-col mb-2", item.className)}>
+                      <span className="text-base font-bold text-center bg-gray-200">{item.title}</span>
+                      <div className="flex p-2 items-center justify-center">
+                        {item.content.split("").map((char, index) => (
+                          <BrailleBox key={index}>
+                            <span className="text-black text-2xl">{char}</span>
+                          </BrailleBox>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -67,27 +72,66 @@ const MainContent = () => {
   const [showSettings, setShowSettings] = useState(false);
   const { theme, setTheme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mounted, setMounted] = useState(false); // New state to track if the component is mounted
+  const [imageSrc, setImageSrc] = useState("/perkins_brailler.png");
+  const [showButtons, setShowButtons] = useState(true);
+
+  const handleStartGame = () => {
+    startGame(canvasRef, setImageSrc);
+    setShowButtons(false);
+  };
+
+  const handleFreeTyping = () => {
+    startFreeTyping(canvasRef, setImageSrc);
+    setShowButtons(false);
+  };
+
+  const handleClose = () => {
+    setShowButtons(true);
+    setImageSrc("/perkins_brailler.png");
+  };
 
   useEffect(() => {
-    setMounted(true); // Set mounted to true after the component mounts
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "g") {
+        handleStartGame();
+      } else if (event.key === "e") {
+        handleFreeTyping();
+      } else if (event.key === "x") {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
-  if (!mounted) return null; // Prevent rendering until mounted
-
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
+      {!showButtons && (
+        <button onClick={handleClose} className="absolute top-4 left-4 bg-red-500 text-white p-2 rounded">
+          Close (x)
+        </button>
+      )}
       <div className="flex-grow p-4 border rounded border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
         <h2 className="text-4xl text-center pb-3 text-black dark:text-white">Braille Typing Game</h2>
 
         <div className="mb-4">
-          <canvas ref={canvasRef} className="w-full" width={800} height={600} />
+          <Canvas imageSrc={imageSrc} />
         </div>
 
-        <div className="flex items-center justify-center space-x-10">
-          <Button className="text-lg bg-red-400 text-black dark:bg-yellow-300">Free Typing (e)</Button>
-          <Button className="text-lg bg-gray-300 text-black dark:bg-white">Start Game (g)</Button>
-        </div>
+        {showButtons && (
+          <div className="flex items-center justify-center space-x-10">
+            <Button onClick={handleFreeTyping} className="text-lg bg-red-400 text-black dark:bg-yellow-300">
+              Free Typing (e)
+            </Button>
+            <Button onClick={handleStartGame} className="text-lg bg-gray-300 text-black dark:bg-white">
+              Start Game (g)
+            </Button>
+          </div>
+        )}
       </div>
       <div className="p-4 flex justify-center items-center space-x-5">
         <Sheet open={showKeyboardMap} onOpenChange={setShowKeyboardMap} modal>
@@ -127,14 +171,13 @@ const MainContent = () => {
 
 const Page = () => {
   return (
-    <div className="flex h-screen bg-background bg-white dark:bg-gray-700">
-      <div className="flex-grow max-w-[600px] min-w-[200px]">
+    <div className="flex h-screen flex-col lg:flex-row bg-background bg-white dark:bg-gray-700">
+      <div className="flex-grow max-w-[600px] min-w-[600px]">
         <Sidebar />
       </div>
-      <div className="w-[800px] p-4">
+      <div className="w-full lg:w-[800px] p-4">
         <MainContent />
       </div>
-      <div className="w-64"></div>
     </div>
   );
 };
