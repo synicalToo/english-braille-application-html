@@ -232,10 +232,10 @@ const MainContent = () => {
 const Page = () => {
   return (
     <div className="flex h-screen flex-col lg:flex-row bg-background bg-white dark:bg-gray-700">
-      <div className="flex-grow max-w-[600px] min-w-[600px]">
+      <div className="flex-grow max-w-[500px] min-w-[500px]">
         <Sidebar />
       </div>
-      <div className="w-full lg:w-[800px] p-4">
+      <div className="w-full lg:w-[900px] p-4">
         <MainContent />
       </div>
     </div>

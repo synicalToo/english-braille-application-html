@@ -30,7 +30,11 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(({ imageSrc }, ref) =>
 
   if (!mounted) return null;
 
-  return <canvas ref={ref} className="w-full" width={800} height={600} />;
+  return (
+    <div className="relative w-[800px] h-[600px]">
+      <canvas ref={ref} className="absolute top-0 left-0" width={800} height={600} />
+    </div>
+  );
 });
 
 export default Canvas;
