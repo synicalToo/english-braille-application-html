@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "next-themes";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Image from "next/image";
+import { useTheme } from "next-themes";
+
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 import BrailleBox from "@/components/braille-box";
 import BrailleData from "@/components/data/braille-data";
 
@@ -23,18 +24,20 @@ const Sidebar = () => {
     <div className="h-full flex flex-col w-full">
       <div className="p-4 flex items-center justify-center">
         <Image src="/logo.png" alt="AT&D Lab Logo" width={36} height={36} className="mr-2" />
-        <span className="text-lg font-semibold">AT&D Lab</span>
+        <a href="https://atdlab.jp/index.html#contact" className="text-lg font-semibold">
+          AT&D Lab.
+        </a>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 px-3 ">
         <Accordion type="multiple" value={openItems} onValueChange={setOpenItems} className="w-full">
           {BrailleData.map((section) => (
             <AccordionItem key={section.heading} value={section.heading} className="w-full border-b dark:border-gray-600">
               <AccordionTrigger
                 onClick={() => toggleItem(section.heading)}
                 className={cn(
-                  "custom-accordion-trigger text-lg font-semibold p-3 w-full",
-                  `${openItems.includes(section.heading) ? "bg-blue-300" : "bg-white"}`,
-                  `${openItems.includes(section.heading) ? "dark:bg-gray-700" : "dark:bg-gray-800"}`
+                  "custom-accordion-trigger text-lg font-semibold p-3 w-full hover:border-4 hover:border-blue-300",
+                  `${openItems.includes(section.heading) ? "bg-blue-200" : "bg-white"}`,
+                  `${openItems.includes(section.heading) ? "dark:bg-gray-700" : "dark:bg-gray-700"}`
                 )}
               >
                 {section.heading}
@@ -74,7 +77,7 @@ const MainContent = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="flex-grow p-4 border rounded border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800">
+      <div className="flex-grow p-4 border rounded border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
         <h2 className="text-4xl text-center pb-3 text-black dark:text-white">Braille Typing Game</h2>
 
         <div className="mb-4">
@@ -82,8 +85,8 @@ const MainContent = () => {
         </div>
 
         <div className="flex items-center justify-center space-x-10">
-          <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white ">Free Typing</Button>
-          <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white">Start Game</Button>
+          <Button className="text-lg bg-red-400 text-black dark:bg-yellow-300">Free Typing (e)</Button>
+          <Button className="text-lg bg-gray-300 text-black dark:bg-white">Start Game (g)</Button>
         </div>
       </div>
       <div className="p-4 flex justify-center items-center space-x-5">
@@ -91,7 +94,7 @@ const MainContent = () => {
           <SheetTrigger asChild>
             <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white">Keyboard Map</Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="flex flex-col items-start p-4">
+          <SheetContent side="bottom" className="flex flex-col items-start p-4 bg-white dark:bg-gray-800">
             <h2 className="text-lg font-semibold mb-2 text-black dark:text-white">Keyboard Map</h2>
             <div className="flex justify-center w-full">
               <img src="/keyboard_mapping.png" alt="Keyboard Map" className="max-w-full h-auto" />
@@ -103,7 +106,7 @@ const MainContent = () => {
           <SheetTrigger asChild>
             <Button className="text-lg bg-blue-500 text-black dark:bg-blue-600 dark:text-white">Settings</Button>
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent className="bg-white dark:bg-gray-800">
             <h2 className="text-lg font-semibold mb-4 text-black dark:text-white">Settings</h2>
             {/* Add your settings options here */}
           </SheetContent>
@@ -124,7 +127,7 @@ const MainContent = () => {
 
 const Page = () => {
   return (
-    <div className="flex h-screen bg-background bg-white dark:bg-gray-800">
+    <div className="flex h-screen bg-background bg-white dark:bg-gray-700">
       <div className="flex-grow max-w-[600px] min-w-[200px]">
         <Sidebar />
       </div>
