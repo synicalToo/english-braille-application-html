@@ -22,10 +22,16 @@
       "@/lib/*": ["./src/lib/*"],
       "@/utils/*": ["./src/utils/*"],
       "@/config/*": ["./src/config/*"],
+
+      "@/components/*": ["./src/components/*"],
       "@/ui/*": ["./src/components/ui/*"],
       "@/data/*": ["./src/components/data/*"],
       "@/screens/*": ["./src/components/screens/*"],
-      "@/components/*": ["./src/components/*"]
+
+      "@/i18n/*": ["./src/i18n/*"],
+      "@/locales/*": ["./locales/*"],
+
+      "@/fonts/*": ["./src/app/fonts/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

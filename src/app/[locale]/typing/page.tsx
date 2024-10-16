@@ -1,5 +1,5 @@
-import { MainContent } from "@/components/screens/main-content";
-import { Sidebar } from "@/components/screens/sidebar";
+import { MainContent } from "@/screens/main-content";
+import { Sidebar } from "@/screens/sidebar";
 
 export default function Page() {
   return (
