@@ -32,7 +32,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(({ imageSrc }, ref) =>
 
   return (
     <div className="relative w-[800px] h-[600px]">
-      <canvas ref={ref} className="absolute top-0 left-0" width={800} height={600} />
+      <canvas id="main-canvas" ref={ref} className="absolute top-0 left-0" width={800} height={600} />
     </div>
   );
 });

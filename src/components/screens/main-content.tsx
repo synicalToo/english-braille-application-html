@@ -7,86 +7,40 @@ import { Button } from "@/ui/button";
 import { Switch } from "@/ui/switch";
 import { Sheet, SheetContent, SheetTrigger } from "@/ui/sheet";
 
-import Canvas from "@/components/canvas";
-import { startGame, startFreeTyping } from "@/utils/script";
+import { startGame, startFreeTyping, initializeCanvas, drawImage } from "@/utils/script";
 
 export const MainContent = () => {
   const [showKeyboardMap, setShowKeyboardMap] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { theme, setTheme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [imageSrc, setImageSrc] = useState("/perkins_brailler.png");
   const [showButtons, setShowButtons] = useState(true);
   const [currentMode, setCurrentMode] = useState<"none" | "game" | "freeTyping">("none");
-  const [countdownInterval, setCountdownInterval] = useState<NodeJS.Timeout | null>(null);
 
-  const clearCanvas = () => {
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-      }
-    }
-  };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    initializeCanvas(canvas); // Initialize the canvas context
+
+    // Load and draw the default image
+    drawImage("/perkins_brailler.png");
+
+  }, []);
 
   const handleStartGame = () => {
-    clearCanvas();
     setShowButtons(false);
     setCurrentMode("game");
-    setImageSrc("");
-    startCountdown(3);
+    startGame();
   };
 
   const handleFreeTyping = () => {
-    clearCanvas();
     setShowButtons(false);
     setCurrentMode("freeTyping");
-    setImageSrc("/brailler_paper.png");
-    startFreeTyping(canvasRef, setImageSrc);
+    startFreeTyping();
   };
 
   const handleClose = () => {
-    clearCanvas();
     setShowButtons(true);
-    setImageSrc("/perkins_brailler.png");
     setCurrentMode("none");
-    if (countdownInterval) {
-      clearInterval(countdownInterval);
-      setCountdownInterval(null);
-    }
-  };
-
-  const startCountdown = (seconds: number) => {
-    let remainingTime = seconds;
-
-    drawCountdown(remainingTime);
-
-    const interval = setInterval(() => {
-      if (remainingTime > 0) {
-        clearCanvas();
-        drawCountdown(remainingTime);
-        remainingTime--;
-      } else {
-        clearInterval(interval);
-        setImageSrc("/brick.jpg");
-        startGame(canvasRef, setImageSrc);
-      }
-    }, 1000);
-
-    setCountdownInterval(interval);
-  };
-
-  const drawCountdown = (time: number) => {
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        ctx.font = "48px sans-serif";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.fillText(time.toString(), canvasRef.current.width / 2, canvasRef.current.height / 2);
-      }
-    }
   };
 
   useEffect(() => {
@@ -122,7 +76,7 @@ export const MainContent = () => {
         <h2 className="text-4xl text-center pb-3 text-black dark:text-white">Braille Typing Game</h2>
 
         <div className="mb-4">
-          <Canvas imageSrc={imageSrc} ref={canvasRef} />
+          <canvas id="main-canvas" ref={canvasRef} className="border" width={800} height={600} />
         </div>
 
         {showButtons && (
