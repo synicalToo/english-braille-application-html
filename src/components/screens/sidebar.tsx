@@ -3,11 +3,11 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/ui/accordion";
 import { useState } from "react";
 
-import BrailleBox from "@/components/braille-box";
-import BrailleData from "@/components/data/braille-data";
+import { BrailleBox } from "@/components/braille-box";
+import { BrailleData } from "@/data/braille-data";
 
 export const Sidebar = () => {
   const [openItems, setOpenItems] = useState<string[]>([]);

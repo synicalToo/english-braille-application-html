@@ -3,9 +3,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/ui/button";
+import { Switch } from "@/ui/switch";
+import { Sheet, SheetContent, SheetTrigger } from "@/ui/sheet";
 
 import Canvas from "@/components/canvas";
 import { startGame, startFreeTyping } from "@/utils/script";
