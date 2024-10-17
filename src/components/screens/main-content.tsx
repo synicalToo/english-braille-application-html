@@ -1,94 +1,36 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider"; // Ensure this path is correct
 
 import { Button } from "@/ui/button";
 import { Switch } from "@/ui/switch";
 import { Sheet, SheetContent, SheetTrigger } from "@/ui/sheet";
 
-import { startGame, startFreeTyping, initializeCanvas, drawImage } from "@/utils/script";
+import { initializeCanvas } from "@/utils/script";
 
 export const MainContent = () => {
   const [showKeyboardMap, setShowKeyboardMap] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme(); // Use the correct hook
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [showButtons, setShowButtons] = useState(true);
-  const [currentMode, setCurrentMode] = useState<"none" | "game" | "freeTyping">("none");
 
   useEffect(() => {
+    console.log("Theme changed to:", theme);
     const canvas = canvasRef.current;
-    initializeCanvas(canvas); // Initialize the canvas context
-
-    // Load and draw the default image
-    drawImage("/perkins_brailler.png");
-
-  }, []);
-
-  const handleStartGame = () => {
-    setShowButtons(false);
-    setCurrentMode("game");
-    startGame();
-  };
-
-  const handleFreeTyping = () => {
-    setShowButtons(false);
-    setCurrentMode("freeTyping");
-    startFreeTyping();
-  };
-
-  const handleClose = () => {
-    setShowButtons(true);
-    setCurrentMode("none");
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (currentMode === "none") {
-        if (event.key === "g") {
-          handleStartGame();
-        } else if (event.key === "e") {
-          handleFreeTyping();
-        }
-      } else if (currentMode === "game" || currentMode === "freeTyping") {
-        if (event.key === "x") {
-          handleClose();
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentMode]);
+    initializeCanvas(canvas, theme || "light");
+  }, [theme]);
 
   return (
     <div className="flex flex-col relative">
-      {!showButtons && (
-        <button onClick={handleClose} className="absolute top-4 left-4 bg-red-500 text-white p-2 rounded">
-          Close (x)
-        </button>
-      )}
-      <div className="flex-grow p-4 border rounded border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
-        <h2 className="text-4xl text-center pb-3 text-black dark:text-white">Braille Typing Game</h2>
-
-        <div className="mb-4">
-          <canvas id="main-canvas" ref={canvasRef} className="border" width={800} height={600} />
-        </div>
-
-        {showButtons && (
-          <div className="flex items-center justify-center space-x-10">
-            <Button onClick={handleFreeTyping} className="text-lg bg-red-400 text-black dark:bg-yellow-300">
-              Free Typing (e)
-            </Button>
-            <Button onClick={handleStartGame} className="text-lg bg-gray-300 text-black dark:bg-white">
-              Start Game (g)
-            </Button>
-          </div>
-        )}
+      <div className="mb-4">
+        <canvas
+          id="canvas"
+          ref={canvasRef}
+          className="border-2 rounded-lg dark:bg-black dark:border-gray-500"
+          width={800}
+          height={600}
+        />
       </div>
       <div className="p-4 flex justify-center items-center space-x-5">
         <Sheet open={showKeyboardMap} onOpenChange={setShowKeyboardMap} modal>
@@ -116,7 +58,7 @@ export const MainContent = () => {
         <Switch
           id="theme-toggle"
           checked={theme === "dark"}
-          onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")} // Toggle theme
         />
         <label htmlFor="theme-toggle" className="text-lg text-black dark:text-white">
           {theme === "dark" ? "Dark Mode" : "Light Mode"}

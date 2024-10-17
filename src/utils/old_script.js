@@ -35,3 +35,10 @@ export const drawImage = (imageSrc) => {
     console.error("Canvas context is not initialized!");
   }
 };
+
+export const drawButton = (btn, name, bg_color, text_color) => {
+  if (context) {
+    context.fillStyle;
+    context.strokeStyle;
+  }
+};
