@@ -61,7 +61,7 @@ export const BrailleUnicodeAlphabet: { [key: string]: string } = {
   "110110": "⠛", // letter G
   "110010": "⠓", // letter H
   "010100": "⠊", // letter I
-  "010110": "⠚", // letter J"
+  "010110": "⠚", // letter J
   "101000": "⠅", // letter K
   "111000": "⠇", // letter L
   "101100": "⠍", // letter M
@@ -71,13 +71,75 @@ export const BrailleUnicodeAlphabet: { [key: string]: string } = {
   "111110": "⠟", // letter Q
   "111010": "⠗", // letter R
   "011100": "⠎", // letter S
-  "011110": "⠞", // letter T"
+  "011110": "⠞", // letter T
   "101001": "⠥", // letter U
   "111001": "⠧", // letter V
   "010111": "⠺", // letter W
   "101101": "⠭", // letter X
   "101111": "⠽", // letter Y
   "101011": "⠵", // letter Z
+};
+
+export const BrailleUnicodeLowerAlphabetMappings: { [key: string]: string } = {
+  "000000": "⠀", // space
+
+  "100000": "a", // letter A
+  "110000": "b", // letter B
+  "100100": "c", // letter C
+  "100110": "d", // letter D
+  "100010": "e", // letter E
+  "110100": "f", // letter F
+  "110110": "g", // letter G
+  "110010": "h", // letter H
+  "010100": "i", // letter I
+  "010110": "j", // letter J
+  "101000": "k", // letter K
+  "111000": "l", // letter L
+  "101100": "m", // letter M
+  "101110": "n", // letter N
+  "101010": "o", // letter O
+  "111100": "p", // letter P
+  "111110": "q", // letter Q
+  "111010": "r", // letter R
+  "011100": "s", // letter S
+  "011110": "t", // letter T
+  "101001": "u", // letter U
+  "111001": "v", // letter V
+  "010111": "w", // letter W
+  "101101": "x", // letter X
+  "101111": "y", // letter Y
+  "101011": "z", // letter Z
+};
+
+export const BrailleUnicodeUpperAlphabetMappings: { [key: string]: string } = {
+  "000000": "⠀", // space
+
+  "100000": "A", // letter A
+  "110000": "B", // letter B
+  "100100": "C", // letter C
+  "100110": "D", // letter D
+  "100010": "E", // letter E
+  "110100": "F", // letter F
+  "110110": "G", // letter G
+  "110010": "H", // letter H
+  "010100": "I", // letter I
+  "010110": "J", // letter J
+  "101000": "K", // letter K
+  "111000": "L", // letter L
+  "101100": "M", // letter M
+  "101110": "N", // letter N
+  "101010": "O", // letter O
+  "111100": "P", // letter P
+  "111110": "Q", // letter Q
+  "111010": "R", // letter R
+  "011100": "S", // letter S
+  "011110": "T", // letter T
+  "101001": "U", // letter U
+  "111001": "V", // letter V
+  "010111": "W", // letter W
+  "101101": "X", // letter X
+  "101111": "Y", // letter Y
+  "101011": "Z", // letter Z
 };
 
 export const BrailleUnicodeNumber: { [key: string]: string } = {
@@ -92,6 +154,20 @@ export const BrailleUnicodeNumber: { [key: string]: string } = {
   "110010": "⠦", // 8
   "010100": "⠔", // 9
   "010110": "⠴", // 0
+};
+
+export const BrailleUnicodeNumberMappings: { [key: string]: string } = {
+  // numbers
+  "100000": "1", // 1
+  "110000": "2", // 2
+  "100100": "3", // 3
+  "100110": "4", // 4
+  "100010": "5", // 5
+  "110100": "6", // 6
+  "110110": "7", // 7
+  "110010": "8", // 8
+  "010100": "9", // 9
+  "010110": "0", // 0
 };
 
 export const BrailleUnicodeIndicators: { [key: string]: string } = {

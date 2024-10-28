@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTheme } from "@/components/theme-provider";
 
 import { Button } from "@/ui/button";
@@ -9,21 +9,19 @@ import { Sheet, SheetContent, SheetTrigger } from "@/ui/sheet";
 
 import { initializeCanvas } from "@/utils/script";
 
-export const MainContent = () => {
+export const MainContent = React.memo(() => {
   const [showKeyboardMap, setShowKeyboardMap] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { theme, setTheme } = useTheme();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    console.log("Theme changed to:", theme);
-    initializeCanvas(theme || "light");
+    initializeCanvas(theme);
   }, [theme]);
 
   return (
     <div className="flex flex-col relative">
       <div className="mb-4">
-        <canvas id="canvas" ref={canvasRef} className="border-2 rounded-lg dark:bg-black dark:border-gray-500" width={800} height={600} />
+        <canvas id="canvas" className="border-2 rounded-lg dark:bg-black dark:border-gray-500" width={800} height={600} />
       </div>
       <div className="p-4 flex justify-center items-center space-x-5">
         <Sheet open={showKeyboardMap} onOpenChange={setShowKeyboardMap} modal>
@@ -55,4 +53,4 @@ export const MainContent = () => {
       </div>
     </div>
   );
-};
+});
