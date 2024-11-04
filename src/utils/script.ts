@@ -1,4 +1,12 @@
-import { BrailleUnicodeAlphabet, BrailleUnicodeIndicators, BrailleUnicodeIndicatorsMappings, BrailleUnicodeLowerAlphabetMappings, BrailleUnicodeNumberMappings, BrailleUnicodeUpperAlphabetMappings } from "@/components/data/braille-data";
+import {
+  BrailleUnicodeAlphabet,
+  BrailleUnicodeIndicators,
+  BrailleUnicodeIndicatorsMappings,
+  BrailleUnicodeLowerAlphabetMappings,
+  BrailleUnicodeNumberMappings,
+  BrailleUnicodeUpperAlphabetMappings,
+  TextToSpeechMappings,
+} from "@/components/data/braille-data";
 import { BeginnersWordList } from "@/components/data/word-list";
 import { TypingMode, BtnPositions, ColorPalette, GameScreen } from "@/config/constants";
 
@@ -7,6 +15,7 @@ let blinkInterval: NodeJS.Timeout | undefined;
 
 var correct: number = 0;
 var incorrect: number = 0;
+var memo_line: number = 0;
 var current_theme: string;
 var cursor_position: number = 0;
 
@@ -20,10 +29,21 @@ const max_characters: number = 17;
 const key_state: boolean[] = new Array(7).fill(false);
 const key_buf: boolean[] = new Array(7).fill(false);
 const dot: string[] = new Array(6).fill("0");
-const braille_lines = Array();
 const log_typing_mode: number[] = new Array();
 const log_character: string[] = new Array();
 const log_input: string[] = new Array();
+
+const braille_lines = Array();
+const memo_braille: string[] = Array();
+const memo_character: string[] = Array();
+
+const images: { [key: string]: HTMLImageElement } = {};
+
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  images.brick = new Image();
+  images.brailler_paper = new Image();
+  images.perkins_brailler = new Image();
+}
 
 const clearCanvas = (): void => {
   if (context) {
@@ -39,12 +59,19 @@ const clearkeyStates = (): void => {
   }
 };
 
-function clearBraille(position: number) {
+const clearBraille = (position: number): void => {
   if (context) {
     // console.log("Clearing braille at position: ", position);
     context.clearRect(65 + position * 40, context_height - 190, 35, 48);
   }
-}
+};
+
+const clearCharacter = (position: number): void => {
+  if (context) {
+    context.clearRect(58 + position * 40, context_height - 130, 40, 30);
+    log_character[position] = " ";
+  }
+};
 
 const createRoundRectPath = (context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number): void => {
   context.beginPath();
@@ -63,24 +90,6 @@ const createRoundRectPath = (context: CanvasRenderingContext2D, x: number, y: nu
 const fillRoundRect = (context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number): void => {
   createRoundRectPath(context, x, y, width, height, radius);
   context.fill();
-};
-
-const drawImage = (imageSrc: string, x: number, y: number, width: number, height: number): void => {
-  if (context) {
-    // console.log("Drawing image: ", imageSrc);
-    const img = new Image();
-    img.src = imageSrc;
-
-    img.onload = () => {
-      if (context) {
-        context.drawImage(img, x, y, width, height);
-      } else {
-        console.error("Canvas context is not initialized!"); // Handle the case if context is null
-      }
-    };
-  } else {
-    console.error("Canvas context is not initialized!");
-  }
 };
 
 const drawButton = (btn: { x: number; y: number; width: number; height: number }, name: string, bg_color: string, text_color: string): void => {
@@ -121,6 +130,51 @@ const drawBrailleDot = (x: number, y: number, radius: number, color: string, sta
       context.fill();
     }
   }
+};
+
+const displayTextOnBoard = (): void => {
+  var i: number, n: number;
+  var bstr: string = "";
+  var jstr: string = "";
+  var sstr: string = "";
+
+  for (i = 0; i < cursor_position; i++) {
+    if (BrailleUnicodeAlphabet[log_input[i]] != undefined) bstr += BrailleUnicodeAlphabet[log_input[i]];
+
+    if (log_character[i] != undefined && log_character[i] != " ") {
+      jstr = jstr + log_character[i];
+      if (log_character[i] in TextToSpeechMappings) {
+        sstr = sstr + TextToSpeechMappings[log_character[i]];
+      } else {
+        sstr = sstr + log_character[i];
+      }
+    }
+  }
+
+  memo_braille[memo_line] = bstr;
+  memo_character[memo_line] = jstr;
+
+  if (context) {
+    context.drawImage(images.brailler_paper, 10, 100, context_width - 20, 290);
+
+    context.fillStyle = ColorPalette.default.gray4;
+
+    for (i = memo_line, n = 0; n < 6; i--, n++) {
+      if (i < 0) break;
+      context.font = "normal 8pt Arial";
+      context.fillStyle = "#FFFFFF";
+      context.fillText(memo_character[i], 195, 300 - n * 30 + 10);
+
+      context.font = "normal 24pt Arial";
+      context.fillStyle = "#000000";
+      context.fillText(memo_braille[i], 190, 300 - n * 30);
+    }
+  }
+
+  memo_line++;
+  log_typing_mode.length = 0;
+  log_input.length = 0;
+  log_character.length = 0;
 };
 
 const displayBraille = (x: number, y: number, color: string): void => {
@@ -167,8 +221,7 @@ const displayCharacter = (x: number, y: number, color: string): void => {
   }
 
   if (context) {
-    if (character != " ") {
-      console.log(character);
+    if (character != " " && character != undefined) {
       context.font = "bold 16pt Arial";
       context.fillStyle = color;
 
@@ -414,6 +467,7 @@ const onKeyUp = (event: KeyboardEvent): void => {
           clearBraille(cursor_position);
           --cursor_position;
           clearBraille(cursor_position);
+          clearCharacter(cursor_position);
 
           showCursor();
           showFooter();
@@ -421,6 +475,14 @@ const onKeyUp = (event: KeyboardEvent): void => {
       }
       break;
     case "Enter":
+      displayTextOnBoard();
+
+      if (context) {
+        context.clearRect(5, context_height - 200, context_width - 10, 58);
+        context.clearRect(5, context_height - 130, context_width - 10, 50);
+      }
+
+      cursor_position = 0;
       current_typing_mode = TypingMode.alphabets;
       showCursor();
       showFooter();
@@ -492,7 +554,7 @@ const onKeyUp = (event: KeyboardEvent): void => {
         console.log("current typing mode: ", current_typing_mode);
       }
 
-      displayCharacter(68 + cursor_position * 40, context_height - 110, current_theme === "dark" ? "#FFFFFF" : "ColorPalette.default.gray4");
+      displayCharacter(68 + cursor_position * 40, context_height - 110, current_theme === "dark" ? "#FFFFFF" : ColorPalette.default.gray4);
       displayBraille(70 + cursor_position * 40, context_height - 180, current_theme === "dark" ? ColorPalette.default.yellow2 : ColorPalette.default.gray4);
 
       log_typing_mode[cursor_position] = current_typing_mode;
@@ -519,8 +581,11 @@ const startGame = (): void => {
 };
 
 const startFreeTyping = (): void => {
-  current_screen = GameScreen.free_typing;
   console.log("Free Typing has started!");
+
+  memo_line = 0;
+  cursor_position = 0;
+  current_screen = GameScreen.free_typing;
 
   if (context) {
     clearCanvas();
@@ -531,7 +596,7 @@ const startFreeTyping = (): void => {
     const text_width = context.measureText(main_title).width;
     context.fillText(main_title, context_width / 2 - text_width / 2, 80);
 
-    drawImage("/brailler_paper.png", 10, 100, context_width - 20, 290);
+    context.drawImage(images.brailler_paper, 10, 100, context_width - 20, 290);
 
     const btn_free_typing_back_text = "Back (b)";
     const btn_free_typing_back_bg_color = current_theme === "dark" ? ColorPalette.dark.btn_free_typing_back_bg : ColorPalette.light.btn_free_typing_back_bg;
@@ -572,7 +637,9 @@ const main = (): void => {
     drawButton(BtnPositions.btn_free_typing, "Free Typing (e)", btn_free_typing_bg_color, btn_free_typing_text_color);
     drawButton(BtnPositions.btn_start_game, "Start Game (g)", btn_start_game_bg_color, btn_start_game_text_color);
 
-    drawImage("/perkins_brailler.png", context_width / 2 - 464 / 2, context_height / 2 - 328 / 2, 464, 328);
+    images.perkins_brailler.onload = () => {
+      context?.drawImage(images.perkins_brailler, context_width / 2 - 464 / 2, context_height / 2 - 328 / 2, 464, 328);
+    };
 
     canvas.addEventListener("click", onCanvasCLick);
     window.addEventListener("keydown", onKeyDown);
@@ -600,6 +667,10 @@ export const initializeCanvas = (theme: string): void => {
     context = canvas.getContext("2d");
     context_width = canvas.width;
     context_height = canvas.height;
+
+    images.brick.src = "/brick.jpg";
+    images.brailler_paper.src = "/brailler_paper.png";
+    images.perkins_brailler.src = "/perkins_brailler.png";
   }
 
   main();
