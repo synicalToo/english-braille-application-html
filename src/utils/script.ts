@@ -194,7 +194,7 @@ const displayBraille = (x: number, y: number, color: string): void => {
 };
 
 const displayCharacter = (x: number, y: number, color: string): void => {
-  var character: string = " ";
+  var character: string = "";
   const combined_key = dot.join("");
 
   if (log_input[cursor_position - 1] in BrailleUnicodeIndicatorsMappings && cursor_position > 0) {
@@ -221,6 +221,7 @@ const displayCharacter = (x: number, y: number, color: string): void => {
   }
 
   if (context) {
+    console.log(character);
     if (character != " " && character != undefined) {
       context.font = "bold 16pt Arial";
       context.fillStyle = color;
@@ -637,6 +638,7 @@ const main = (): void => {
     drawButton(BtnPositions.btn_free_typing, "Free Typing (e)", btn_free_typing_bg_color, btn_free_typing_text_color);
     drawButton(BtnPositions.btn_start_game, "Start Game (g)", btn_start_game_bg_color, btn_start_game_text_color);
 
+    context.drawImage(images.perkins_brailler, context_width / 2 - 464 / 2, context_height / 2 - 328 / 2, 464, 328);
     images.perkins_brailler.onload = () => {
       context?.drawImage(images.perkins_brailler, context_width / 2 - 464 / 2, context_height / 2 - 328 / 2, 464, 328);
     };

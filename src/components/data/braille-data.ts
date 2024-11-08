@@ -35,23 +35,25 @@ export const BrailleData: { heading: string; items: { title: string; content: st
   {
     heading: "Numbers",
     items: [
-      { title: "1", content: "⠼⠁" },
-      { title: "2", content: "⠼⠃" },
-      { title: "3", content: "⠼⠉" },
-      { title: "4", content: "⠼⠋" },
-      { title: "5", content: "⠼⠊" },
-      { title: "6", content: "⠼⠡" },
-      { title: "7", content: "⠼⠣" },
-      { title: "8", content: "⠼⠩" },
-      { title: "9", content: "⠼⠫" },
-      { title: "0", content: "⠼⠚" },
+      { title: "1", content: "⠁" },
+      { title: "2", content: "⠃" },
+      { title: "3", content: "⠉" },
+      { title: "4", content: "⠋" },
+      { title: "5", content: "⠊" },
+      { title: "6", content: "⠡" },
+      { title: "7", content: "⠣" },
+      { title: "8", content: "⠩" },
+      { title: "9", content: "⠫" },
+      { title: "0", content: "⠚" },
+
+      { title: "Number Indicator", content: "⠼" },
+      { title: "", content: "" },
+      { title: "Decimal Point", content: "⠲" },
     ],
   },
 ];
 
 export const BrailleUnicodeAlphabet: { [key: string]: string } = {
-  "000000": "⠀", // space
-
   "100000": "⠁", // letter A
   "110000": "⠃", // letter B
   "100100": "⠉", // letter C
@@ -81,7 +83,7 @@ export const BrailleUnicodeAlphabet: { [key: string]: string } = {
 };
 
 export const BrailleUnicodeLowerAlphabetMappings: { [key: string]: string } = {
-  "000000": "⠀", // space
+  "000000": "、", // space
 
   "100000": "a", // letter A
   "110000": "b", // letter B
@@ -112,7 +114,7 @@ export const BrailleUnicodeLowerAlphabetMappings: { [key: string]: string } = {
 };
 
 export const BrailleUnicodeUpperAlphabetMappings: { [key: string]: string } = {
-  "000000": "⠀", // space
+  "000000": "、", // space
 
   "100000": "A", // letter A
   "110000": "B", // letter B
@@ -157,6 +159,8 @@ export const BrailleUnicodeNumber: { [key: string]: string } = {
 };
 
 export const BrailleUnicodeNumberMappings: { [key: string]: string } = {
+  "000000": "、", // space
+
   // numbers
   "100000": "1", // 1
   "110000": "2", // 2

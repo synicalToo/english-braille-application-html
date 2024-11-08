@@ -30,10 +30,7 @@ export const Sidebar = () => {
             <AccordionItem key={section.heading} value={section.heading} className="w-full border-b dark:border-gray-600">
               <AccordionTrigger
                 onClick={() => toggleItem(section.heading)}
-                className={cn(
-                  "custom-accordion-trigger text-lg font-semibold p-3 w-full hover:border-4 hover:border-blue-300",
-                  `${openItems.includes(section.heading) ? "bg-blue-200 dark:bg-gray-800" : "bg-white dark:bg-gray-700"}`
-                )}
+                className={cn("custom-accordion-trigger text-lg font-semibold p-3 w-full hover:border-4 hover:border-blue-300", `${openItems.includes(section.heading) ? "bg-blue-200 dark:bg-gray-800" : "bg-white dark:bg-gray-700"}`)}
               >
                 {section.heading}
               </AccordionTrigger>
@@ -41,7 +38,7 @@ export const Sidebar = () => {
                 <div className="p-4 flex flex-wrap">
                   {section.items.map((item) => (
                     <div key={item.title} className={cn("flex flex-col mb-2", item.className)}>
-                      <span className="text-lg font-bold text-center bg-gray-200 dark:bg-gray-800">{item.title}</span>
+                      <span className="text-lg text-wrap text-center bg-gray-200 dark:bg-gray-800">{item.title}</span>
                       <div className="flex p-2 items-center justify-center">
                         {item.content.split("").map((char, index) => (
                           <BrailleBox key={index}>

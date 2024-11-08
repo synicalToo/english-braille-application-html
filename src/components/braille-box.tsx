@@ -9,9 +9,5 @@ interface BrailleBoxProps {
 const brailleFont = localFont({ src: "../app/fonts/sixbraille20.woff2" });
 
 export function BrailleBox({ children }: BrailleBoxProps) {
-  return (
-    <div className={cn("p-0 m-0 text-sm bg-white border border-gray-600 rounded-sm shadow-md", brailleFont.className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("p-0 m-0 text-sm bg-white border border-gray-600 rounded-sm shadow-md dark:invert", brailleFont.className)}>{children}</div>;
 }
