@@ -1,4 +1,4 @@
-import { ThemeSwitcher } from "@/components/providers/themeSwitcher";
+import { BottomBar } from "@/components/root/bottomBar";
 
 export default function TypingPage() {
   return (
@@ -7,7 +7,7 @@ export default function TypingPage() {
         <h1 className="text-3xl font-bold mb-6">Braille Typing Practice</h1>
         <div className="mb-4">
           <p>Welcome to the Braille typing practice page</p>
-          <ThemeSwitcher />
+          <BottomBar />
         </div>
       </div>
     </main>
