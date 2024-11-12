@@ -9,8 +9,6 @@ export function BottomBar() {
       <KeyboardMappingSheet />
       <SettingsSheet />
       <ThemeSwitcher />
-
-      <hr />
     </div>
   );
 }

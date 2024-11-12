@@ -1,0 +1,76 @@
+export const BrailleEncodings: { [key: string]: { title?: string; symbol?: string; keystroke: string[]; brailleText: string[] }[] } = {
+  // top of the dictionary to make sure indicators are checked first
+  // prevent unnecessary looping of other data
+  indicators: [
+    { title: "Numeric", keystroke: ["001111"], brailleText: ["⠼"] },
+    { title: "Capital letter", keystroke: ["000001"], brailleText: ["⠠"] },
+    { title: "Capital Word", keystroke: ["000001", "000001"], brailleText: ["⠠", "⠠"] },
+    { title: "Capital Passage", keystroke: ["000001", "000001", "000001"], brailleText: ["⠠", "⠠", "⠠"] },
+    { title: "Capital terminator", keystroke: ["000001", "001000"], brailleText: ["⠠", "⠄"] },
+  ],
+
+  alphabet: [
+    { keystroke: ["000000"], brailleText: ["⠀"] },
+
+    { title: "a", keystroke: ["100000"], brailleText: ["⠁"] },
+    { title: "b", keystroke: ["110000"], brailleText: ["⠃"] },
+    { title: "c", keystroke: ["001000"], brailleText: ["⠉"] },
+    { title: "d", keystroke: ["001000"], brailleText: ["⠙"] },
+    { title: "e", keystroke: ["001000"], brailleText: ["⠑"] },
+    { title: "f", keystroke: ["001000"], brailleText: ["⠋"] },
+    { title: "g", keystroke: ["001000"], brailleText: ["⠛"] },
+    { title: "h", keystroke: ["001000"], brailleText: ["⠓"] },
+    { title: "i", keystroke: ["001000"], brailleText: ["⠊"] },
+    { title: "j", keystroke: ["001000"], brailleText: ["⠚"] },
+
+    { title: "k", keystroke: ["001000"], brailleText: ["⠅"] },
+    { title: "l", keystroke: ["001000"], brailleText: ["⠇"] },
+    { title: "m", keystroke: ["001000"], brailleText: ["⠍"] },
+    { title: "n", keystroke: ["001000"], brailleText: ["⠝"] },
+    { title: "o", keystroke: ["001000"], brailleText: ["⠕"] },
+    { title: "p", keystroke: ["001000"], brailleText: ["⠏"] },
+    { title: "q", keystroke: ["001000"], brailleText: ["⠟"] },
+    { title: "r", keystroke: ["001000"], brailleText: ["⠗"] },
+    { title: "s", keystroke: ["001000"], brailleText: ["⠎"] },
+    { title: "t", keystroke: ["001000"], brailleText: ["⠞"] },
+
+    { title: "u", keystroke: ["001000"], brailleText: ["⠥"] },
+    { title: "v", keystroke: ["001000"], brailleText: ["⠧"] },
+    { title: "w", keystroke: ["001000"], brailleText: ["⠺"] },
+    { title: "x", keystroke: ["001000"], brailleText: ["⠭"] },
+    { title: "y", keystroke: ["001000"], brailleText: ["⠽"] },
+    { title: "z", keystroke: ["001000"], brailleText: ["⠵"] },
+  ],
+
+  numbers: [
+    { title: "1", keystroke: ["001000"], brailleText: ["⠁"] },
+    { title: "2", keystroke: ["001000"], brailleText: ["⠃"] },
+    { title: "3", keystroke: ["001000"], brailleText: ["⠉"] },
+    { title: "4", keystroke: ["001000"], brailleText: ["⠙"] },
+    { title: "5", keystroke: ["001000"], brailleText: ["⠑"] },
+    { title: "6", keystroke: ["001000"], brailleText: ["⠋"] },
+    { title: "7", keystroke: ["001000"], brailleText: ["⠛"] },
+    { title: "8", keystroke: ["001000"], brailleText: ["⠓"] },
+    { title: "9", keystroke: ["001000"], brailleText: ["⠊"] },
+    { title: "0", keystroke: ["001000"], brailleText: ["⠚"] },
+  ],
+
+  punctuation: [
+    { title: "Comma", symbol: ",", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Period", symbol: ".", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Apostrophe", symbol: "'", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Colon", symbol: ":", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Dash", symbol: "–", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Long dash", symbol: "––", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Exclmation mark", symbol: "!", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Hyphen", symbol: "-", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Semicolon", symbol: ";", keystroke: ["010000"], brailleText: ["⠂"] },
+    { title: "Ellipsis", symbol: "…", keystroke: ["010011", "010011", "010011"], brailleText: ["⠲", "⠲", "⠲"] },
+    { title: "Forward slash", symbol: "/", keystroke: ["000111", "001100"], brailleText: ["⠂"] },
+    { title: "Backward slash", symbol: "\\", keystroke: ["000111", "100001"], brailleText: ["⠂"] },
+    { title: "Opening outer quotation mark", symbol: "“", keystroke: ["011001"], brailleText: ["⠂"] },
+    { title: "Closing outer quatation mark", symbol: "”", keystroke: ["001011"], brailleText: ["⠂"] },
+    { title: "Opening inner quotation mark", symbol: "‘", keystroke: ["000001", "011001"], brailleText: ["⠂"] },
+    { title: "Closing inner quotation mark", symbol: "’", keystroke: ["000001", "001011"], brailleText: ["⠂"] },
+  ],
+};
