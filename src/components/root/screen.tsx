@@ -5,6 +5,9 @@ import { BrailleFont } from "@/components/customUI/brailleFont";
 import { findBrailleMatch, keyToDotMap, updateBinaryPattern, findCombinedBrailleMatch } from "@/utils/gameplayUtils";
 import { BrailleEncodings } from "@/contents/en/brailleData";
 import { speakText } from "@/utils/audioUtils";
+import { TypingMode } from "@/lib/constants";
+
+const MAX_DISPLAY_ROWS = 5;
 
 export default function Screen() {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
@@ -20,15 +23,13 @@ export default function Screen() {
     }
     return true;
   });
+  const [currentTypingMode, setCurrentTypingMode] = useState<TypingMode>(TypingMode.Alphabets);
 
-  // Helper function to get speech text
   const getSpeechText = (match: any) => {
     if (!match) return "";
-    // Always use title for indicators, punctuation, and symbols
     if (match.title && (match.symbol || match.title.includes("indicator") || match.title.includes("parentheses") || match.title.includes("bracket") || match.title.includes("quotation"))) {
       return match.title;
     }
-    // Use symbol or fallback to title for other cases
     return match.symbol || match.title;
   };
 
@@ -46,12 +47,11 @@ export default function Screen() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         if (keystrokeHistory.length > 0) {
-          // Speak the entire line before pushing to display board
           if (audioEnabled) {
             const lineText = keystrokeHistory.map((entry) => getSpeechText(entry.match)).join(" ");
             speakText(lineText, audioEnabled);
           }
-          setDisplayBoard((prev) => [...prev, keystrokeHistory]);
+          updateDisplayBoard(keystrokeHistory);
           setKeystrokeHistory([]);
         }
         return;
@@ -64,7 +64,6 @@ export default function Screen() {
         return;
       } else if (e.key === " ") {
         e.preventDefault();
-        // Only allow space if it's not the first character
         if (keystrokeHistory.length === 0) return;
 
         const spacePattern = "000000";
@@ -102,7 +101,6 @@ export default function Screen() {
         newPressedKeys.delete(e.key.toLowerCase());
         setPressedKeys(newPressedKeys);
 
-        // Speak immediately when all keys are released
         if (newPressedKeys.size === 0) {
           const currentPatternStr = currentPattern.join("");
           const match = findBrailleMatch(currentPatternStr);
@@ -116,7 +114,6 @@ export default function Screen() {
             }
           }
 
-          // Continue with existing pattern matching logic
           const lastEntry = keystrokeHistory[keystrokeHistory.length - 1];
           if (lastEntry?.match.keystroke.length > 1) {
             const combinedMatch = findCombinedBrailleMatch(lastEntry.pattern, currentPatternStr);
@@ -164,6 +161,13 @@ export default function Screen() {
     };
   }, [pressedKeys, currentPattern, keystrokeHistory, audioEnabled]);
 
+  const updateDisplayBoard = (newRow: Array<{ pattern: string; match: any }>) => {
+    setDisplayBoard((prevBoard) => {
+      const updatedBoard = [...prevBoard, newRow];
+      return updatedBoard.slice(-MAX_DISPLAY_ROWS);
+    });
+  };
+
   const getLineText = (line: Array<{ pattern: string; match: any }>) => {
     return line
       .map((entry) => {
@@ -179,7 +183,6 @@ export default function Screen() {
     <div className="flex flex-col items-center min-h-screen gap-4">
       <div className="text-center">
         <h1 className="text-2xl mb-4">Braille Typing Game</h1>
-        <p className="mb-2">Use keys: S D F J K L | Space for empty character | Press Enter for new line | Backspace to delete</p>
       </div>
 
       <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg min-h-[200px] mb-4">
@@ -221,6 +224,21 @@ export default function Screen() {
           ) : (
             <BrailleFont showCursor>⠀</BrailleFont>
           )}
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-2 p-2 rounded">
+        <div className="flex gap-2">
+          {Object.keys(TypingMode)
+            .filter((key) => isNaN(Number(key)))
+            .map((mode) => (
+              <span
+                key={mode}
+                className={`px-3 py-1 rounded-md text-sm cursor-default
+                  ${currentTypingMode === TypingMode[mode as keyof typeof TypingMode] ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"}`}
+              >
+                {mode}
+              </span>
+            ))}
         </div>
       </div>
     </div>
