@@ -28,7 +28,7 @@ export function Sidebar() {
                           if (entry.title || entry.symbol) {
                             rows[rows.length - 1].push(
                               <td key={index} className="p-2 text-center">
-                                <p className="pb-1">{entry.title}</p>
+                                <p className="pb-1">{entry.symbol || entry.title}</p>
                                 <BrailleFont>{entry.brailleText}</BrailleFont>
                               </td>
                             );
