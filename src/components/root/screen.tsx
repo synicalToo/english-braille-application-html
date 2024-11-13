@@ -64,6 +64,9 @@ export default function Screen() {
         return;
       } else if (e.key === " ") {
         e.preventDefault();
+        // Only allow space if it's not the first character
+        if (keystrokeHistory.length === 0) return;
+
         const spacePattern = "000000";
         const spaceMatch = BrailleEncodings.Alphabets.find((item) => item.keystroke[0] === spacePattern);
         if (spaceMatch) {
@@ -74,9 +77,9 @@ export default function Screen() {
               match: spaceMatch,
             },
           ]);
-        }
-        if (audioEnabled) {
-          speakText("space", audioEnabled);
+          if (audioEnabled) {
+            speakText("space", audioEnabled);
+          }
         }
         return;
       }
