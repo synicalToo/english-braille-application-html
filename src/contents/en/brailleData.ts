@@ -75,4 +75,49 @@ export const BrailleEncodings: { [key: string]: { title?: string; symbol?: strin
     { title: "Opening inner quotation mark", symbol: "‘", keystroke: ["000001", "011001"], brailleText: ["⠠", "⠦"] },
     { title: "Closing inner quotation mark", symbol: "’", keystroke: ["000001", "001011"], brailleText: ["⠠", "⠴"] },
   ],
+
+  "grouping punctuation": [
+    { title: "Opening round parentheses", symbol: "(", keystroke: ["000010", "110001"], brailleText: ["⠐", "⠣"] },
+    { title: "Closing round parentheses", symbol: ")", keystroke: ["000010", "001110"], brailleText: ["⠐", "⠜"] },
+    { title: "Opening square bracket", symbol: "[", keystroke: ["000101", "110001"], brailleText: ["⠨", "⠣"] },
+    { title: "Closing square bracket", symbol: "]", keystroke: ["000101", "001110"], brailleText: ["⠨", "⠜"] },
+    { title: "Opening curly bracket", symbol: "{", keystroke: ["000111", "110001"], brailleText: ["⠸", "⠣"] },
+    { title: "Closing curly bracket", symbol: "}", keystroke: ["000111", "001110"], brailleText: ["⠸", "⠜"] },
+    { title: "Opening angle bracket", symbol: "<", keystroke: ["000100", "110001"], brailleText: ["⠈", "⠣"] },
+    { title: "Closing angle bracket", symbol: ">", keystroke: ["000100", "001110"], brailleText: ["⠈", "⠜"] },
+  ],
+
+  "signs of operation and comparison": [
+    { title: "Plus", symbol: "+", keystroke: ["000010", "011010"], brailleText: ["⠐", "⠖"] },
+    { title: "Minus", symbol: "-", keystroke: ["000010", "001001"], brailleText: ["⠐", "⠤"] },
+    { title: "Multiplication", symbol: "×", keystroke: ["000010", "011001"], brailleText: ["⠐", "⠦"] },
+    { title: "Multiplication dot", symbol: "·", keystroke: ["000010", "010011"], brailleText: ["⠐", "⠲"] },
+    { title: "Division", symbol: "÷", keystroke: ["000010", "001100"], brailleText: ["⠐", "⠌"] },
+    { title: "Greater than", symbol: ">", keystroke: ["000100", "001110"], brailleText: ["⠈", "⠜"] },
+    { title: "Less than", symbol: "<", keystroke: ["000100", "110001"], brailleText: ["⠈", "⠣"] },
+    { title: "Equals", symbol: "=", keystroke: ["000010", "011011"], brailleText: ["⠐", "⠶"] },
+  ],
+
+  "currency and measurement": [
+    { title: "Cent", symbol: "¢", keystroke: ["000100", "100100"], brailleText: ["⠈", "⠉"] },
+    { title: "Dollar", symbol: "$", keystroke: ["000100", "011100"], brailleText: ["⠈", "⠎"] },
+    { title: "Euro", symbol: "€", keystroke: ["000100", "100010"], brailleText: ["⠈", "⠑"] },
+    { title: "British pound", symbol: "£", keystroke: ["000100", "111000"], brailleText: ["⠈", "⠇"] },
+    { title: "Feet", symbol: "′", keystroke: ["011011"], brailleText: ["⠶"] },
+    { title: "Inches", symbol: "″", keystroke: ["011011", "011011"], brailleText: ["⠶", "⠶"] },
+  ],
+
+  "special symbols": [
+    { title: "Percentage", symbol: "%", keystroke: ["000101", "001011"], brailleText: ["⠨", "⠴"] },
+    { title: "Degree", symbol: "°", keystroke: ["000110", "010110"], brailleText: ["⠘", "⠚"] },
+    { title: "Angle", symbol: "∠", keystroke: ["000101", "111111"], brailleText: ["⠨", "⠿"] },
+    { title: "Hashtag", symbol: "#", keystroke: ["000111", "100111"], brailleText: ["⠸", "⠹"] },
+    { title: "Ampersand", symbol: "&", keystroke: ["000100", "111101"], brailleText: ["⠈", "⠯"] },
+    { title: "Copyright", symbol: "©", keystroke: ["000110", "100100"], brailleText: ["⠘", "⠉"] },
+    { title: "Trademark", symbol: "™", keystroke: ["000110", "011110"], brailleText: ["⠘", "⠞"] },
+    { title: "Superscript indicator", keystroke: ["001010"], brailleText: ["⠔"] },
+    { title: "Subscript indicator", keystroke: ["010001"], brailleText: ["⠢"] },
+    { title: "Bullet", symbol: "•", keystroke: ["000111", "010011"], brailleText: ["⠸", "⠲"] },
+    { title: "@ sign", symbol: "@", keystroke: ["000100", "100000"], brailleText: ["⠈", "⠁"] },
+  ],
 };
