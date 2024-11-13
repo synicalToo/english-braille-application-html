@@ -1,14 +1,14 @@
 import { BottomBar } from "@/components/root/bottomBar";
+import { Sidebar } from "@/components/root/sidebar";
 
 export default function TypingPage() {
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Braille Typing Practice</h1>
-        <div className="mb-4">
-          <p>Welcome to the Braille typing practice page</p>
-          <BottomBar />
-        </div>
+    <main className="flex flex-col md:flex-row p-4 space-y-4 md:space-y-0 md:space-x-4 overflow-y-auto h-full">
+      <div className="bg-purple-300 w-full md:w-1/4 min-w-[25%] max-w-[25%]">
+        <Sidebar />
+      </div>
+      <div className="bg-red-300 w-full md:w-3/4">
+        <BottomBar />
       </div>
     </main>
   );
