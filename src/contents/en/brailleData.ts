@@ -124,7 +124,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
   ],
 
   //GRADE 2
-  "alphabet wordsigns": [
+  "Alphabet wordsigns": [
     { keystroke: ["000000"], brailleText: "⠀" },
 
     { title: "a", keystroke: ["100000"], brailleText: "⠁" },
@@ -156,7 +156,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "as", keystroke: ["101011"], brailleText: "⠵" },
   ],
 
-  "strong contractions": [
+  "Strong contractions": [
     { title: "and", keystroke: ["111101"], brailleText: "⠯" },
     { title: "for", keystroke: ["111111"], brailleText: "⠿" },
     { title: "of", keystroke: ["111011"], brailleText: "⠷" },
@@ -164,7 +164,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "with", keystroke: ["011111"], brailleText: "⠾" },
   ],
 
-  "strong wordsigns": [
+  "Strong wordsigns": [
     { title: "child", keystroke: ["100001"], brailleText: "⠡" },
     { title: "shall", keystroke: ["100101"], brailleText: "⠩" },
     { title: "this", keystroke: ["100111"], brailleText: "⠹" },
@@ -173,7 +173,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "still", keystroke: ["001100"], brailleText: "⠌" },
   ],
 
-  "strong groupsigns": [
+  "Strong groupsigns": [
     { title: "ch", keystroke: ["100001"], brailleText: "⠡" },
     { title: "sh", keystroke: ["100101"], brailleText: "⠩" },
     { title: "th", keystroke: ["100111"], brailleText: "⠹" },
@@ -188,7 +188,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "ing", keystroke: ["001101"], brailleText: "⠬" },
   ],
 
-  "lower groupsigns": [
+  "Lower groupsigns": [
     { title: "ea", keystroke: ["010000"], brailleText: "⠂" },
     { title: "bb", keystroke: ["011000"], brailleText: "⠆" },
     { title: "cc", keystroke: ["010010"], brailleText: "⠒" },
@@ -202,7 +202,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "in", keystroke: ["001010"], brailleText: "⠔" },
   ],
 
-  "lower wordsigns": [
+  "Lower wordsigns": [
     { title: "be", keystroke: ["011000"], brailleText: "⠆" },
     { title: "enough", keystroke: ["010001"], brailleText: "⠢" },
     { title: "were", keystroke: ["011011"], brailleText: "⠶" },
@@ -211,58 +211,58 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "was", keystroke: ["001011"], brailleText: "⠴" },
   ],
 
-  "initial letter contractions": [
-    { title: "day", keystroke: ["000010", "100110"], brailleText: "" },
-    { title: "ever", keystroke: ["000010", "100010"], brailleText: "" },
-    { title: "father", keystroke: ["000010", "110100"], brailleText: "" },
-    { title: "here", keystroke: ["000010", "110010"], brailleText: "" },
-    { title: "know", keystroke: ["000010", "101000"], brailleText: "" },
-    { title: "lord", keystroke: ["000010", "111000"], brailleText: "" },
-    { title: "mother", keystroke: ["000010", "101100"], brailleText: "" },
-    { title: "name", keystroke: ["", ""], brailleText: "" },
-    { title: "one", keystroke: ["", ""], brailleText: "" },
-    { title: "part", keystroke: ["", ""], brailleText: "" },
-    { title: "question", keystroke: ["", ""], brailleText: "" },
-    { title: "right", keystroke: ["", ""], brailleText: "" },
-    { title: "some", keystroke: ["", ""], brailleText: "" },
-    { title: "time", keystroke: ["", ""], brailleText: "" },
-    { title: "under", keystroke: ["", ""], brailleText: "" },
-    { title: "work", keystroke: ["", ""], brailleText: "" },
-    { title: "young", keystroke: ["", ""], brailleText: "" },
+  "Initial letter contractions": [
+    { title: "day", keystroke: ["000010", "100110"], brailleText: "⠐⠙" },
+    { title: "ever", keystroke: ["000010", "100010"], brailleText: "⠐⠑" },
+    { title: "father", keystroke: ["000010", "110100"], brailleText: "⠐⠋" },
+    { title: "here", keystroke: ["000010", "110010"], brailleText: "⠐⠓" },
+    { title: "know", keystroke: ["000010", "101000"], brailleText: "⠐⠅" },
+    { title: "lord", keystroke: ["000010", "111000"], brailleText: "⠐⠇" },
+    { title: "mother", keystroke: ["000010", "101100"], brailleText: "⠐⠍" },
+    { title: "name", keystroke: ["000010", "101110"], brailleText: "⠐⠝" },
+    { title: "one", keystroke: ["000010", "101010"], brailleText: "⠐⠕" },
+    { title: "part", keystroke: ["000010", "100111"], brailleText: "⠐⠹" },
+    { title: "question", keystroke: ["000010", "111110"], brailleText: "⠐⠟" },
+    { title: "right", keystroke: ["000010", "111010"], brailleText: "⠐⠗" },
+    { title: "some", keystroke: ["000010", "011100"], brailleText: "⠐⠎" },
+    { title: "time", keystroke: ["000010", "011110"], brailleText: "⠐⠞" },
+    { title: "under", keystroke: ["000010", "101001"], brailleText: "⠐⠥" },
+    { title: "work", keystroke: ["000010", "010111"], brailleText: "⠐⠺" },
+    { title: "young", keystroke: ["000010", "101111"], brailleText: "⠐⠽" },
 
-    { title: "there", keystroke: ["", ""], brailleText: "" },
-    { title: "character", keystroke: ["", ""], brailleText: "" },
-    { title: "through", keystroke: ["", ""], brailleText: "" },
-    { title: "where", keystroke: ["", ""], brailleText: "" },
-    { title: "ought", keystroke: ["", ""], brailleText: "" },
-    { title: "upon", keystroke: ["", ""], brailleText: "" },
-    { title: "word", keystroke: ["", ""], brailleText: "" },
-    { title: "these", keystroke: ["", ""], brailleText: "" },
-    { title: "those", keystroke: ["", ""], brailleText: "" },
-    { title: "whose", keystroke: ["", ""], brailleText: "" },
+    { title: "there", keystroke: ["000010", "011100"], brailleText: "⠐⠎" },
+    { title: "character", keystroke: ["000010", "100001"], brailleText: "⠐⠡" },
+    { title: "through", keystroke: ["000010", "100111"], brailleText: "⠐⠹" },
+    { title: "where", keystroke: ["000010", "100011"], brailleText: "⠐⠱" },
+    { title: "ought", keystroke: ["000010", "110011"], brailleText: "⠐⠳" },
+    { title: "upon", keystroke: ["000110", "101001"], brailleText: "⠘⠥" },
+    { title: "word", keystroke: ["000110", "010111"], brailleText: "⠘⠺" },
+    { title: "these", keystroke: ["000110", "011101"], brailleText: "⠘⠮" },
+    { title: "those", keystroke: ["000110", "100111"], brailleText: "⠘⠹" },
+    { title: "whose", keystroke: ["000110", "100011"], brailleText: "⠘⠱" },
 
-    { title: "cannot", keystroke: ["", ""], brailleText: "" },
-    { title: "had", keystroke: ["", ""], brailleText: "" },
-    { title: "many", keystroke: ["", ""], brailleText: "" },
-    { title: "spirit", keystroke: ["", ""], brailleText: "" },
-    { title: "world", keystroke: ["", ""], brailleText: "" },
-    { title: "their", keystroke: ["", ""], brailleText: "" },
+    { title: "cannot", keystroke: ["000111", "100100"], brailleText: "⠸⠉" },
+    { title: "had", keystroke: ["000111", "110010"], brailleText: "⠸⠓" },
+    { title: "many", keystroke: ["000111", "101100"], brailleText: "⠸⠍" },
+    { title: "spirit", keystroke: ["000111", "011100"], brailleText: "⠸⠎" },
+    { title: "world", keystroke: ["000111", "010111"], brailleText: "⠸⠺" },
+    { title: "their", keystroke: ["000111", "011101"], brailleText: "⠸⠮" },
   ],
 
-  "final-letter groupsigns": [
-    { title: "ound", keystroke: ["", ""], brailleText: "" },
-    { title: "ance", keystroke: ["", ""], brailleText: "" },
-    { title: "sion", keystroke: ["", ""], brailleText: "" },
-    { title: "less", keystroke: ["", ""], brailleText: "" },
-    { title: "ount", keystroke: ["", ""], brailleText: "" },
+  "Final-letter groupsigns": [
+    { title: "ound", keystroke: ["000101", "100110"], brailleText: "⠨⠙" },
+    { title: "ance", keystroke: ["000101", "100010"], brailleText: "⠨⠑" },
+    { title: "sion", keystroke: ["000101", "101110"], brailleText: "⠨⠝" },
+    { title: "less", keystroke: ["000101", "011100"], brailleText: "⠨⠎" },
+    { title: "ount", keystroke: ["000101", "011110"], brailleText: "⠨⠞" },
 
-    { title: "ence", keystroke: ["", ""], brailleText: "" },
-    { title: "ong", keystroke: ["", ""], brailleText: "" },
-    { title: "ful", keystroke: ["", ""], brailleText: "" },
-    { title: "tion", keystroke: ["", ""], brailleText: "" },
-    { title: "ness", keystroke: ["", ""], brailleText: "" },
-    { title: "ment", keystroke: ["", ""], brailleText: "" },
-    { title: "ity", keystroke: ["", ""], brailleText: "" },
+    { title: "ence", keystroke: ["000011", "100010"], brailleText: "⠰⠑" },
+    { title: "ong", keystroke: ["000011", "110110"], brailleText: "⠰⠛" },
+    { title: "ful", keystroke: ["000011", "111000"], brailleText: "⠰⠇" },
+    { title: "tion", keystroke: ["000011", "101110"], brailleText: "⠰⠝" },
+    { title: "ness", keystroke: ["000011", "011100"], brailleText: "⠰⠎" },
+    { title: "ment", keystroke: ["000011", "011110"], brailleText: "⠰⠞" },
+    { title: "ity", keystroke: ["000011", "101111"], brailleText: "⠰⠽" },
   ],
 
   //shortform words
