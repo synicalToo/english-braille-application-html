@@ -78,7 +78,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "Closing inner quotation mark", symbol: "’", keystroke: ["000001", "001011"], brailleText: "⠠⠴" },
   ],
 
-  "Grouping punctuation": [
+  "Grouping Punctuation": [
     { title: "Opening round parentheses", symbol: "(", keystroke: ["000010", "110001"], brailleText: "⠐⠣" },
     { title: "Closing round parentheses", symbol: ")", keystroke: ["000010", "001110"], brailleText: "⠐⠜" },
     { title: "Opening square bracket", symbol: "[", keystroke: ["000101", "110001"], brailleText: "⠨⠣" },
@@ -124,7 +124,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
   ],
 
   //GRADE 2
-  "Alphabet wordsigns": [
+  "Alphabet Wordsigns": [
     { keystroke: ["000000"], brailleText: "⠀" },
 
     { title: "a", keystroke: ["100000"], brailleText: "⠁" },
@@ -156,7 +156,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "as", keystroke: ["101011"], brailleText: "⠵" },
   ],
 
-  "Strong contractions": [
+  "Strong Contractions": [
     { title: "and", keystroke: ["111101"], brailleText: "⠯" },
     { title: "for", keystroke: ["111111"], brailleText: "⠿" },
     { title: "of", keystroke: ["111011"], brailleText: "⠷" },
@@ -164,7 +164,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "with", keystroke: ["011111"], brailleText: "⠾" },
   ],
 
-  "Strong wordsigns": [
+  "Strong Wordsigns": [
     { title: "child", keystroke: ["100001"], brailleText: "⠡" },
     { title: "shall", keystroke: ["100101"], brailleText: "⠩" },
     { title: "this", keystroke: ["100111"], brailleText: "⠹" },
@@ -173,7 +173,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "still", keystroke: ["001100"], brailleText: "⠌" },
   ],
 
-  "Strong groupsigns": [
+  "Strong Groupsigns": [
     { title: "ch", keystroke: ["100001"], brailleText: "⠡" },
     { title: "sh", keystroke: ["100101"], brailleText: "⠩" },
     { title: "th", keystroke: ["100111"], brailleText: "⠹" },
@@ -188,7 +188,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "ing", keystroke: ["001101"], brailleText: "⠬" },
   ],
 
-  "Lower groupsigns": [
+  "Lower Groupsigns": [
     { title: "ea", keystroke: ["010000"], brailleText: "⠂" },
     { title: "bb", keystroke: ["011000"], brailleText: "⠆" },
     { title: "cc", keystroke: ["010010"], brailleText: "⠒" },
@@ -202,7 +202,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "in", keystroke: ["001010"], brailleText: "⠔" },
   ],
 
-  "Lower wordsigns": [
+  "Lower Wordsigns": [
     { title: "be", keystroke: ["011000"], brailleText: "⠆" },
     { title: "enough", keystroke: ["010001"], brailleText: "⠢" },
     { title: "were", keystroke: ["011011"], brailleText: "⠶" },
@@ -211,7 +211,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "was", keystroke: ["001011"], brailleText: "⠴" },
   ],
 
-  "Initial letter contractions": [
+  "Initial Letter Contractions": [
     { title: "day", keystroke: ["000010", "100110"], brailleText: "⠐⠙" },
     { title: "ever", keystroke: ["000010", "100010"], brailleText: "⠐⠑" },
     { title: "father", keystroke: ["000010", "110100"], brailleText: "⠐⠋" },
@@ -249,7 +249,7 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "their", keystroke: ["000111", "011101"], brailleText: "⠸⠮" },
   ],
 
-  "Final-letter groupsigns": [
+  "Final-letter Groupsigns": [
     { title: "ound", keystroke: ["000101", "100110"], brailleText: "⠨⠙" },
     { title: "ance", keystroke: ["000101", "100010"], brailleText: "⠨⠑" },
     { title: "sion", keystroke: ["000101", "101110"], brailleText: "⠨⠝" },
