@@ -1,4 +1,4 @@
-import { BrailleEncoding, BrailleEncodings } from "@/contents/en/brailleData";
+import { BrailleEncodingType, BrailleEncodings } from "@/contents/en/brailleData";
 
 export const keyToDotMap: { [key: string]: number } = {
   f: 0,
@@ -20,7 +20,7 @@ export function createBraillePattern(pressedKeys: Set<string>): string {
   return pattern.join("");
 }
 
-export function findBrailleMatch(pattern: string): BrailleEncoding | null {
+export function findBrailleMatch(pattern: string): BrailleEncodingType | null {
   for (const category of Object.values(BrailleEncodings)) {
     const match = category.find((item) => item.keystroke[0] === pattern);
     if (match) return match;
@@ -38,7 +38,7 @@ export function updateBinaryPattern(key: string, currentPattern: string[]): stri
   return currentPattern;
 }
 
-export function findCombinedBrailleMatch(prevPattern: string, currentPattern: string): BrailleEncoding | null {
+export function findCombinedBrailleMatch(prevPattern: string, currentPattern: string): BrailleEncodingType | null {
   const combinedPattern = [prevPattern, currentPattern];
   for (const category of Object.values(BrailleEncodings)) {
     const match = category.find((item) => item.keystroke.length === 2 && item.keystroke[0] === prevPattern && item.keystroke[1] === currentPattern);

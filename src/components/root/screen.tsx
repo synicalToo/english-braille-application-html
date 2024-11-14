@@ -597,7 +597,7 @@ export default function Screen() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen gap-4">
+    <div className="flex flex-col items-center gap-4">
       <div className="text-center">
         <h1 className="text-2xl mb-4">Braille Typing Game</h1>
       </div>

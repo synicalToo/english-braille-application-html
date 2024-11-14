@@ -27,8 +27,8 @@ export function Sidebar() {
                   <div className="flex flex-wrap gap-2 justify-start">
                     {content.map((entry: any, index: number) =>
                       entry.title || entry.symbol ? (
-                        <div key={index} className="flex flex-col items-center min-w-[80px] w-[calc(20%-8px)] p-1">
-                          <p className="pb-1 text-sm">{entry.symbol || entry.title}</p>
+                        <div key={index} className="flex flex-col items-center min-w-[80px] w-[calc(20%-8px)] p-1 h-[80px] justify-between">
+                          <p className="text-sm text-center line-clamp-2 h-[40px] flex items-center">{entry.symbol || entry.title}</p>
                           <BrailleFont>{getUnicodeFromKeystrokes(entry.keystroke)}</BrailleFont>
                         </div>
                       ) : null
