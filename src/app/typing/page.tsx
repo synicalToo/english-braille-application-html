@@ -1,5 +1,6 @@
 import { BottomBar } from "@/components/root/bottomBar";
 import Screen from "@/components/root/screen";
+import { ScreenTwo } from "@/components/root/screen2.0";
 import { Sidebar } from "@/components/root/sidebar";
 
 export default function TypingPage() {
@@ -10,6 +11,10 @@ export default function TypingPage() {
       </div>
       <div className="w-full md:w-3/4">
         <Screen />
+        <br />
+        <br />
+        <br />
+        <ScreenTwo />
         <BottomBar />
       </div>
     </main>
