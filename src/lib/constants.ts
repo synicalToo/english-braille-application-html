@@ -9,5 +9,6 @@ export enum TypingMode {
   "Alphabets",
   "Numbers",
   "Capital",
-  "Caps Lock",
+  "Capital Word",
+  "Capital Passage",
 }
