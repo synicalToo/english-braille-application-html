@@ -1,7 +1,11 @@
 import Image from "next/image";
-import { BrailleEncoding, BrailleEncodings } from "@/contents/en/brailleData";
+import { BrailleEncodings, AllBrailleUnicode } from "@/contents/en/brailleData";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { BrailleFont } from "../customUI/brailleFont";
+
+function getUnicodeFromKeystrokes(keystrokes: string[]): string {
+  return keystrokes.map((key) => AllBrailleUnicode[key]).join("");
+}
 
 export function Sidebar() {
   return (
@@ -20,26 +24,16 @@ export function Sidebar() {
               <AccordionTrigger>{category}</AccordionTrigger>
               <AccordionContent>
                 <div className="w-full">
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      {content
-                        .reduce((rows: any[], entry: BrailleEncoding, index: number) => {
-                          if (index % 5 === 0) rows.push([]);
-                          if (entry.title || entry.symbol) {
-                            rows[rows.length - 1].push(
-                              <td key={index} className="p-2 text-center">
-                                <p className="pb-1">{entry.symbol || entry.title}</p>
-                                <BrailleFont>{entry.brailleText}</BrailleFont>
-                              </td>
-                            );
-                          }
-                          return rows;
-                        }, [])
-                        .map((row, rowIndex) => (
-                          <tr key={rowIndex}>{row}</tr>
-                        ))}
-                    </tbody>
-                  </table>
+                  <div className="flex flex-wrap gap-2 justify-start">
+                    {content.map((entry: any, index: number) =>
+                      entry.title || entry.symbol ? (
+                        <div key={index} className="flex flex-col items-center min-w-[80px] w-[calc(20%-8px)] p-1">
+                          <p className="pb-1 text-sm">{entry.symbol || entry.title}</p>
+                          <BrailleFont>{getUnicodeFromKeystrokes(entry.keystroke)}</BrailleFont>
+                        </div>
+                      ) : null
+                    )}
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
