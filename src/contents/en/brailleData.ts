@@ -265,5 +265,5 @@ export const BrailleEncodings: { [key: string]: BrailleEncoding[] } = {
     { title: "ity", keystroke: ["000011", "101111"], brailleText: "⠰⠽" },
   ],
 
-  //shortform words
+  //Shortform words
 };
