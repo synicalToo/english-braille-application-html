@@ -1,6 +1,5 @@
 export function speakText(text: string, enabled: boolean) {
   if (!enabled || !text || !window.speechSynthesis) return;
-  console.log("tts:", text);
 
   window.speechSynthesis.cancel();
 

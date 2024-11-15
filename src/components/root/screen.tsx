@@ -10,8 +10,8 @@ import { TypingMode } from "@/lib/constants";
 const MAX_DISPLAY_ROWS = 5;
 
 export default function Screen() {
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [currentPattern, setCurrentPattern] = useState<string[]>(Array(6).fill("0"));
+  const [currentUserInput, setCurrentUserInput] = useState<Set<string>>(new Set());
+  const [currentEncodedPattern, setCurrentEncodedPattern] = useState<string[]>(Array(6).fill("0"));
   const [currentMatch, setCurrentMatch] = useState<any>(null);
   const [keystrokeHistory, setKeystrokeHistory] = useState<Array<{ pattern: string; match: any; mode: TypingMode }>>([]);
   const [completedText, setCompletedText] = useState<Array<{ pattern: string; match: any; mode: TypingMode }>>([]);
@@ -254,11 +254,11 @@ export default function Screen() {
         return;
       }
       if (Object.keys(keyToDotMap).includes(e.key.toLowerCase())) {
-        setPressedKeys((prev) => new Set([...Array.from(prev), e.key.toLowerCase()]));
-        setCurrentPattern((prev) => updateBinaryPattern(e.key, prev));
+        setCurrentUserInput((prev) => new Set([...Array.from(prev), e.key.toLowerCase()]));
+        setCurrentEncodedPattern((prev) => updateBinaryPattern(e.key, prev));
 
         // Remove the match finding and setting during typing
-        // const pattern = currentPattern.join("");
+        // const pattern = currentEncodedPattern.join("");
         // const match = findBrailleMatch(pattern);
         // if (match) {
         //   setCurrentMatch(match);
@@ -269,16 +269,16 @@ export default function Screen() {
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === " ") return;
       if (Object.keys(keyToDotMap).includes(e.key.toLowerCase())) {
-        const newPressedKeys = new Set(pressedKeys);
-        newPressedKeys.delete(e.key.toLowerCase());
-        setPressedKeys(newPressedKeys);
+        const newCurrentUserInput = new Set(currentUserInput);
+        newCurrentUserInput.delete(e.key.toLowerCase());
+        setCurrentUserInput(newCurrentUserInput);
 
-        if (newPressedKeys.size === 0) {
-          const currentPatternStr = currentPattern.join("");
-          const initialMatch = findMatchForCurrentMode(currentPatternStr);
+        if (newCurrentUserInput.size === 0) {
+          const currentEncodedPatternStr = currentEncodedPattern.join("");
+          const initialMatch = findMatchForCurrentMode(currentEncodedPatternStr);
 
           // Handle Capital modes activation
-          if (currentPatternStr === "000001" && initialMatch) {
+          if (currentEncodedPatternStr === "000001" && initialMatch) {
             // Get last entries to check for capital indicators
             const lastEntries = keystrokeHistory.slice(-2);
             const capitalIndicators = lastEntries.filter((entry) => entry.pattern === "000001").length;
@@ -322,7 +322,7 @@ export default function Screen() {
               setKeystrokeHistory((prev) => [
                 ...prev,
                 {
-                  pattern: currentPatternStr,
+                  pattern: currentEncodedPatternStr,
                   match: initialMatch,
                   mode: TypingMode.Capital,
                 },
@@ -333,7 +333,7 @@ export default function Screen() {
               if (audioEnabled) speakText("Capital Letter", audioEnabled);
             }
 
-            setCurrentPattern(Array(6).fill("0"));
+            setCurrentEncodedPattern(Array(6).fill("0"));
             setCurrentMatch(null);
             return;
           }
@@ -342,9 +342,9 @@ export default function Screen() {
           if ([TypingMode.Capital, TypingMode["Capital Word"], TypingMode["Capital Passage"]].includes(currentTypingMode)) {
             const isSymbol =
               (initialMatch && "symbol" in initialMatch ? initialMatch.symbol : false) ||
-              BrailleEncodings.Punctuation.some((p) => p.keystroke[0] === currentPatternStr) ||
-              BrailleEncodings["Special Symbols"].some((s) => s.keystroke[0] === currentPatternStr) ||
-              BrailleEncodings["Currency and Measurement"].some((c) => c.keystroke[0] === currentPatternStr);
+              BrailleEncodings.Punctuation.some((p) => p.keystroke[0] === currentEncodedPatternStr) ||
+              BrailleEncodings["Special Symbols"].some((s) => s.keystroke[0] === currentEncodedPatternStr) ||
+              BrailleEncodings["Currency and Measurement"].some((c) => c.keystroke[0] === currentEncodedPatternStr);
 
             if (isSymbol) {
               // Don't capitalize symbols and reset mode if in Capital mode
@@ -355,7 +355,7 @@ export default function Screen() {
               setKeystrokeHistory((prev) => [
                 ...prev,
                 {
-                  pattern: currentPatternStr,
+                  pattern: currentEncodedPatternStr,
                   match: initialMatch,
                   mode: TypingMode.Alphabets,
                 },
@@ -365,7 +365,7 @@ export default function Screen() {
               setKeystrokeHistory((prev) => [
                 ...prev,
                 {
-                  pattern: currentPatternStr,
+                  pattern: currentEncodedPatternStr,
                   match: {
                     ...initialMatch,
                     title: initialMatch?.title?.toUpperCase(),
@@ -385,13 +385,13 @@ export default function Screen() {
               speakText(getSpeechText(initialMatch), audioEnabled);
             }
 
-            setCurrentPattern(Array(6).fill("0"));
+            setCurrentEncodedPattern(Array(6).fill("0"));
             setCurrentMatch(null);
             return;
           }
 
           // Handle all other cases (standard input)
-          const combinedMatch = findMatchForCurrentMode(currentPatternStr, true);
+          const combinedMatch = findMatchForCurrentMode(currentEncodedPatternStr, true);
 
           if (combinedMatch) {
             // Handle combined match with speech
@@ -406,7 +406,7 @@ export default function Screen() {
             setKeystrokeHistory((prev) => [
               ...prev.slice(0, -(combinedMatch.keystroke.length - 1)),
               {
-                pattern: currentPatternStr,
+                pattern: currentEncodedPatternStr,
                 match: {
                   ...combinedMatch,
                   groupedBraille,
@@ -426,14 +426,14 @@ export default function Screen() {
 
             // Continue with existing single character handling...
             // Check for Capital modes activation
-            if (currentPatternStr === "000001" && initialMatch) {
+            if (currentEncodedPatternStr === "000001" && initialMatch) {
               // Get last three entries to check for triple capital indicator
               const lastThree = keystrokeHistory.slice(-2);
 
               // Count consecutive capital indicators
               let consecutiveCapitalCount = lastThree.filter((entry) => entry.pattern === "000001").length;
               // Add current pattern if it's a capital indicator
-              if (currentPatternStr === "000001") consecutiveCapitalCount++;
+              if (currentEncodedPatternStr === "000001") consecutiveCapitalCount++;
 
               // Check for Capital Passage (three consecutive capital indicators)
               if (consecutiveCapitalCount === 3) {
@@ -455,7 +455,7 @@ export default function Screen() {
                   speakText("Capital Passage", audioEnabled);
                 }
 
-                setCurrentPattern(Array(6).fill("0"));
+                setCurrentEncodedPattern(Array(6).fill("0"));
                 setCurrentMatch(null);
                 return;
               }
@@ -480,7 +480,7 @@ export default function Screen() {
                   speakText("Capital Word", audioEnabled);
                 }
 
-                setCurrentPattern(Array(6).fill("0"));
+                setCurrentEncodedPattern(Array(6).fill("0"));
                 setCurrentMatch(null);
                 return;
               }
@@ -491,9 +491,9 @@ export default function Screen() {
               // Check if the match is a symbol (has symbol property or is punctuation/special/currency)
               const isSymbol =
                 ("symbol" in initialMatch && initialMatch.symbol) ||
-                BrailleEncodings.Punctuation.some((p) => p.keystroke[0] === currentPatternStr) ||
-                BrailleEncodings["Special Symbols"].some((s) => s.keystroke[0] === currentPatternStr) ||
-                BrailleEncodings["Currency and Measurement"].some((c) => c.keystroke[0] === currentPatternStr);
+                BrailleEncodings.Punctuation.some((p) => p.keystroke[0] === currentEncodedPatternStr) ||
+                BrailleEncodings["Special Symbols"].some((s) => s.keystroke[0] === currentEncodedPatternStr) ||
+                BrailleEncodings["Currency and Measurement"].some((c) => c.keystroke[0] === currentEncodedPatternStr);
 
               if (isSymbol && currentTypingMode === TypingMode["Capital Word"]) {
                 // Reset to Alphabets mode for symbols in Capital Word mode
@@ -508,28 +508,28 @@ export default function Screen() {
               setKeystrokeHistory((prev) => [
                 ...prev,
                 {
-                  pattern: currentPatternStr,
+                  pattern: currentEncodedPatternStr,
                   match,
                   mode: isSymbol ? TypingMode.Alphabets : currentTypingMode,
                 },
               ]);
             } else {
               // Rest of the combined match handling
-              if (!handleCombinedMatch(currentPatternStr, initialMatch)) {
+              if (!handleCombinedMatch(currentEncodedPatternStr, initialMatch)) {
                 setKeystrokeHistory((prev) => [
                   ...prev,
                   {
-                    pattern: currentPatternStr,
+                    pattern: currentEncodedPatternStr,
                     match: initialMatch,
                     mode: currentTypingMode,
                   },
                 ]);
 
                 // Handle mode switching
-                if (currentPatternStr === "001111") {
+                if (currentEncodedPatternStr === "001111") {
                   setCurrentTypingMode(TypingMode.Numbers);
                   setModeHistory((prev) => [...prev, TypingMode.Numbers]);
-                } else if (currentPatternStr === "000001") {
+                } else if (currentEncodedPatternStr === "000001") {
                   setCurrentTypingMode(TypingMode.Capital);
                   setModeHistory((prev) => [...prev, TypingMode.Capital]);
                 } else if (currentTypingMode !== TypingMode["Capital Word"] && currentTypingMode !== TypingMode["Capital Passage"]) {
@@ -540,23 +540,23 @@ export default function Screen() {
             }
           }
 
-          setCurrentPattern(Array(6).fill("0"));
+          setCurrentEncodedPattern(Array(6).fill("0"));
           setCurrentMatch(null);
         }
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    // window.addEventListener("keydown", handleKeyDown);
+    // window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      // window.removeEventListener("keydown", handleKeyDown);
+      // window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, currentPattern, keystrokeHistory, audioEnabled, currentTypingMode, modeHistory]);
+  }, [currentUserInput, currentEncodedPattern, keystrokeHistory, audioEnabled, currentTypingMode, modeHistory]);
 
-  const handleCombinedMatch = (currentPatternStr: string, initialMatch: any) => {
-    const combinedMatch = findMatchForCurrentMode(currentPatternStr, true);
+  const handleCombinedMatch = (currentEncodedPatternStr: string, initialMatch: any) => {
+    const combinedMatch = findMatchForCurrentMode(currentEncodedPatternStr, true);
     if (combinedMatch) {
       const prevEntries = keystrokeHistory.slice(-(combinedMatch.keystroke.length - 1));
       const groupedBraille = [...prevEntries.map((entry) => entry.match.brailleText), initialMatch.brailleText];
@@ -564,7 +564,7 @@ export default function Screen() {
       setKeystrokeHistory((prev) => [
         ...prev.slice(0, -(combinedMatch.keystroke.length - 1)),
         {
-          pattern: currentPatternStr,
+          pattern: currentEncodedPatternStr,
           match: {
             ...combinedMatch,
             groupedBraille,

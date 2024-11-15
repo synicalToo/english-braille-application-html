@@ -15,14 +15,128 @@ export const compatibility: { [key: string]: number } = {
   both: 3,
 };
 
-export const uebEncoding: {
+export type uebEncodingType = {
   [category: string]: {
     compatibility: number;
     content: {
       [key: string]: { title: string; symbol?: string; keystroke: string[] };
     };
   };
+};
+
+export const combinedEncoding: {
+  [key: string]: BrailleEncodingType;
 } = {
+  // Double keystroke - Starting with 000010
+  plus: { title: "Plus", symbol: "+", keystroke: ["000010", "011010"] },
+  minus: { title: "Minus", symbol: "-", keystroke: ["000010", "001001"] },
+  multiplication: { title: "Multiplication", symbol: "×", keystroke: ["000010", "011001"] },
+  multiplication_dot: { title: "Multiplication dot", symbol: "·", keystroke: ["000010", "010011"] },
+  division: { title: "Division", symbol: "÷", keystroke: ["000010", "001100"] },
+  equals: { title: "Equals", symbol: "=", keystroke: ["000010", "011011"] },
+  opening_round_parentheses: { title: "Opening round parentheses", symbol: "(", keystroke: ["000010", "110001"] },
+  closing_round_parentheses: { title: "Closing round parentheses", symbol: ")", keystroke: ["000010", "001110"] },
+  asterisk: { title: "Asterisk", symbol: "*", keystroke: ["000010", "001010"] },
+
+  // Double keystroke - Starting with 000100
+  greater_than: { title: "Greater than", symbol: ">", keystroke: ["000100", "001110"] },
+  less_than: { title: "Less than", symbol: "<", keystroke: ["000100", "110001"] },
+  cent: { title: "Cent", symbol: "¢", keystroke: ["000100", "100100"] },
+  dollar: { title: "Dollar", symbol: "$", keystroke: ["000100", "011100"] },
+  euro: { title: "Euro", symbol: "€", keystroke: ["000100", "100010"] },
+  british_pound: { title: "British pound", symbol: "£", keystroke: ["000100", "111000"] },
+  at_sign: { title: "@ sign", symbol: "@", keystroke: ["000100", "100000"] },
+  ampersand: { title: "Ampersand", symbol: "&", keystroke: ["000100", "111101"] },
+
+  // Double keystroke - Starting with 000110
+  copyright: { title: "Copyright", symbol: "©", keystroke: ["000110", "100100"] },
+  trademark: { title: "Trademark", symbol: "™", keystroke: ["000110", "011110"] },
+  degree: { title: "Degree", symbol: "°", keystroke: ["000110", "010110"] },
+  opening_outer_quotation_mark: { title: "Opening outer quotation mark", symbol: '"', keystroke: ["000110", "011001"] },
+  closing_outer_quatation_mark: { title: "Closing outer quatation mark", symbol: '"', keystroke: ["000110", "001011"] },
+
+  // Double keystroke - Starting with 000111
+  forward_slash: { title: "Forward slash", symbol: "/", keystroke: ["000111", "001100"] },
+  backward_slash: { title: "Backward slash", symbol: "\\", keystroke: ["000111", "100001"] },
+  bullet: { title: "Bullet", symbol: "•", keystroke: ["000111", "010011"] },
+  hashtag: { title: "Hashtag", symbol: "#", keystroke: ["000111", "100111"] },
+
+  // Special patterns
+  inches: { title: "Inches", symbol: "″", keystroke: ["011011", "011011"] },
+  ellipsis: { title: "Ellipsis", symbol: "…", keystroke: ["010011", "010011", "010011"] },
+  capital_letter: { title: "Capital letter", keystroke: ["000001"] },
+  capital_word: { title: "Capital Word", keystroke: ["000001", "000001"] },
+  capital_passage: { title: "Capital Passage", keystroke: ["000001", "000001", "000001"] },
+  capital_terminator: { title: "Capital terminator", keystroke: ["000001", "001000"] },
+  dash: { title: "Dash", symbol: "–", keystroke: ["000001", "001001"] },
+  opening_inner_quotation_mark: { title: "Opening inner quotation mark", symbol: "'", keystroke: ["000001", "011001"] },
+  closing_inner_quotation_mark: { title: "Closing inner quotation mark", symbol: "'", keystroke: ["000001", "001011"] },
+  number: { title: "Numeric", keystroke: ["001111"] },
+  percentage: { title: "Percentage", symbol: "%", keystroke: ["000101", "001011"] },
+  angle: { title: "Angle", symbol: "∠", keystroke: ["000101", "111111"] },
+  opening_square_bracket: { title: "Opening square bracket", symbol: "[", keystroke: ["000101", "110001"] },
+  closing_square_bracket: { title: "Closing square bracket", symbol: "]", keystroke: ["000101", "001110"] },
+  opening_curly_bracket: { title: "Opening curly bracket", symbol: "{", keystroke: ["000111", "110001"] },
+  closing_curly_bracket: { title: "Closing curly bracket", symbol: "}", keystroke: ["000111", "001110"] },
+  opening_angle_bracket: { title: "Opening angle bracket", symbol: "<", keystroke: ["000100", "110001"] },
+  closing_angle_bracket: { title: "Closing angle bracket", symbol: ">", keystroke: ["000100", "001110"] },
+  superscript_indicator: { title: "Superscript indicator", keystroke: ["001010"] },
+  subscript_indicator: { title: "Subscript indicator", keystroke: ["010001"] },
+  long_dash: { title: "Long dash", symbol: "——", keystroke: ["000010", "000001", "001001"] },
+
+  // Single keystroke - Simple patterns
+  a: { title: "a", keystroke: ["100000"] },
+  b: { title: "b", keystroke: ["110000"] },
+  c: { title: "c", keystroke: ["100100"] },
+  d: { title: "d", keystroke: ["100110"] },
+  e: { title: "e", keystroke: ["100010"] },
+  f: { title: "f", keystroke: ["110100"] },
+  g: { title: "g", keystroke: ["110110"] },
+  h: { title: "h", keystroke: ["110010"] },
+  i: { title: "i", keystroke: ["010100"] },
+  j: { title: "j", keystroke: ["010110"] },
+  k: { title: "k", keystroke: ["101000"] },
+  l: { title: "l", keystroke: ["111000"] },
+  m: { title: "m", keystroke: ["101100"] },
+  n: { title: "n", keystroke: ["101110"] },
+  o: { title: "o", keystroke: ["101010"] },
+  p: { title: "p", keystroke: ["111100"] },
+  q: { title: "q", keystroke: ["111110"] },
+  r: { title: "r", keystroke: ["111010"] },
+  s: { title: "s", keystroke: ["011100"] },
+  t: { title: "t", keystroke: ["011110"] },
+  u: { title: "u", keystroke: ["101001"] },
+  v: { title: "v", keystroke: ["111001"] },
+  w: { title: "w", keystroke: ["010111"] },
+  x: { title: "x", keystroke: ["101101"] },
+  y: { title: "y", keystroke: ["101111"] },
+  z: { title: "z", keystroke: ["101011"] },
+
+  // Single keystroke - Numbers (same as a-j)
+  1: { title: "1", keystroke: ["100000"] },
+  2: { title: "2", keystroke: ["110000"] },
+  3: { title: "3", keystroke: ["100100"] },
+  4: { title: "4", keystroke: ["100110"] },
+  5: { title: "5", keystroke: ["100010"] },
+  6: { title: "6", keystroke: ["110100"] },
+  7: { title: "7", keystroke: ["110110"] },
+  8: { title: "8", keystroke: ["110010"] },
+  9: { title: "9", keystroke: ["010100"] },
+  0: { title: "0", keystroke: ["010110"] },
+
+  // Single keystroke - Punctuation
+  comma: { title: "Comma", symbol: ",", keystroke: ["010000"] },
+  period: { title: "Period", symbol: ".", keystroke: ["010011"] },
+  apostrophe: { title: "Apostrophe", symbol: "'", keystroke: ["001000"] },
+  colon: { title: "Colon", symbol: ":", keystroke: ["010010"] },
+  exclamation_mark: { title: "Exclamation mark", symbol: "!", keystroke: ["011010"] },
+  hyphen: { title: "Hyphen", symbol: "-", keystroke: ["001001"] },
+  question_mark: { title: "Question mark", symbol: "?", keystroke: ["011001"] },
+  semicolon: { title: "Semicolon", symbol: ";", keystroke: ["011000"] },
+  feet: { title: "Feet", symbol: "′", keystroke: ["011011"] },
+};
+
+export const uebEncoding: uebEncodingType = {
   Indicators: {
     compatibility: compatibility.both,
     content: {
@@ -91,8 +205,8 @@ export const uebEncoding: {
       period: { title: "Period", symbol: ".", keystroke: ["010011"] },
       apostrophe: { title: "Apostrophe", symbol: "'", keystroke: ["001000"] },
       colon: { title: "Colon", symbol: ":", keystroke: ["010010"] },
-      dash: { title: "Dash", symbol: "–", keystroke: ["000001", "001001"] },
       long_dash: { title: "Long dash", symbol: "——", keystroke: ["000010", "000001", "001001"] },
+      dash: { title: "Dash", symbol: "–", keystroke: ["000001", "001001"] },
       exclamation_mark: { title: "Exclamation mark", symbol: "!", keystroke: ["011010"] },
       hyphen: { title: "Hyphen", symbol: "-", keystroke: ["001001"] },
       question_mark: { title: "Question mark", symbol: "?", keystroke: ["011001"] },
@@ -105,6 +219,63 @@ export const uebEncoding: {
       closing_outer_quatation_mark: { title: "Closing outer quatation mark", symbol: "”", keystroke: ["000110", "001011"] },
       opening_inner_quotation_mark: { title: "Opening inner quotation mark", symbol: "‘", keystroke: ["000001", "011001"] },
       closing_inner_quotation_mark: { title: "Closing inner quotation mark", symbol: "’", keystroke: ["000001", "001011"] },
+    },
+  },
+
+  "Grouping Punctuation": {
+    compatibility: compatibility.both,
+    content: {
+      opening_round_parentheses: { title: "Opening round parentheses", symbol: "(", keystroke: ["000010", "110001"] },
+      closing_round_parentheses: { title: "Closing round parentheses", symbol: ")", keystroke: ["000010", "001110"] },
+      opening_square_bracket: { title: "Opening square bracket", symbol: "[", keystroke: ["000101", "110001"] },
+      closing_square_bracket: { title: "Closing square bracket", symbol: "]", keystroke: ["000101", "001110"] },
+      opening_curly_bracket: { title: "Opening curly bracket", symbol: "{", keystroke: ["000111", "110001"] },
+      closing_curly_bracket: { title: "Closing curly bracket", symbol: "}", keystroke: ["000111", "001110"] },
+      opening_angle_bracket: { title: "Opening angle bracket", symbol: "<", keystroke: ["000100", "110001"] },
+      closing_angle_bracket: { title: "Closing angle bracket", symbol: ">", keystroke: ["000100", "001110"] },
+    },
+  },
+
+  "Signs of Operation and Comparison": {
+    compatibility: compatibility.both,
+    content: {
+      plus: { title: "Plus", symbol: "+", keystroke: ["000010", "011010"] },
+      minus: { title: "Minus", symbol: "-", keystroke: ["000010", "001001"] },
+      multiplication: { title: "Multiplication", symbol: "×", keystroke: ["000010", "011001"] },
+      multiplication_dot: { title: "Multiplication dot", symbol: "·", keystroke: ["000010", "010011"] },
+      division: { title: "Division", symbol: "÷", keystroke: ["000010", "001100"] },
+      greater_than: { title: "Greater than", symbol: ">", keystroke: ["000100", "001110"] },
+      less_than: { title: "Less than", symbol: "<", keystroke: ["000100", "110001"] },
+      equals: { title: "Equals", symbol: "=", keystroke: ["000010", "011011"] },
+    },
+  },
+
+  "Currency and Measurement": {
+    compatibility: compatibility.both,
+    content: {
+      cent: { title: "Cent", symbol: "¢", keystroke: ["000100", "100100"] },
+      dollar: { title: "Dollar", symbol: "$", keystroke: ["000100", "011100"] },
+      euro: { title: "Euro", symbol: "€", keystroke: ["000100", "100010"] },
+      british_pound: { title: "British pound", symbol: "£", keystroke: ["000100", "111000"] },
+      feet: { title: "Feet", symbol: "′", keystroke: ["011011"] },
+      inches: { title: "Inches", symbol: "″", keystroke: ["011011", "011011"] },
+    },
+  },
+
+  "Special Symbols": {
+    compatibility: compatibility.both,
+    content: {
+      percentage: { title: "Percentage", symbol: "%", keystroke: ["000101", "001011"] },
+      degree: { title: "Degree", symbol: "°", keystroke: ["000110", "010110"] },
+      angle: { title: "Angle", symbol: "∠", keystroke: ["000101", "111111"] },
+      hashtag: { title: "Hashtag", symbol: "#", keystroke: ["000111", "100111"] },
+      ampersand: { title: "Ampersand", symbol: "&", keystroke: ["000100", "111101"] },
+      copyright: { title: "Copyright", symbol: "©", keystroke: ["000110", "100100"] },
+      trademark: { title: "Trademark", symbol: "™", keystroke: ["000110", "011110"] },
+      superscript_indicator: { title: "Superscript indicator", keystroke: ["001010"] },
+      subscript_indicator: { title: "Subscript indicator", keystroke: ["010001"] },
+      bullet: { title: "Bullet", symbol: "•", keystroke: ["000111", "010011"] },
+      at_sign: { title: "@ sign", symbol: "@", keystroke: ["000100", "100000"] },
     },
   },
 };
