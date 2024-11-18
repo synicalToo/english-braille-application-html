@@ -130,17 +130,17 @@ export const brailleMappings: brailleMappingsType = {
       division: { title: "Division", symbol: "÷", keystroke: ["5", "34"] },
       greater_than: { title: "Greater than", symbol: ">", keystroke: ["5", "345"] },
       less_than: { title: "Less than", symbol: "<", keystroke: ["5", "126"] },
-      equals: { title: "Equals", symbol: "=", keystroke: ["000010", "2356"] },
+      equals: { title: "Equals", symbol: "=", keystroke: ["5", "2356"] },
     },
   },
 
   "Currency and Measurement": {
     compatibility: compatibility.both,
     content: {
-      cent: { title: "Cent", symbol: "¢", keystroke: ["5", "14"] },
-      dollar: { title: "Dollar", symbol: "$", keystroke: ["5", "234"] },
-      euro: { title: "Euro", symbol: "€", keystroke: ["5", "15"] },
-      british_pound: { title: "British pound", symbol: "£", keystroke: ["5", "123"] },
+      cent: { title: "Cent", symbol: "¢", keystroke: ["4", "14"] },
+      dollar: { title: "Dollar", symbol: "$", keystroke: ["4", "234"] },
+      euro: { title: "Euro", symbol: "€", keystroke: ["4", "15"] },
+      british_pound: { title: "British pound", symbol: "£", keystroke: ["4", "123"] },
       feet: { title: "Feet", symbol: "′", keystroke: ["2356"] },
       inches: { title: "Inches", symbol: "″", keystroke: ["2356", "2356"] },
     },
@@ -150,7 +150,7 @@ export const brailleMappings: brailleMappingsType = {
     compatibility: compatibility.both,
     content: {
       percentage: { title: "Percentage", symbol: "%", keystroke: ["46", "356"] },
-      degree: { title: "Degree", symbol: "°", keystroke: ["45", "010110"] },
+      degree: { title: "Degree", symbol: "°", keystroke: ["45", "245"] },
       angle: { title: "Angle", symbol: "∠", keystroke: ["46", "123456"] },
       hashtag: { title: "Hashtag", symbol: "#", keystroke: ["456", "1456"] },
       ampersand: { title: "Ampersand", symbol: "&", keystroke: ["4", "12346"] },

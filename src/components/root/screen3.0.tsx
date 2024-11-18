@@ -4,6 +4,7 @@ import { BrailleFont } from "@/components/customUI/brailleFont";
 import { useEffect, useState } from "react";
 import { findBrailleMatch, findHighestMatchingPatternCount } from "@/utils/gameUtils";
 import { typingMode } from "@/lib/constants";
+import { brailleUnicode } from "@/contents/en/customBrailleData";
 
 const keyToDotMap: { [key: string]: number } = {
   f: 0,
@@ -26,6 +27,9 @@ export function ScreenThree() {
 
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
   const [highestPatternCount, setHighestPatternCount] = useState<number>(0);
+
+  // Add new state for matches
+  const [matchedItems, setMatchedItems] = useState<Array<{ unicode: string; display: string }>>([]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -66,9 +70,24 @@ export function ScreenThree() {
 
           if (matchingResult) {
             setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
+            // Add matched item
+            setMatchedItems((prev) => [
+              ...prev,
+              {
+                unicode: brailleUnicode[combinedEncoding],
+                display: matchingResult.symbol || matchingResult.title,
+              },
+            ]);
             console.log(matchingResult);
           } else {
             setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
+            setMatchedItems((prev) => [
+              ...prev,
+              {
+                unicode: brailleUnicode[combinedEncoding],
+                display: "",
+              },
+            ]);
           }
 
           setHighestPatternCount(findHighestMatchingPatternCount(combinedEncoding));
@@ -103,10 +122,12 @@ export function ScreenThree() {
 
       <div id="typing-board" className="w-full max-w-4xl p-4 rounded-lg">
         <div className="flex flex-wrap gap-2 min-h-[60px] border-b border-gray-300">
-          <div className="flex flex-col items-center">
-            <BrailleFont>⠁</BrailleFont>
-            <span className="text-sm text-center mt-1">a</span>
-          </div>
+          {matchedItems.map((item, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <BrailleFont>{item.unicode}</BrailleFont>
+              <p className="text-xs">{item.display}</p>
+            </div>
+          ))}
           <BrailleFont showCursor>⠀</BrailleFont>
         </div>
       </div>
