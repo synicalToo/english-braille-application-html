@@ -40,6 +40,12 @@ export function Sidebar() {
           ))}
         </Accordion>
       </div>
+      <hr />
+      <div className="flex mt-4 space-x-4">
+        <a href="https://atdlab.jp/index.html#contact" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-4 py-2 text-lg text-white bg-gray-600 rounded-md hover:bg-gray-700">
+          Contact Us
+        </a>
+      </div>
     </div>
   );
 }
