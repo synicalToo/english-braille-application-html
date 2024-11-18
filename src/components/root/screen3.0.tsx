@@ -18,12 +18,13 @@ const debug = true;
 
 export function ScreenThree() {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
-  const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6).fill("0"));
+  const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputHistory, setInputHistory] = useState<string[]>([]);
 
   const [currentTypingMode, setCurrentTypingMode] = useState<string[]>([typingMode.alphabet]);
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
 
+  const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
   const [highestPatternCount, setHighestPatternCount] = useState<number>(0);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function ScreenThree() {
           const dotIndex = keyToDotMap[event.key.toLowerCase()];
           if (dotIndex !== undefined) {
             const newRegisteredInput = [...prev];
-            newRegisteredInput[dotIndex] = "1";
+            newRegisteredInput[dotIndex] = (dotIndex + 1).toString();
             return newRegisteredInput;
           }
           return prev;
@@ -50,13 +51,27 @@ export function ScreenThree() {
 
         if (updatedInput.size === 0) {
           const combinedEncoding = registeredInput.join("");
-          setRegisteredInput(Array(6).fill("0"));
+          setRegisteredInput(Array(6));
           setInputHistory((prev) => [...prev, combinedEncoding]);
 
-          setHighestPatternCount(findHighestMatchingPatternCount(combinedEncoding));
+          const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
+          let potentialCombination = "";
+          let matchingResult;
 
-          const result = findBrailleMatch(combinedEncoding, inputHistory);
-          console.log(result);
+          for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
+            potentialCombination = newCombinedHistory.slice(i).join(",");
+            matchingResult = findBrailleMatch(potentialCombination, inputHistory);
+            if (matchingResult) break;
+          }
+
+          if (matchingResult) {
+            setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
+            console.log(matchingResult);
+          } else {
+            setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
+          }
+
+          setHighestPatternCount(findHighestMatchingPatternCount(combinedEncoding));
         }
       }
     };
@@ -68,7 +83,7 @@ export function ScreenThree() {
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("keyup", handleKeyup);
     };
-  }, [currentInput, registeredInput, highestPatternCount]);
+  }, [currentInput, registeredInput, combinedPatternHistory, inputHistory]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -114,6 +129,10 @@ export function ScreenThree() {
                     </div>
                   ))}
               </div>
+            </div>
+            <div>
+              <h3 className="text-sm">Combined Patterns</h3>
+              <p>{combinedPatternHistory.join(", ")}</p>
             </div>
             <div>
               <h3 className="text-sm">Highest Pattern Count</h3>
