@@ -1,10 +1,74 @@
 "use client";
 
 import { BrailleFont } from "@/components/customUI/brailleFont";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { findBrailleMatch, findHighestMatchingPatternCount } from "@/utils/gameUtils";
+import { typingMode } from "@/lib/constants";
+
+const keyToDotMap: { [key: string]: number } = {
+  f: 0,
+  d: 1,
+  s: 2,
+  j: 3,
+  k: 4,
+  l: 5,
+};
+
+const debug = true;
 
 export function ScreenThree() {
-  const [inputHistory, setInputHistory] = useState();
+  const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
+  const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6).fill("0"));
+  const [inputHistory, setInputHistory] = useState<string[]>([]);
+
+  const [currentTypingMode, setCurrentTypingMode] = useState<string[]>([typingMode.alphabet]);
+  const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
+
+  const [highestPatternCount, setHighestPatternCount] = useState<number>(0);
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (Object.keys(keyToDotMap).includes(event.key)) {
+        setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
+        setRegisteredInput((prev) => {
+          const dotIndex = keyToDotMap[event.key.toLowerCase()];
+          if (dotIndex !== undefined) {
+            const newRegisteredInput = [...prev];
+            newRegisteredInput[dotIndex] = "1";
+            return newRegisteredInput;
+          }
+          return prev;
+        });
+      }
+    };
+
+    const handleKeyup = (event: KeyboardEvent) => {
+      if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
+        const updatedInput = new Set(currentInput);
+        updatedInput.delete(event.key.toLowerCase());
+        setCurrentInput(updatedInput);
+
+        if (updatedInput.size === 0) {
+          const combinedEncoding = registeredInput.join("");
+          setRegisteredInput(Array(6).fill("0"));
+          setInputHistory((prev) => [...prev, combinedEncoding]);
+
+          setHighestPatternCount(findHighestMatchingPatternCount(combinedEncoding));
+
+          const result = findBrailleMatch(combinedEncoding, inputHistory);
+          console.log(result);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    window.addEventListener("keyup", handleKeyup);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("keyup", handleKeyup);
+    };
+  }, [currentInput, registeredInput, highestPatternCount]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -35,6 +99,29 @@ export function ScreenThree() {
       <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
         <div className="flex gap-2"></div>
       </div>
+
+      {debug && (
+        <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg mt-4 mb-4">
+          <h2 className="text-lg font-semibold mb-4">Debug</h2>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm">Registered Input</h3>
+              <div className="flex space-x-2">
+                {registeredInput &&
+                  registeredInput.map((item, index) => (
+                    <div key={index} className="flex items-center">
+                      <p className="text-sm">{item}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm">Highest Pattern Count</h3>
+              <p>{highestPatternCount}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,10 +1,23 @@
+export type brailleMappingsType = {
+  [key: string]: {
+    compatibility: number;
+    content: {
+      [key: string]: {
+        title: string;
+        keystroke: string[];
+        symbol?: string;
+      };
+    };
+  };
+};
+
 export const compatibility: { [key: string]: number } = {
   grade_1: 1,
   grade_2: 2,
   both: 3,
 };
 
-export const brailleMappings = {
+export const brailleMappings: brailleMappingsType = {
   Indicators: {
     compatibility: compatibility.both,
     content: {
@@ -51,7 +64,7 @@ export const brailleMappings = {
   },
 
   Numbers: {
-    compatibility: 3,
+    compatibility: compatibility.both,
     content: {
       1: { title: "1", keystroke: ["100000"] },
       2: { title: "2", keystroke: ["110000"] },
