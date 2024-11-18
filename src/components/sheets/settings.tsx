@@ -31,7 +31,7 @@ interface GameplaySettingProps {
 const GeneralSettings = ({ audioEnabled, setAudioEnabled, audioLanguage, setAudioLanguage }: GeneralSettingProps) => {
   return (
     <div id="general-settings">
-      <div className="flex text-lg">
+      <div className="flex text-lg font-semibold">
         <SettingIcon className="mr-2 self-center" /> General
       </div>
       <br /> <hr /> <br />
@@ -44,17 +44,17 @@ const GeneralSettings = ({ audioEnabled, setAudioEnabled, audioLanguage, setAudi
 const GameplaySettings = ({ displayInterval, setDisplayInterval, gameLength, setGameLength, practiceTopic, setPracticeTopic, audioEffect, setAudioEffect }: GameplaySettingProps) => {
   return (
     <div id="gameplay-settings">
-      <div className="flex text-lg">
+      <div className="flex text-lg font-semibold">
         <SettingIcon className="mr-2 self-center" /> Gameplay
       </div>
       <br /> <hr /> <br />
-      <CustomRadio title="Braille display interval (seconds): " defaultValue={displayInterval} options={brailleDisplayIntervalOptions} value={displayInterval} onValueChange={setDisplayInterval} />
+      <CustomRadio title="Braille Display Interval (seconds): " defaultValue={displayInterval} options={brailleDisplayIntervalOptions} value={displayInterval} onValueChange={setDisplayInterval} />
       <br />
-      <CustomRadio title="Game length (minutes): " defaultValue={gameLength} options={["1", "2", "3", "4", "5"]} value={gameLength} onValueChange={setGameLength} />
+      <CustomRadio title="Game Length (minutes): " defaultValue={gameLength} options={["1", "2", "3", "4", "5"]} value={gameLength} onValueChange={setGameLength} />
       <br />
-      <CustomSelect title="Practice topic: " placeholder="Select a language" options={practiceTopicOptions} value={practiceTopic} onValueChange={setPracticeTopic} />
+      <CustomSelect title="Practice Topic: " placeholder="Select a language" options={practiceTopicOptions} value={practiceTopic} onValueChange={setPracticeTopic} />
       <br />
-      <CustomSelect title="Sound effect: " placeholder="Select an effect" options={audioEffectOptions} value={audioEffect} onValueChange={setAudioEffect} />
+      <CustomSelect title="Sound Effects: " placeholder="Select an effect" options={audioEffectOptions} value={audioEffect} onValueChange={setAudioEffect} />
     </div>
   );
 };
@@ -142,8 +142,8 @@ export function SettingsSheet() {
           </Button>
         </SheetTrigger>
 
-        <SheetContent side="right" className=" text-black dark:text-white bg-white dark:bg-gray-700">
-          <h2 className="text-2xl font-semibold mb-2">Settings</h2>
+        <SheetContent side="right" className="text-black dark:text-white bg-white dark:bg-gray-700 h-screen max-h-screen overflow-y-auto">
+          <h2 className="text-3xl font-bold mb-3">Settings</h2>
           <br />
 
           <GeneralSettings audioEnabled={audioEnabled} setAudioEnabled={handleAudioEnabledChange} audioLanguage={audioLanguage} setAudioLanguage={handleAudioLanguageChange} />
