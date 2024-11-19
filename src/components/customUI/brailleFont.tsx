@@ -10,5 +10,10 @@ interface BrailleBoxProps {
 const brailleFont = localFont({ src: "../../app/fonts/SixBraille20.woff2" });
 
 export function BrailleFont({ children, showCursor = false }: BrailleBoxProps) {
-  return <div className={cn("text-4xl border border-gray-600 rounded-sm inline-block", showCursor && "border-r-4 border-r-black animate-pulse", brailleFont.className)}>{children}</div>;
+  return (
+    <div className={cn("text-4xl border border-gray-600 rounded-sm flex", brailleFont.className)}>
+      {children}
+      {showCursor && <span className="border-r-2 border-black animate-pulse ml-[2px]" />}
+    </div>
+  );
 }

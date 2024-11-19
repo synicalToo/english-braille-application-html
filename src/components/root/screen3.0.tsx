@@ -22,13 +22,11 @@ export function ScreenThree() {
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputHistory, setInputHistory] = useState<string[]>([]);
 
-  const [currentTypingMode, setCurrentTypingMode] = useState<string[]>([typingMode.alphabet]);
+  const [currentTypingMode, setCurrentTypingMode] = useState<string>(typingMode.alphabet);
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
 
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
-  const [highestPatternCount, setHighestPatternCount] = useState<number>(0);
 
-  // Add new state for matches
   const [matchedItems, setMatchedItems] = useState<Array<{ unicode: string; display: string }>>([]);
 
   useEffect(() => {
@@ -70,7 +68,6 @@ export function ScreenThree() {
 
           if (matchingResult) {
             setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
-            // Add matched item
             setMatchedItems((prev) => [
               ...prev,
               {
@@ -89,8 +86,6 @@ export function ScreenThree() {
               },
             ]);
           }
-
-          setHighestPatternCount(findHighestMatchingPatternCount(combinedEncoding));
         }
       }
     };
@@ -121,9 +116,9 @@ export function ScreenThree() {
       </div>
 
       <div id="typing-board" className="w-full max-w-4xl p-4 rounded-lg">
-        <div className="flex flex-wrap gap-2 min-h-[60px] border-b border-gray-300">
+        <div className="flex flex-wrap gap-2 border-b border-gray-300 items-start pb-2">
           {matchedItems.map((item, index) => (
-            <div key={index} className="flex flex-col items-center">
+            <div key={index} className="flex flex-col items-center justify-end">
               <BrailleFont>{item.unicode}</BrailleFont>
               <p className="text-xs">{item.display}</p>
             </div>
@@ -133,31 +128,45 @@ export function ScreenThree() {
       </div>
 
       <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
-        <div className="flex gap-2"></div>
+        <div className="flex gap-2">
+          {Object.values(typingMode).map((value) => (
+            <span
+              key={value}
+              className={`px-3 py-1 rounded-md text-sm cursor-default
+                  ${currentTypingMode === value ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"}`}
+            >
+              {value}
+            </span>
+          ))}
+        </div>
       </div>
 
       {debug && (
         <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg mt-4 mb-4">
-          <h2 className="text-lg font-semibold mb-4">Debug</h2>
+          <h2 className="text-xl text-center font-semibold mb-4">Debugger</h2>
           <div className="space-y-6">
             <div>
-              <h3 className="text-sm">Registered Input</h3>
-              <div className="flex space-x-2">
-                {registeredInput &&
-                  registeredInput.map((item, index) => (
+              <h3 className="text-lg">Registered Input:</h3>
+              <div className="flex gap-2">
+                <div className="flex flex-col">
+                  {registeredInput.slice(0, 3).map((item, index) => (
                     <div key={index} className="flex items-center">
                       <p className="text-sm">{item}</p>
                     </div>
                   ))}
+                </div>
+                <div className="flex flex-col">
+                  {registeredInput.slice(3, 6).map((item, index) => (
+                    <div key={index} className="flex items-center">
+                      <p className="text-sm">{item}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             <div>
-              <h3 className="text-sm">Combined Patterns</h3>
+              <h3 className="text-lg">Input History:</h3>
               <p>{combinedPatternHistory.join(", ")}</p>
-            </div>
-            <div>
-              <h3 className="text-sm">Highest Pattern Count</h3>
-              <p>{highestPatternCount}</p>
             </div>
           </div>
         </div>
