@@ -9,7 +9,7 @@ import { brailleUnicode } from "@/contents/en/customBrailleData";
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch } from "@/utils/gameUtils";
 
-const debug = true;
+const debug = false;
 
 export function ScreenThree() {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
@@ -20,7 +20,8 @@ export function ScreenThree() {
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
 
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
-  const [typingBoard, setTypingBoard] = useState<Array<{ unicode: string; display: string }>>([]);
+  const [typingBoard, setTypingBoard] = useState<{ unicode: string; text: string }[]>([]);
+  const [displayBoard, setDisplayBoard] = useState<{ unicode: string; text: string }[][]>([]);
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   useEffect(() => {
@@ -29,8 +30,8 @@ export function ScreenThree() {
       setAudioEnabled(storedAudioEnabled === "true");
     }
 
-    const handleAudioSettingsChange = (e: CustomEvent) => {
-      setAudioEnabled(e.detail);
+    const handleAudioSettingsChange = (event: CustomEvent) => {
+      setAudioEnabled(event.detail);
     };
 
     window.addEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
@@ -41,6 +42,52 @@ export function ScreenThree() {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent): void => {
+      switch (event.key.toLowerCase()) {
+        case "enter":
+          if (typingBoard.length > 0) {
+            const sentence = typingBoard.map((item) => item.text).join("");
+            console.log(sentence);
+
+            if (sentence.trim()) {
+              speakText(sentence, audioEnabled);
+            }
+
+            setDisplayBoard((prev) => {
+              const newBoard = [...prev, [...typingBoard]];
+              return newBoard.slice(-5);
+            });
+            setTypingBoard([]);
+            setInputHistory([]);
+            setCombinedPatternHistory([]);
+          }
+          break;
+        case "backspace":
+          if (typingBoard.length > 0) {
+            setCombinedPatternHistory((prev) => prev.slice(0, -1));
+            setTypingBoard((prev) => prev.slice(0, -1));
+            setInputHistory((prev) => prev.slice(0, -1));
+          }
+          break;
+        case " ":
+          event.preventDefault();
+          if (typingBoard.length > 0) {
+            setRegisteredInput(Array(6));
+            setInputHistory((prev) => [...prev, "0"]);
+            setCombinedPatternHistory((prev) => [...prev, "0"]);
+            setTypingBoard((prev) => [
+              ...prev,
+              {
+                unicode: brailleUnicode["0"],
+                text: " ",
+              },
+            ]);
+            speakText("space", audioEnabled);
+          }
+          break;
+        default:
+          break;
+      }
+
       if (Object.keys(keyToDotMap).includes(event.key)) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
@@ -82,7 +129,7 @@ export function ScreenThree() {
               ...prev,
               {
                 unicode: brailleUnicode[combinedEncoding],
-                display: matchingResult.symbol || matchingResult.title,
+                text: matchingResult.symbol || matchingResult.title,
               },
             ]);
             speakText(matchingResult.title, audioEnabled);
@@ -92,7 +139,7 @@ export function ScreenThree() {
               ...prev,
               {
                 unicode: brailleUnicode[combinedEncoding],
-                display: "",
+                text: "",
               },
             ]);
           }
@@ -118,10 +165,18 @@ export function ScreenThree() {
       <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg min-h-[200px] mb-4">
         <h2 className="text-lg font-semibold mb-4">Display Board 3.0</h2>
         <div className="space-y-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-2">Braille</div>
-            <p className="text-sm pl-1 whitespace-pre">Display text</p>
-          </div>
+          {displayBoard.map((line, lineIndex) => (
+            <div key={lineIndex} className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {line.map((item, itemIndex) => (
+                  <div key={itemIndex} className="flex flex-col items-center justify-end">
+                    <BrailleFont>{item.unicode}</BrailleFont>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm pl-1">{line.map((item) => item.text).join("")}</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -130,7 +185,7 @@ export function ScreenThree() {
           {typingBoard.map((item, index) => (
             <div key={index} className="flex flex-col items-center justify-end">
               <BrailleFont>{item.unicode}</BrailleFont>
-              <p className="text-xs">{item.display}</p>
+              <p className="text-xs">{item.text}</p>
             </div>
           ))}
           <BrailleFont showCursor>⠀</BrailleFont>
