@@ -22,13 +22,13 @@ export function speakText(text: string, enabled: boolean) {
   };
 
   loadVoices().then((voices) => {
-    const storedLanguage = localStorage.getItem("audioLanguage") || "Google US English";
+    const storedLanguage = localStorage.getItem("audioLanguage");
     const selectedVoice = voices.find((voice) => voice.name === storedLanguage);
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     } else {
-      const englishVoice = voices.find((voice) => voice.lang.startsWith("en"));
+      const englishVoice = voices.find((voice) => voice.name.includes("Google") && voice.lang.startsWith("en"));
       if (englishVoice) {
         utterance.voice = englishVoice;
       }
