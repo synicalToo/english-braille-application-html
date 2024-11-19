@@ -46,8 +46,6 @@ export function ScreenThree() {
         case "enter":
           if (typingBoard.length > 0) {
             const sentence = typingBoard.map((item) => item.text).join("");
-            console.log(sentence);
-
             if (sentence.trim()) {
               speakText(sentence, audioEnabled);
             }
@@ -157,7 +155,7 @@ export function ScreenThree() {
   }, [currentInput]);
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4 rounded-md border-gray-400 border-2 min-w-[800px] max-w-[800px] min-h-[600px]">
       <div className="text-center">
         <h1 className="text-2xl mb-4">Braille Typing Game 3.0</h1>
       </div>
