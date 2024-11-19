@@ -1,19 +1,13 @@
 "use client";
 
-import { BrailleFont } from "@/components/customUI/brailleFont";
 import { useEffect, useState } from "react";
-import { findBrailleMatch, findHighestMatchingPatternCount } from "@/utils/gameUtils";
-import { typingMode } from "@/lib/constants";
+
+import { keyToDotMap, typingMode } from "@/lib/constants";
+import { BrailleFont } from "@/components/customUI/brailleFont";
 import { brailleUnicode } from "@/contents/en/customBrailleData";
 
-const keyToDotMap: { [key: string]: number } = {
-  f: 0,
-  d: 1,
-  s: 2,
-  j: 3,
-  k: 4,
-  l: 5,
-};
+import { speakText } from "@/utils/audioUtils";
+import { findBrailleMatch } from "@/utils/gameUtils";
 
 const debug = true;
 
@@ -26,11 +20,27 @@ export function ScreenThree() {
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
 
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
+  const [typingBoard, setTypingBoard] = useState<Array<{ unicode: string; display: string }>>([]);
 
-  const [matchedItems, setMatchedItems] = useState<Array<{ unicode: string; display: string }>>([]);
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  useEffect(() => {
+    const storedAudioEnabled = localStorage.getItem("audioEnabled");
+    if (storedAudioEnabled) {
+      setAudioEnabled(storedAudioEnabled === "true");
+    }
+
+    const handleAudioSettingsChange = (e: CustomEvent) => {
+      setAudioEnabled(e.detail);
+    };
+
+    window.addEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    return () => {
+      window.removeEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
-    const handleKeydown = (event: KeyboardEvent) => {
+    const handleKeydown = (event: KeyboardEvent): void => {
       if (Object.keys(keyToDotMap).includes(event.key)) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
@@ -45,7 +55,7 @@ export function ScreenThree() {
       }
     };
 
-    const handleKeyup = (event: KeyboardEvent) => {
+    const handleKeyup = (event: KeyboardEvent): void => {
       if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
         const updatedInput = new Set(currentInput);
         updatedInput.delete(event.key.toLowerCase());
@@ -57,8 +67,8 @@ export function ScreenThree() {
           setInputHistory((prev) => [...prev, combinedEncoding]);
 
           const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
-          let potentialCombination = "";
-          let matchingResult;
+          let potentialCombination: string = "";
+          let matchingResult: { title: string; keystroke: string[]; symbol?: string } | null = null;
 
           for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
             potentialCombination = newCombinedHistory.slice(i).join(",");
@@ -68,17 +78,17 @@ export function ScreenThree() {
 
           if (matchingResult) {
             setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
-            setMatchedItems((prev) => [
+            setTypingBoard((prev) => [
               ...prev,
               {
                 unicode: brailleUnicode[combinedEncoding],
                 display: matchingResult.symbol || matchingResult.title,
               },
             ]);
-            console.log(matchingResult);
+            speakText(matchingResult.title, audioEnabled);
           } else {
             setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
-            setMatchedItems((prev) => [
+            setTypingBoard((prev) => [
               ...prev,
               {
                 unicode: brailleUnicode[combinedEncoding],
@@ -97,7 +107,7 @@ export function ScreenThree() {
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("keyup", handleKeyup);
     };
-  }, [currentInput, registeredInput, combinedPatternHistory, inputHistory]);
+  }, [currentInput]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -117,7 +127,7 @@ export function ScreenThree() {
 
       <div id="typing-board" className="w-full max-w-4xl p-4 rounded-lg">
         <div className="flex flex-wrap gap-2 border-b border-gray-300 items-start pb-2">
-          {matchedItems.map((item, index) => (
+          {typingBoard.map((item, index) => (
             <div key={index} className="flex flex-col items-center justify-end">
               <BrailleFont>{item.unicode}</BrailleFont>
               <p className="text-xs">{item.display}</p>
@@ -148,7 +158,11 @@ export function ScreenThree() {
             <div>
               <h3 className="text-lg">Registered Input:</h3>
               <div className="flex gap-2">
-                <div className="flex flex-col">
+                {/* display braille font */}
+                <BrailleFont>{brailleUnicode[registeredInput.join("")]}</BrailleFont>
+
+                {/* display number representation */}
+                {/* <div className="flex flex-col">
                   {registeredInput.slice(0, 3).map((item, index) => (
                     <div key={index} className="flex items-center">
                       <p className="text-sm">{item}</p>
@@ -161,7 +175,7 @@ export function ScreenThree() {
                       <p className="text-sm">{item}</p>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
             <div>

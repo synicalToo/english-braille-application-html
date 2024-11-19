@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import { IoSettingsOutline as SettingIcon } from "react-icons/io5";
 
 import { Button } from "@/components/ui/button";
+import { CustomRadio } from "@/components/customUI/customRadio";
 import { CustomSwitch } from "@/components/customUI/customSwitch";
 import { CustomSelect } from "@/components/customUI/customSelect";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { audioEffectOptions, audioLangugeOptions, brailleDisplayIntervalOptions, practiceTopicOptions } from "@/lib/constants";
-import { CustomRadio } from "../customUI/customRadio";
+
+import { audioEffectOptions, audioLangugeOptions, brailleDisplayIntervalOptions, practiceTopicOptions, languageCodeMap } from "@/lib/constants";
 
 interface GeneralSettingProps {
   audioEnabled: boolean;
@@ -29,6 +30,25 @@ interface GameplaySettingProps {
 }
 
 const GeneralSettings = ({ audioEnabled, setAudioEnabled, audioLanguage, setAudioLanguage }: GeneralSettingProps) => {
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      const filteredVoices = availableVoices.filter((voice) => voice.name.includes("Google") && audioLangugeOptions.some((lang) => voice.lang.startsWith(languageCodeMap[lang])));
+      setVoices(filteredVoices);
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  const voiceOptions = voices.map((voice) => `${voice.name}`);
+
   return (
     <div id="general-settings">
       <div className="flex text-lg font-semibold">
@@ -36,7 +56,7 @@ const GeneralSettings = ({ audioEnabled, setAudioEnabled, audioLanguage, setAudi
       </div>
       <br /> <hr /> <br />
       <CustomSwitch id="audio-toggle" text="Enable Audio" checked={audioEnabled} onCheckedChange={setAudioEnabled} />
-      <CustomSelect placeholder={audioLanguage} options={audioLangugeOptions} value={audioLanguage} onValueChange={setAudioLanguage} />
+      <CustomSelect placeholder={audioLanguage} options={voiceOptions.length > 0 ? voiceOptions : audioLangugeOptions} value={audioLanguage} onValueChange={setAudioLanguage} />
     </div>
   );
 };
@@ -63,7 +83,7 @@ export function SettingsSheet() {
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
-  const [audioLanguage, setAudioLanguage] = useState<string>("English");
+  const [audioLanguage, setAudioLanguage] = useState<string>("Google US English");
 
   const [displayInterval, setDisplayInterval] = useState<string>("3");
   const [gameLength, setGameLength] = useState<string>("1");
@@ -73,6 +93,7 @@ export function SettingsSheet() {
   useEffect(() => {
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
     const storedAudioLanguage = localStorage.getItem("audioLanguage");
+
     const storedDisplayInterval = localStorage.getItem("displayInterval");
     const storedGameLength = localStorage.getItem("gameLength");
     const storedPracticeTopic = localStorage.getItem("practiceTopic");
@@ -106,31 +127,37 @@ export function SettingsSheet() {
   const handleAudioEnabledChange = (enabled: boolean) => {
     setAudioEnabled(enabled);
     localStorage.setItem("audioEnabled", enabled.toString());
+    window.dispatchEvent(new CustomEvent("audioSettingsChanged", { detail: enabled }));
   };
-
+  //
   const handleAudioLanguageChange = (lang: string) => {
     setAudioLanguage(lang);
     localStorage.setItem("audioLanguage", lang);
+    window.dispatchEvent(new CustomEvent("audioLanguageChanged", { detail: lang }));
   };
 
   const handleDisplayIntervalChange = (value: string) => {
     setDisplayInterval(value);
     localStorage.setItem("displayInterval", value.toString());
+    window.dispatchEvent(new CustomEvent("displayIntervalChanged", { detail: value }));
   };
 
   const handleGameLengthChange = (value: string) => {
     setGameLength(value);
     localStorage.setItem("gameLength", value.toString());
+    window.dispatchEvent(new CustomEvent("gameLengthChanged", { detail: value }));
   };
 
   const handlePracticeTopicChange = (topic: string) => {
     setPracticeTopic(topic);
     localStorage.setItem("practiceTopic", topic);
+    window.dispatchEvent(new CustomEvent("practiceTopicChanged", { detail: topic }));
   };
 
   const handleAudioEffectChange = (effect: string) => {
     setAudioEffect(effect);
     localStorage.setItem("audioEffect", effect);
+    window.dispatchEvent(new CustomEvent("audioEffectChanged", { detail: effect }));
   };
 
   return (

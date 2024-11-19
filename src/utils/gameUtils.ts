@@ -22,11 +22,10 @@ export function findHighestMatchingPatternCount(pattern: string): number {
       }
     }
   }
-
   return maxCount;
 }
 
-export function findBrailleMatch(pattern: string, inputHistory: string[]) {
+export function findBrailleMatch(pattern: string, inputHistory: string[]): { title: string; keystroke: string[] } | null {
   const updatedInputHistory = [...inputHistory, pattern];
   let bestMatch = null;
   let longestMatch = 0;

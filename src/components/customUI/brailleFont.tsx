@@ -13,7 +13,7 @@ export function BrailleFont({ children, showCursor = false }: BrailleBoxProps) {
   return (
     <div className={cn("text-4xl border border-gray-600 rounded-sm flex", brailleFont.className)}>
       {children}
-      {showCursor && <span className="border-r-2 border-black animate-pulse ml-[2px]" />}
+      {showCursor && <span className="border-r-2 border-black animate-pulse" />}
     </div>
   );
 }
