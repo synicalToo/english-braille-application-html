@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { keyToDotMap, typingMode } from "@/lib/constants";
 import { BrailleFont } from "@/components/customUI/brailleFont";
-import { brailleUnicode } from "@/contents/en/customBrailleData";
+import { brailleMappings, brailleUnicode } from "@/contents/en/customBrailleData";
 
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch } from "@/utils/gameUtils";
@@ -134,12 +134,20 @@ export function ScreenThree() {
             },
           ]);
 
-          // TODO: handle repeating patterns that has a previous entry (captial word -> capital passage)
-          if (matchingResult.keystroke.length > 1) {
-            // for multi-stroke characters
-            setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
-            setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
-            setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length));
+          if (matchingResult.keystroke.length >= 2) {
+            // need another check here since keystroke for this is not being processed
+            switch (matchingResult) {
+              case brailleMappings.Indicators.content.capital_passage:
+                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
+                setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
+                setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
+                break;
+              default:
+                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
+                setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
+                setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length));
+                break;
+            }
 
             setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
             setInputHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
@@ -153,7 +161,9 @@ export function ScreenThree() {
           }
 
           speakText(matchingResult.title, audioEnabled);
-        } else {
+        }
+
+        if (!matchingResult) {
           setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
           setTypingBoard((prev) => [
             ...prev,
@@ -173,7 +183,7 @@ export function ScreenThree() {
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("keyup", handleKeyup);
     };
-  }, [currentInput]);
+  }, [currentInput, inputHistory, combinedPatternHistory, typingBoard]);
 
   return (
     <div className="flex flex-col items-center gap-4 rounded-md border-gray-400 border-2 min-w-[800px] max-w-[800px] min-h-[600px]">

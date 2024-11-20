@@ -30,6 +30,11 @@ export function findBrailleMatch(pattern: string, inputHistory: string[]): { tit
   let bestMatch = null;
   let longestMatch = 0;
 
+  // work around for repeating patterns that has a match previously (capital wor)
+  if (updatedInputHistory.slice(-2).join("") === brailleMappings.Indicators.content.capital_passage.keystroke.join("")) {
+    return brailleMappings.Indicators.content.capital_passage;
+  }
+
   for (const category in brailleMappings) {
     const content = brailleMappings[category].content;
     for (const entry in content) {
