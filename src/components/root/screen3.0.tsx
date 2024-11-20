@@ -9,7 +9,7 @@ import { brailleUnicode } from "@/contents/en/customBrailleData";
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch } from "@/utils/gameUtils";
 
-const debug = false;
+const debug = true;
 
 export function ScreenThree() {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
@@ -45,18 +45,17 @@ export function ScreenThree() {
       switch (event.key.toLowerCase()) {
         case "enter":
           if (typingBoard.length > 0) {
-            const sentence = typingBoard.map((item) => item.text).join("");
-            if (sentence.trim()) {
-              speakText(sentence, audioEnabled);
-            }
-
+            const sentence = typingBoard.map((item) => item.text).join(" ");
             setDisplayBoard((prev) => {
               const newBoard = [...prev, [...typingBoard]];
               return newBoard.slice(-5);
             });
+
             setTypingBoard([]);
             setInputHistory([]);
             setCombinedPatternHistory([]);
+
+            speakText(sentence, audioEnabled);
           }
           break;
         case "backspace":
@@ -64,12 +63,13 @@ export function ScreenThree() {
             setCombinedPatternHistory((prev) => prev.slice(0, -1));
             setTypingBoard((prev) => prev.slice(0, -1));
             setInputHistory((prev) => prev.slice(0, -1));
+
+            speakText("backspace", audioEnabled);
           }
           break;
         case " ":
           event.preventDefault();
           if (typingBoard.length > 0) {
-            setRegisteredInput(Array(6));
             setInputHistory((prev) => [...prev, "0"]);
             setCombinedPatternHistory((prev) => [...prev, "0"]);
             setTypingBoard((prev) => [
@@ -79,6 +79,7 @@ export function ScreenThree() {
                 text: " ",
               },
             ]);
+
             speakText("space", audioEnabled);
           }
           break;
@@ -106,41 +107,61 @@ export function ScreenThree() {
         updatedInput.delete(event.key.toLowerCase());
         setCurrentInput(updatedInput);
 
-        if (updatedInput.size === 0) {
-          const combinedEncoding = registeredInput.join("");
-          setRegisteredInput(Array(6));
-          setInputHistory((prev) => [...prev, combinedEncoding]);
+        // start checking for potential braille match when user releases all keys
+        if (updatedInput.size != 0) return;
 
-          const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
-          let potentialCombination: string = "";
-          let matchingResult: { title: string; keystroke: string[]; symbol?: string } | null = null;
+        const combinedEncoding = registeredInput.join("");
+        setRegisteredInput(Array(6));
+        setInputHistory((prev) => [...prev, combinedEncoding]);
 
-          for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
-            potentialCombination = newCombinedHistory.slice(i).join(",");
-            matchingResult = findBrailleMatch(potentialCombination, inputHistory);
-            if (matchingResult) break;
-          }
+        const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
+        let potentialCombination: string = "";
+        let matchingResult: { title: string; keystroke: string[]; symbol?: string } | null = null;
 
-          if (matchingResult) {
-            setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
+        for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
+          potentialCombination = newCombinedHistory.slice(i).join(",");
+          matchingResult = findBrailleMatch(potentialCombination, inputHistory);
+          if (matchingResult) break;
+        }
+
+        if (matchingResult) {
+          setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
+          setTypingBoard((prev) => [
+            ...prev,
+            {
+              unicode: brailleUnicode[combinedEncoding],
+              text: matchingResult.symbol || matchingResult.title,
+            },
+          ]);
+
+          // TODO: handle repeating patterns that has a previous entry (captial word -> capital passage)
+          if (matchingResult.keystroke.length > 1) {
+            // for multi-stroke characters
+            setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
+            setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
+            setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length));
+
+            setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
+            setInputHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
             setTypingBoard((prev) => [
               ...prev,
               {
-                unicode: brailleUnicode[combinedEncoding],
+                unicode: matchingResult.keystroke.map((dots) => brailleUnicode[dots]).join(""),
                 text: matchingResult.symbol || matchingResult.title,
               },
             ]);
-            speakText(matchingResult.title, audioEnabled);
-          } else {
-            setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
-            setTypingBoard((prev) => [
-              ...prev,
-              {
-                unicode: brailleUnicode[combinedEncoding],
-                text: "",
-              },
-            ]);
           }
+
+          speakText(matchingResult.title, audioEnabled);
+        } else {
+          setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
+          setTypingBoard((prev) => [
+            ...prev,
+            {
+              unicode: brailleUnicode[combinedEncoding],
+              text: "",
+            },
+          ]);
         }
       }
     };
@@ -234,6 +255,10 @@ export function ScreenThree() {
             <div>
               <h3 className="text-lg">Input History:</h3>
               <p>{combinedPatternHistory.join(", ")}</p>
+            </div>
+            <div>
+              <h3 className="text-lg">Typing Mode History:</h3>
+              <p>{typingModeHistory.join(" | ")}</p>
             </div>
           </div>
         </div>
