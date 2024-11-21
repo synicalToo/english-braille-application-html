@@ -4,8 +4,9 @@ export type brailleMappingsType = {
     content: {
       [key: string]: {
         title: string;
-        keystroke: string[];
         symbol?: string;
+        keystroke: string[];
+        terminator?: string[];
       };
     };
   };
@@ -21,7 +22,7 @@ export const brailleMappings: brailleMappingsType = {
   Indicators: {
     compatibility: compatibility.both,
     content: {
-      number: { title: "Numeric", keystroke: ["3456"] },
+      number: { title: "Numeric", keystroke: ["3456"], terminator: ["0", "36", "636"] },
       capital_letter: { title: "Capital letter", keystroke: ["6"] },
       capital_word: { title: "Capital Word", keystroke: ["6", "6"] },
       capital_passage: { title: "Capital Passage", keystroke: ["6", "6", "6"] },

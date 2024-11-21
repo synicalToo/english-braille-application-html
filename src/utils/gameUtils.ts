@@ -25,6 +25,16 @@ export function findHighestMatchingPatternCount(pattern: string): number {
   return maxCount;
 }
 
+export function findNumberMatch(pattern: string): { title: string; symbol?: string; keystroke: string[] } | null {
+  for (const item in brailleMappings.Numbers.content) {
+    if (brailleMappings.Numbers.content[item].keystroke[0] === pattern) {
+      return brailleMappings.Numbers.content[item];
+    }
+  }
+
+  return null;
+}
+
 export function findBrailleMatch(pattern: string, inputHistory: string[]): { title: string; symbol?: string; keystroke: string[] } | null {
   const updatedInputHistory = [...inputHistory, pattern];
   let bestMatch = null;

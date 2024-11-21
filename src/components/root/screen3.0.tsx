@@ -7,7 +7,7 @@ import { BrailleFont } from "@/components/customUI/brailleFont";
 import { brailleMappings, brailleUnicode } from "@/contents/en/customBrailleData";
 
 import { speakText } from "@/utils/audioUtils";
-import { findBrailleMatch } from "@/utils/gameUtils";
+import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 
 const debug = true;
 
@@ -54,6 +54,10 @@ export function ScreenThree() {
             setInputHistory([]);
             setCombinedPatternHistory([]);
             setTypingBoard([]);
+            setTypingModeHistory([]);
+
+            setCurrentTypingMode(typingMode.alphabet);
+            setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
 
             speakText(sentence, audioEnabled);
           }
@@ -64,6 +68,10 @@ export function ScreenThree() {
             setCombinedPatternHistory((prev) => prev.slice(0, -1));
             setTypingBoard((prev) => prev.slice(0, -1));
 
+            if (typingBoard.length === 1) {
+              setCurrentTypingMode(typingMode.alphabet);
+              setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+            }
             speakText("backspace", audioEnabled);
           }
           break;
@@ -80,6 +88,11 @@ export function ScreenThree() {
                 tts: "",
               },
             ]);
+
+            if (currentTypingMode != typingMode.alphabet) {
+              setCurrentTypingMode(typingMode.alphabet);
+              setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+            }
 
             speakText("space", audioEnabled);
           }
@@ -126,13 +139,72 @@ export function ScreenThree() {
         }
 
         if (matchingResult) {
+          let displayText: string = matchingResult.symbol || matchingResult.title;
+          let ttsText: string = matchingResult.title;
+          switch (currentTypingMode) {
+            case typingMode.number:
+              const numberMatch = findNumberMatch(combinedEncoding);
+              if (numberMatch) {
+                displayText = numberMatch.symbol || numberMatch.title;
+                ttsText = displayText;
+              } else {
+                setCurrentTypingMode(typingMode.alphabet);
+                setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+              }
+              break;
+            case typingMode.capital_letter:
+              if (matchingResult != brailleMappings.Indicators.content.capital_letter && matchingResult != brailleMappings.Indicators.content.capital_word && matchingResult != brailleMappings.Indicators.content.capital_passage) {
+                displayText = displayText.toUpperCase();
+                setCurrentTypingMode(typingMode.alphabet);
+                setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+              }
+              break;
+            case typingMode.capital_word:
+              if (matchingResult != brailleMappings.Indicators.content.capital_letter && matchingResult != brailleMappings.Indicators.content.capital_word && matchingResult != brailleMappings.Indicators.content.capital_passage) {
+                displayText = displayText.toUpperCase();
+              }
+              break;
+            case typingMode.capital_passage:
+              if (matchingResult != brailleMappings.Indicators.content.capital_letter && matchingResult != brailleMappings.Indicators.content.capital_word && matchingResult != brailleMappings.Indicators.content.capital_passage) {
+                displayText = displayText.toUpperCase();
+              }
+              break;
+            default:
+              break;
+          }
+
+          switch (matchingResult) {
+            case brailleMappings.Indicators.content.number:
+              setCurrentTypingMode(typingMode.number);
+              setTypingModeHistory((prev) => [...prev, typingMode.number]);
+              ttsText = "";
+              break;
+            case brailleMappings.Indicators.content.capital_letter:
+              setCurrentTypingMode(typingMode.capital_letter);
+              setTypingModeHistory((prev) => [...prev, typingMode.capital_letter]);
+              ttsText = "";
+              break;
+            case brailleMappings.Indicators.content.capital_word:
+              setCurrentTypingMode(typingMode.capital_word);
+              setTypingModeHistory((prev) => [...prev, typingMode.capital_word]);
+              ttsText = "";
+              break;
+            case brailleMappings.Indicators.content.capital_passage:
+              setCurrentTypingMode(typingMode.capital_passage);
+              setTypingModeHistory((prev) => [...prev, typingMode.capital_passage]);
+              ttsText = "";
+              break;
+            default:
+              break;
+          }
+
           setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
           setTypingBoard((prev) => [
             ...prev,
             {
               unicode: brailleUnicode[combinedEncoding],
-              text: matchingResult.symbol || matchingResult.title,
-              tts: matchingResult.title,
+              text: displayText,
+              tts: ttsText,
             },
           ]);
 
@@ -157,13 +229,13 @@ export function ScreenThree() {
               ...prev,
               {
                 unicode: matchingResult.keystroke.map((dots) => brailleUnicode[dots]).join(""),
-                text: matchingResult.symbol || matchingResult.title,
-                tts: matchingResult.title,
+                text: displayText,
+                tts: displayText,
               },
             ]);
           }
 
-          speakText(matchingResult.title, audioEnabled);
+          speakText(ttsText.length > 0 ? ttsText : displayText, audioEnabled);
         }
 
         if (!matchingResult) {
