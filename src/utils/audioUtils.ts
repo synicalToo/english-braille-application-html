@@ -1,7 +1,18 @@
-export function speakText(text: string, enabled: boolean) {
+export function speakText(text: string, enabled: boolean, shouldNotOverride?: boolean): void {
+  /**
+   * @param text: The text to be spoken
+   * @param enabled: User setting if audio is enabled
+   * @param shouldNotOverride: If true, the current audio will be not stopped
+   * @returns void
+   *
+   * @description This function uses the Web Speech API to speak the given text.
+   *
+   */
   if (!enabled || !text || !window.speechSynthesis) return;
 
-  window.speechSynthesis.cancel();
+  if (!shouldNotOverride) {
+    window.speechSynthesis.cancel();
+  }
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 1;

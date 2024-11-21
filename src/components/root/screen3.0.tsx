@@ -15,12 +15,12 @@ export function ScreenThree() {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputHistory, setInputHistory] = useState<string[]>([]);
+  const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
 
   const [currentTypingMode, setCurrentTypingMode] = useState<string>(typingMode.alphabet);
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
 
-  const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
-  const [typingBoard, setTypingBoard] = useState<{ unicode: string; text: string }[]>([]);
+  const [typingBoard, setTypingBoard] = useState<{ unicode: string; text: string; tts: string }[]>([]);
   const [displayBoard, setDisplayBoard] = useState<{ unicode: string; text: string }[][]>([]);
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
@@ -45,24 +45,24 @@ export function ScreenThree() {
       switch (event.key.toLowerCase()) {
         case "enter":
           if (typingBoard.length > 0) {
-            const sentence = typingBoard.map((item) => item.text).join(" ");
+            const sentence = typingBoard.map((item) => item.tts).join("");
             setDisplayBoard((prev) => {
               const newBoard = [...prev, [...typingBoard]];
               return newBoard.slice(-5);
             });
 
-            setTypingBoard([]);
             setInputHistory([]);
             setCombinedPatternHistory([]);
+            setTypingBoard([]);
 
             speakText(sentence, audioEnabled);
           }
           break;
         case "backspace":
           if (typingBoard.length > 0) {
+            setInputHistory((prev) => prev.slice(0, -1));
             setCombinedPatternHistory((prev) => prev.slice(0, -1));
             setTypingBoard((prev) => prev.slice(0, -1));
-            setInputHistory((prev) => prev.slice(0, -1));
 
             speakText("backspace", audioEnabled);
           }
@@ -77,6 +77,7 @@ export function ScreenThree() {
               {
                 unicode: brailleUnicode["0"],
                 text: " ",
+                tts: "",
               },
             ]);
 
@@ -131,6 +132,7 @@ export function ScreenThree() {
             {
               unicode: brailleUnicode[combinedEncoding],
               text: matchingResult.symbol || matchingResult.title,
+              tts: matchingResult.title,
             },
           ]);
 
@@ -138,24 +140,25 @@ export function ScreenThree() {
             // need another check here since keystroke for this is not being processed
             switch (matchingResult) {
               case brailleMappings.Indicators.content.capital_passage:
-                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
                 setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
+                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
                 setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
                 break;
               default:
-                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
                 setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
+                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
                 setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length));
                 break;
             }
 
-            setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
             setInputHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
+            setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
             setTypingBoard((prev) => [
               ...prev,
               {
                 unicode: matchingResult.keystroke.map((dots) => brailleUnicode[dots]).join(""),
                 text: matchingResult.symbol || matchingResult.title,
+                tts: matchingResult.title,
               },
             ]);
           }
@@ -170,6 +173,7 @@ export function ScreenThree() {
             {
               unicode: brailleUnicode[combinedEncoding],
               text: "",
+              tts: "",
             },
           ]);
         }
@@ -183,7 +187,7 @@ export function ScreenThree() {
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("keyup", handleKeyup);
     };
-  }, [currentInput, inputHistory, combinedPatternHistory, typingBoard]);
+  }, [currentInput, inputHistory, combinedPatternHistory, typingBoard, currentTypingMode, typingModeHistory, audioEnabled]);
 
   return (
     <div className="flex flex-col items-center gap-4 rounded-md border-gray-400 border-2 min-w-[800px] max-w-[800px] min-h-[600px]">
