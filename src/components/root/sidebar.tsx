@@ -1,10 +1,12 @@
 import Image from "next/image";
-import { BrailleEncodings, AllBrailleUnicode } from "@/contents/en/brailleData";
+
+import { BrailleFont } from "@/components/customUI/brailleFont";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { BrailleFont } from "../customUI/brailleFont";
+
+import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
 
 function getUnicodeFromKeystrokes(keystrokes: string[]): string {
-  return keystrokes.map((key) => AllBrailleUnicode[key]).join("");
+  return keystrokes.map((key) => BrailleUnicode[key]).join("");
 }
 
 export function Sidebar() {
@@ -19,20 +21,18 @@ export function Sidebar() {
 
       <div id="accordion-list" className="mt-4 overflow-auto overflow-x-hidden h-auto">
         <Accordion type="multiple">
-          {Object.entries(BrailleEncodings).map(([category, content]) => (
+          {Object.entries(BrailleMappings).map(([category]) => (
             <AccordionItem key={category} value={category}>
               <AccordionTrigger>{category}</AccordionTrigger>
               <AccordionContent>
                 <div className="w-full">
                   <div className="flex flex-wrap gap-2 justify-start">
-                    {content.map((entry: any, index: number) =>
-                      entry.title || entry.symbol ? (
-                        <div key={index} className="flex flex-col items-center min-w-[80px] w-[calc(20%-8px)] p-1 h-[80px] justify-between">
-                          <p className="text-sm text-center line-clamp-2 h-[40px] flex items-center">{entry.symbol || entry.title}</p>
-                          <BrailleFont>{getUnicodeFromKeystrokes(entry.keystroke)}</BrailleFont>
-                        </div>
-                      ) : null
-                    )}
+                    {Object.entries(BrailleMappings[category].content).map(([header, item]) => (
+                      <div key={header} className="flex flex-col items-center min-w-[80px] w-[calc(20%-8px)] p-1 h-[80px] justify-between">
+                        <p className="text-sm text-center line-clamp-2 h-[40px] flex items-center">{item.symbol || item.title}</p>
+                        <BrailleFont>{getUnicodeFromKeystrokes(item.keystroke)}</BrailleFont>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </AccordionContent>

@@ -1,4 +1,4 @@
-import { brailleMappings } from "@/contents/en/customBrailleData";
+import { BrailleMappings } from "@/contents/en/customBrailleData";
 
 export function findHighestMatchingPatternCount(pattern: string): number {
   let maxCount = 0;
@@ -12,8 +12,8 @@ export function findHighestMatchingPatternCount(pattern: string): number {
     return count;
   }
 
-  for (const category in brailleMappings) {
-    const content = brailleMappings[category].content;
+  for (const category in BrailleMappings) {
+    const content = BrailleMappings[category].content;
     for (const key in content) {
       const keystrokes = content[key].keystroke;
       const count = countPatternInArray(keystrokes);
@@ -26,9 +26,9 @@ export function findHighestMatchingPatternCount(pattern: string): number {
 }
 
 export function findNumberMatch(pattern: string): { title: string; symbol?: string; keystroke: string[] } | null {
-  for (const item in brailleMappings.Numbers.content) {
-    if (brailleMappings.Numbers.content[item].keystroke[0] === pattern) {
-      return brailleMappings.Numbers.content[item];
+  for (const item in BrailleMappings.Numbers.content) {
+    if (BrailleMappings.Numbers.content[item].keystroke[0] === pattern) {
+      return BrailleMappings.Numbers.content[item];
     }
   }
 
@@ -40,13 +40,13 @@ export function findBrailleMatch(pattern: string, inputHistory: string[]): { tit
   let bestMatch = null;
   let longestMatch = 0;
 
-  // work around for repeating patterns that has a match previously (capital wor)
-  if (updatedInputHistory.slice(-2).join("") === brailleMappings.Indicators.content.capital_passage.keystroke.join("")) {
-    return brailleMappings.Indicators.content.capital_passage;
+  // work around for repeating patterns that has a match previously (capital word -> capital passage)
+  if (updatedInputHistory.slice(-2).join("") === BrailleMappings.Indicators.content.capital_passage.keystroke.join("")) {
+    return BrailleMappings.Indicators.content.capital_passage;
   }
 
-  for (const category in brailleMappings) {
-    const content = brailleMappings[category].content;
+  for (const category in BrailleMappings) {
+    const content = BrailleMappings[category].content;
     for (const entry in content) {
       const item = content[entry];
       const keystrokes = item.keystroke;

@@ -1,6 +1,6 @@
-export type brailleMappingsType = {
+export type BrailleMappingsType = {
   [key: string]: {
-    compatibility: number;
+    Compatibility: number;
     content: {
       [key: string]: {
         title: string;
@@ -12,26 +12,26 @@ export type brailleMappingsType = {
   };
 };
 
-export const compatibility: { [key: string]: number } = {
+export const Compatibility: { [key: string]: number } = {
   grade_1: 1,
   grade_2: 2,
   both: 3,
 };
 
-export const brailleMappings: brailleMappingsType = {
+export const BrailleMappings: BrailleMappingsType = {
   Indicators: {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       number: { title: "Numeric", keystroke: ["3456"], terminator: ["0", "36", "636"] },
       capital_letter: { title: "Capital letter", keystroke: ["6"] },
-      capital_word: { title: "Capital Word", keystroke: ["6", "6"] },
-      capital_passage: { title: "Capital Passage", keystroke: ["6", "6", "6"] },
+      capital_word: { title: "Capital word", keystroke: ["6", "6"] },
+      capital_passage: { title: "Capital passage", keystroke: ["6", "6", "6"] },
       capital_terminator: { title: "Capital terminator", keystroke: ["6", "3"] },
     },
   },
 
   Alphabet: {
-    compatibility: compatibility.grade_1,
+    Compatibility: Compatibility.grade_1,
     content: {
       a: { title: "a", keystroke: ["1"] },
       b: { title: "b", keystroke: ["12"] },
@@ -65,7 +65,7 @@ export const brailleMappings: brailleMappingsType = {
   },
 
   Numbers: {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       1: { title: "1", keystroke: ["1"] },
       2: { title: "2", keystroke: ["12"] },
@@ -81,7 +81,7 @@ export const brailleMappings: brailleMappingsType = {
   },
 
   Punctuation: {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       comma: { title: "Comma", symbol: ",", keystroke: ["2"] },
       period: { title: "Period", symbol: ".", keystroke: ["256"] },
@@ -96,19 +96,18 @@ export const brailleMappings: brailleMappingsType = {
       semicolon: { title: "Semicolon", symbol: ";", keystroke: ["23"] },
 
       ellipsis: { title: "Ellipsis", symbol: "…", keystroke: ["256", "256", "256"] },
-      asterisk: { title: "Asterisk", symbol: "*", keystroke: ["5", "35"] },
       forward_slash: { title: "Forward slash", symbol: "/", keystroke: ["456", "34"] },
       backward_slash: { title: "Backward slash", symbol: "\\", keystroke: ["456", "16"] },
 
-      opening_outer_quotation_mark: { title: "Opening outer quotation mark", symbol: "“", keystroke: ["45", "236"] },
-      closing_outer_quatation_mark: { title: "Closing outer quatation mark", symbol: "”", keystroke: ["45", "356"] },
+      opening_outer_quotation_mark: { title: "Opening outer quotation mark", symbol: "“", keystroke: ["45"] },
+      closing_outer_quatation_mark: { title: "Closing outer quatation mark", symbol: "”", keystroke: ["45"] },
       opening_inner_quotation_mark: { title: "Opening inner quotation mark", symbol: "‘", keystroke: ["6", "236"] },
       closing_inner_quotation_mark: { title: "Closing inner quotation mark", symbol: "’", keystroke: ["6", "356"] },
     },
   },
 
   "Grouping Punctuation": {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       opening_round_parentheses: { title: "Opening round parentheses", symbol: "(", keystroke: ["5", "126"] },
       closing_round_parentheses: { title: "Closing round parentheses", symbol: ")", keystroke: ["5", "345"] },
@@ -122,21 +121,21 @@ export const brailleMappings: brailleMappingsType = {
   },
 
   "Signs of Operation and Comparison": {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       plus: { title: "Plus", symbol: "+", keystroke: ["5", "235"] },
       minus: { title: "Minus", symbol: "-", keystroke: ["5", "36"] },
       multiplication: { title: "Multiplication", symbol: "×", keystroke: ["5", "236"] },
       multiplication_dot: { title: "Multiplication dot", symbol: "·", keystroke: ["5", "256"] },
       division: { title: "Division", symbol: "÷", keystroke: ["5", "34"] },
-      greater_than: { title: "Greater than", symbol: ">", keystroke: ["5", "345"] },
-      less_than: { title: "Less than", symbol: "<", keystroke: ["5", "126"] },
+      greater_than: { title: "Greater than", symbol: ">", keystroke: ["4", "345"] },
+      less_than: { title: "Less than", symbol: "<", keystroke: ["4", "126"] },
       equals: { title: "Equals", symbol: "=", keystroke: ["5", "2356"] },
     },
   },
 
   "Currency and Measurement": {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       cent: { title: "Cent", symbol: "¢", keystroke: ["4", "14"] },
       dollar: { title: "Dollar", symbol: "$", keystroke: ["4", "234"] },
@@ -148,24 +147,193 @@ export const brailleMappings: brailleMappingsType = {
   },
 
   "Special Symbols": {
-    compatibility: compatibility.both,
+    Compatibility: Compatibility.both,
     content: {
       percentage: { title: "Percentage", symbol: "%", keystroke: ["46", "356"] },
       degree: { title: "Degree", symbol: "°", keystroke: ["45", "245"] },
       angle: { title: "Angle", symbol: "∠", keystroke: ["46", "123456"] },
       hashtag: { title: "Hashtag", symbol: "#", keystroke: ["456", "1456"] },
       ampersand: { title: "Ampersand", symbol: "&", keystroke: ["4", "12346"] },
+
       copyright: { title: "Copyright", symbol: "©", keystroke: ["45", "14"] },
       trademark: { title: "Trademark", symbol: "™", keystroke: ["45", "2345"] },
       superscript_indicator: { title: "Superscript indicator", keystroke: ["35"] },
       subscript_indicator: { title: "Subscript indicator", keystroke: ["26"] },
       bullet: { title: "Bullet", symbol: "•", keystroke: ["456", "256"] },
+
       at_sign: { title: "@ sign", symbol: "@", keystroke: ["4", "1"] },
+      asterisk: { title: "Asterisk", symbol: "*", keystroke: ["5", "35"] },
+    },
+  },
+
+  "Alphabet Wordsigns": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      a: { title: "a", keystroke: ["1"] },
+      but: { title: "but", keystroke: ["12"] },
+      can: { title: "can", keystroke: ["14"] },
+      do: { title: "do", keystroke: ["145"] },
+      every: { title: "every", keystroke: ["15"] },
+      from: { title: "from", keystroke: ["124"] },
+      go: { title: "go", keystroke: ["1245"] },
+      have: { title: "have", keystroke: ["125"] },
+      i: { title: "i", keystroke: ["24"] },
+      just: { title: "just", keystroke: ["245"] },
+
+      knowledge: { title: "knowledge", keystroke: ["13"] },
+      like: { title: "like", keystroke: ["123"] },
+      more: { title: "more", keystroke: ["134"] },
+      not: { title: "not", keystroke: ["1345"] },
+      o: { title: "o", keystroke: ["135"] },
+      people: { title: "people", keystroke: ["1234"] },
+      quite: { title: "quite", keystroke: ["12345"] },
+      rather: { title: "rather", keystroke: ["1235"] },
+      so: { title: "so", keystroke: ["234"] },
+      that: { title: "that", keystroke: ["2345"] },
+
+      us: { title: "us", keystroke: ["136"] },
+      very: { title: "very", keystroke: ["1236"] },
+      will: { title: "wwill", keystroke: ["2456"] },
+      it: { title: "it", keystroke: ["1346"] },
+      you: { title: "you", keystroke: ["13456"] },
+      as: { title: "as", keystroke: ["1356"] },
+    },
+  },
+
+  "Strong Contractions": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      and: { title: "and", keystroke: ["12346"] },
+      for: { title: "for", keystroke: ["123456"] },
+      of: { title: "of", keystroke: ["12356"] },
+      the: { title: "the", keystroke: ["2346"] },
+      with: { title: "with", keystroke: ["23456"] },
+    },
+  },
+
+  "Strong Wordsigns": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      child: { title: "child", keystroke: ["16"] },
+      shall: { title: "shall", keystroke: ["146"] },
+      this: { title: "this", keystroke: ["1456"] },
+      which: { title: "which", keystroke: ["156"] },
+      out: { title: "out", keystroke: ["1256"] },
+      still: { title: "still", keystroke: ["34"] },
+    },
+  },
+
+  "Strong Groupsigns": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      ch: { title: "ch", keystroke: ["16"] },
+      sh: { title: "sh", keystroke: ["146"] },
+      th: { title: "th", keystroke: ["1456"] },
+      wh: { title: "wh", keystroke: ["156"] },
+      ou: { title: "ou", keystroke: ["1256"] },
+
+      st: { title: "st", keystroke: ["34"] },
+      gh: { title: "gh", keystroke: ["126"] },
+      ed: { title: "ed", keystroke: ["1246"] },
+      er: { title: "er", keystroke: ["12456"] },
+      ow: { title: "ow", keystroke: ["246"] },
+
+      ar: { title: "ar", keystroke: ["345"] },
+      ing: { title: "ing", keystroke: ["346"] },
+    },
+  },
+
+  "Lower Groupsigns": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      ea: { title: "ea", keystroke: ["2"] },
+      bb: { title: "bb", keystroke: ["23"] },
+      cc: { title: "cc", keystroke: ["25"] },
+      ff: { title: "ff", keystroke: ["235"] },
+      gg: { title: "gg", keystroke: ["2356"] },
+
+      be: { title: "be", keystroke: ["23"] },
+      con: { title: "con", keystroke: ["25"] },
+      dis: { title: "dis", keystroke: ["256"] },
+      en: { title: "en", keystroke: ["26"] },
+      in: { title: "in", keystroke: ["35"] },
+    },
+  },
+
+  "Lower Wordsigns": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      be: { title: "be", keystroke: ["23"] },
+      enough: { title: "enough", keystroke: ["26"] },
+      were: { title: "were", keystroke: ["2356"] },
+      his: { title: "his", keystroke: ["236"] },
+      in: { title: "in", keystroke: ["35"] },
+      was: { title: "was", keystroke: ["356"] },
+    },
+  },
+
+  "Initial Letter Contractions": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      day: { title: "day", keystroke: ["5", "145"] },
+      ever: { title: "ever", keystroke: ["5", "15"] },
+      father: { title: "father", keystroke: ["5", "124"] },
+      here: { title: "here", keystroke: ["5", "125"] },
+      know: { title: "know", keystroke: ["5", "13"] },
+      lord: { title: "lord", keystroke: ["5", "123"] },
+      mother: { title: "mother", keystroke: ["5", "134"] },
+      name: { title: "name", keystroke: ["5", "1345"] },
+      one: { title: "one", keystroke: ["5", "135"] },
+      part: { title: "part", keystroke: ["5", "1234"] },
+      question: { title: "question", keystroke: ["5", "12345"] },
+      right: { title: "right", keystroke: ["5", "1235"] },
+      some: { title: "some", keystroke: ["5", "234"] },
+      time: { title: "time", keystroke: ["5", "2345"] },
+      under: { title: "under", keystroke: ["5", "136"] },
+      work: { title: "work", keystroke: ["5", "2456"] },
+      young: { title: "young", keystroke: ["5", "13456"] },
+
+      there: { title: "there", keystroke: ["5", "2346"] },
+      character: { title: "character", keystroke: ["5", "16"] },
+      through: { title: "through", keystroke: ["5", "1456"] },
+      where: { title: "where", keystroke: ["5", "156"] },
+      ought: { title: "ought", keystroke: ["5", "1256"] },
+      upon: { title: "upon", keystroke: ["45", "136"] },
+      word: { title: "word", keystroke: ["45", "2456"] },
+      these: { title: "these", keystroke: ["45", "2346"] },
+      those: { title: "those", keystroke: ["45", "1456"] },
+      whose: { title: "whose", keystroke: ["45", "156"] },
+
+      cannot: { title: "cannot", keystroke: ["456", "14"] },
+      had: { title: "had", keystroke: ["456", "125"] },
+      many: { title: "many", keystroke: ["456", "134"] },
+      spirit: { title: "spirit", keystroke: ["456", "234"] },
+      world: { title: "world", keystroke: ["456", "2456"] },
+      their: { title: "their", keystroke: ["456", "2346"] },
+    },
+  },
+
+  "Final-letter Groupsigns": {
+    Compatibility: Compatibility.grade_2,
+    content: {
+      ound: { title: "ound", keystroke: ["46", "145"] },
+      ance: { title: "ance", keystroke: ["46", "15"] },
+      sion: { title: "sion", keystroke: ["46", "1345"] },
+      less: { title: "less", keystroke: ["46", "234"] },
+      ount: { title: "ount", keystroke: ["46", "2345"] },
+
+      ence: { title: "ence", keystroke: ["56", "15"] },
+      ong: { title: "ong", keystroke: ["56", "1245"] },
+      ful: { title: "ful", keystroke: ["56", "123"] },
+      tion: { title: "tion", keystroke: ["56", "1345"] },
+      ness: { title: "ness", keystroke: ["56", "234"] },
+      ment: { title: "ment", keystroke: ["56", "2345"] },
+      ity: { title: "ity", keystroke: ["56", "13456"] },
     },
   },
 };
 
-export const brailleUnicode: { [key: string]: string } = {
+export const BrailleUnicode: { [key: string]: string } = {
   "0": "⠀",
   "1": "⠁",
   "2": "⠂",

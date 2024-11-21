@@ -1,8 +1,6 @@
-import { BottomBar } from "@/components/root/bottomBar";
-import Screen from "@/components/root/screen";
-import { ScreenTwo } from "@/components/root/screen2.0";
-import { ScreenThree } from "@/components/root/screen3.0";
+import { Screen } from "@/components/root/screen";
 import { Sidebar } from "@/components/root/sidebar";
+import { BottomBar } from "@/components/root/bottomBar";
 
 export default function TypingPage() {
   return (
@@ -11,9 +9,7 @@ export default function TypingPage() {
         <Sidebar />
       </div>
       <div className="w-full md:w-3/4">
-        {/* <Screen /> */}
-        {/* <ScreenTwo /> */}
-        <ScreenThree />
+        <Screen />
         <BottomBar />
       </div>
     </main>
