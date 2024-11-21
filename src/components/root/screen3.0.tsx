@@ -64,12 +64,33 @@ export function ScreenThree() {
           break;
         case "backspace":
           if (typingBoard.length > 0) {
+            switch (typingBoard[inputHistory.length - 1].text) {
+              case "Numeric":
+              case "Capital letter":
+                setTypingModeHistory((prev) => prev.slice(0, -1));
+                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                break;
+              case "Capital word":
+                setTypingModeHistory((prev) => prev.slice(0, -2));
+                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 3]);
+                break;
+              case "Capital passage":
+                setTypingModeHistory((prev) => prev.slice(0, -3));
+                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 4]);
+                break;
+              default:
+                break;
+            }
+            if (typingBoard[inputHistory.length - 2]?.text == "Capital letter") {
+              setTypingModeHistory((prev) => prev.slice(0, -1));
+              setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+            }
             setInputHistory((prev) => prev.slice(0, -1));
             setCombinedPatternHistory((prev) => prev.slice(0, -1));
             setTypingBoard((prev) => prev.slice(0, -1));
 
             if (typingBoard.length === 1) {
-              setCurrentTypingMode(typingMode.alphabet);
+              setTypingModeHistory([]);
               setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
             }
             speakText("backspace", audioEnabled);
@@ -147,7 +168,7 @@ export function ScreenThree() {
               if (numberMatch) {
                 displayText = numberMatch.symbol || numberMatch.title;
                 ttsText = displayText;
-              } else {
+              } else if (matchingResult != brailleMappings.Indicators.content.capital_letter && matchingResult != brailleMappings.Indicators.content.capital_word && matchingResult != brailleMappings.Indicators.content.capital_passage) {
                 setCurrentTypingMode(typingMode.alphabet);
                 setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
               }
