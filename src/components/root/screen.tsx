@@ -9,7 +9,7 @@ import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 
-const debug = false;
+const debug = true;
 
 export function Screen() {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
@@ -81,7 +81,7 @@ export function Screen() {
               default:
                 break;
             }
-            if (typingBoard[inputHistory.length - 2]?.text == "Capital letter") {
+            if (typingBoard[inputHistory.length - 2]?.text == "Capital letter" && currentTypingMode == "Alphabet") {
               setTypingModeHistory((prev) => prev.slice(0, -1));
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
             }
@@ -168,25 +168,45 @@ export function Screen() {
               if (numberMatch) {
                 displayText = numberMatch.symbol || numberMatch.title;
                 ttsText = displayText;
-              } else if (matchingResult != BrailleMappings.Indicators.content.capital_letter && matchingResult != BrailleMappings.Indicators.content.capital_word && matchingResult != BrailleMappings.Indicators.content.capital_passage) {
+              } else if (
+                matchingResult != BrailleMappings.Indicators.content.number &&
+                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                matchingResult != BrailleMappings.Indicators.content.capital_passage
+              ) {
                 setCurrentTypingMode(typingMode.alphabet);
                 setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
               }
               break;
             case typingMode.capital_letter:
-              if (matchingResult != BrailleMappings.Indicators.content.capital_letter && matchingResult != BrailleMappings.Indicators.content.capital_word && matchingResult != BrailleMappings.Indicators.content.capital_passage) {
+              if (
+                matchingResult != BrailleMappings.Indicators.content.number &&
+                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                matchingResult != BrailleMappings.Indicators.content.capital_passage
+              ) {
                 displayText = displayText.toUpperCase();
                 setCurrentTypingMode(typingMode.alphabet);
                 setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
               }
               break;
             case typingMode.capital_word:
-              if (matchingResult != BrailleMappings.Indicators.content.capital_letter && matchingResult != BrailleMappings.Indicators.content.capital_word && matchingResult != BrailleMappings.Indicators.content.capital_passage) {
+              if (
+                matchingResult != BrailleMappings.Indicators.content.number &&
+                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                matchingResult != BrailleMappings.Indicators.content.capital_passage
+              ) {
                 displayText = displayText.toUpperCase();
               }
               break;
             case typingMode.capital_passage:
-              if (matchingResult != BrailleMappings.Indicators.content.capital_letter && matchingResult != BrailleMappings.Indicators.content.capital_word && matchingResult != BrailleMappings.Indicators.content.capital_passage) {
+              if (
+                matchingResult != BrailleMappings.Indicators.content.number &&
+                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                matchingResult != BrailleMappings.Indicators.content.capital_passage
+              ) {
                 displayText = displayText.toUpperCase();
               }
               break;
