@@ -73,7 +73,6 @@ export function Screen() {
                   setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
                 }
                 break;
-              case "CAPITAL TERMINATOR":
               case "Capital word":
                 if (currentTypingMode == "Capital word") {
                   setTypingModeHistory((prev) => prev.slice(0, -2));
@@ -86,6 +85,11 @@ export function Screen() {
                   setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 4]);
                 }
                 break;
+              case "Capital terminator":
+                if (currentTypingMode == "Alphabet") {
+                  setTypingModeHistory((prev) => prev.slice(0, -1));
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                }
               default:
                 break;
             }
@@ -192,7 +196,12 @@ export function Screen() {
                 matchingResult != BrailleMappings.Indicators.content.capital_word &&
                 matchingResult != BrailleMappings.Indicators.content.capital_passage
               ) {
-                displayText = displayText.toUpperCase();
+                if (matchingResult != BrailleMappings.Indicators.content.capital_terminator) {
+                  displayText = displayText.toUpperCase();
+                } else {
+                  setTypingModeHistory((prev) => prev.slice(0, -1));
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                }
                 setCurrentTypingMode(typingMode.alphabet);
                 setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
               }
@@ -208,7 +217,10 @@ export function Screen() {
               }
               break;
             case typingMode.capital_passage:
-              if (
+              if (matchingResult == BrailleMappings.Indicators.content.capital_terminator) {
+                setCurrentTypingMode(typingMode.alphabet);
+                setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+              } else if (
                 matchingResult != BrailleMappings.Indicators.content.number &&
                 matchingResult != BrailleMappings.Indicators.content.capital_letter &&
                 matchingResult != BrailleMappings.Indicators.content.capital_word &&
