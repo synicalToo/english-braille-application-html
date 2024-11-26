@@ -65,18 +65,26 @@ export function Screen() {
         case "backspace":
           if (typingBoard.length > 0) {
             switch (typingBoard[inputHistory.length - 1].text) {
+              case " ":
               case "Numeric":
               case "Capital letter":
-                setTypingModeHistory((prev) => prev.slice(0, -1));
-                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                if (currentTypingMode == "Number" || currentTypingMode == "Capital letter") {
+                  setTypingModeHistory((prev) => prev.slice(0, -1));
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                }
                 break;
+              case "CAPITAL TERMINATOR":
               case "Capital word":
-                setTypingModeHistory((prev) => prev.slice(0, -2));
-                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 3]);
+                if (currentTypingMode == "Capital word") {
+                  setTypingModeHistory((prev) => prev.slice(0, -2));
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 3]);
+                }
                 break;
               case "Capital passage":
-                setTypingModeHistory((prev) => prev.slice(0, -3));
-                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 4]);
+                if (currentTypingMode == "Capital passage") {
+                  setTypingModeHistory((prev) => prev.slice(0, -3));
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 4]);
+                }
                 break;
               default:
                 break;
@@ -109,8 +117,7 @@ export function Screen() {
                 tts: "",
               },
             ]);
-
-            if (currentTypingMode != typingMode.alphabet) {
+            if (currentTypingMode != typingMode.alphabet && currentTypingMode != typingMode.capital_passage) {
               setCurrentTypingMode(typingMode.alphabet);
               setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
             }
@@ -221,14 +228,18 @@ export function Screen() {
               ttsText = "";
               break;
             case BrailleMappings.Indicators.content.capital_letter:
-              setCurrentTypingMode(typingMode.capital_letter);
-              setTypingModeHistory((prev) => [...prev, typingMode.capital_letter]);
-              ttsText = "";
+              if (currentTypingMode != "Capital passage") {
+                setCurrentTypingMode(typingMode.capital_letter);
+                setTypingModeHistory((prev) => [...prev, typingMode.capital_letter]);
+                ttsText = "";
+              }
               break;
             case BrailleMappings.Indicators.content.capital_word:
-              setCurrentTypingMode(typingMode.capital_word);
-              setTypingModeHistory((prev) => [...prev, typingMode.capital_word]);
-              ttsText = "";
+              if (currentTypingMode != "Capital passage") {
+                setCurrentTypingMode(typingMode.capital_word);
+                setTypingModeHistory((prev) => [...prev, typingMode.capital_word]);
+                ttsText = "";
+              }
               break;
             case BrailleMappings.Indicators.content.capital_passage:
               setCurrentTypingMode(typingMode.capital_passage);
