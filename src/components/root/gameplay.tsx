@@ -12,7 +12,9 @@ export function Gameplay({ onBack }: { onBack: () => void }) {
   const [currentWord, setCurrentWord] = useState<string>("");
   const [points, setPoints] = useState<number>(0);
 
-  const [timeLeft, setTimeLeft] = useState<number>(60);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [maxTime, setMaxTime] = useState<number>(0);
+
   const [progress, setProgress] = useState<number>(100);
   const [isTimerStarted, setIsTimerStarted] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(3);
@@ -42,11 +44,13 @@ export function Gameplay({ onBack }: { onBack: () => void }) {
     const storedGameLength = localStorage.getItem("gameLength");
     if (storedGameLength) {
       setTimeLeft(parseInt(storedGameLength) * 60);
+      setMaxTime(parseInt(storedGameLength) * 60);
     }
 
     const handleGameLengthChange = (event: CustomEvent) => {
       if (!isTimerStarted) {
         setTimeLeft(event.detail);
+        setMaxTime(event.detail);
       }
     };
 
@@ -61,7 +65,7 @@ export function Gameplay({ onBack }: { onBack: () => void }) {
       setIsTimerStarted(true);
       const timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
-        setProgress((timeLeft - 1) * (100 / 60));
+        setProgress((timeLeft / maxTime) * 100);
       }, 1000);
       return () => clearInterval(timer);
     } else if (timeLeft === 0 && isCountdownComplete) {
