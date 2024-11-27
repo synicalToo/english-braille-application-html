@@ -5,7 +5,7 @@ import { SettingsSheet } from "../sheets/settings";
 
 export function BottomBar() {
   return (
-    <div className="flex justify-center items-center space-x-4 mt-4 max-w-[800px]">
+    <div className="flex justify-center items-center space-x-4 py-4 w-full">
       <KeyboardMappingSheet />
       <SettingsSheet />
       <ThemeSwitcher />

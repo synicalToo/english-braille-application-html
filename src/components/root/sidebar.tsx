@@ -11,41 +11,31 @@ function getUnicodeFromKeystrokes(keystrokes: string[]): string {
 
 export function Sidebar() {
   return (
-    <div className="p-4">
-      <div id="sidebar-logo">
-        <a className="flex space-x-2 justify-center">
-          <Image src="/images/logo.png" alt="AT&D Lab. Logo" width={48} height={48} />
-          <p className="text-2xl font-medium self-center pt-2">AT&D Lab.</p>
-        </a>
-      </div>
-
-      <div id="accordion-list" className="mt-4 overflow-auto overflow-x-hidden h-auto">
-        <Accordion type="multiple">
-          {Object.entries(BrailleMappings).map(([category]) => (
-            <AccordionItem key={category} value={category}>
-              <AccordionTrigger>{category}</AccordionTrigger>
-              <AccordionContent>
-                <div className="w-full">
-                  <div className="flex flex-wrap gap-2 justify-start">
-                    {Object.entries(BrailleMappings[category].content).map(([header, item]) => (
-                      <div key={header} className="flex flex-col items-center min-w-[80px] w-[calc(20%-8px)] p-1 h-[80px] justify-between">
-                        <p className="text-sm text-center line-clamp-2 h-[40px] flex items-center">{item.symbol || item.title}</p>
-                        <BrailleFont>{getUnicodeFromKeystrokes(item.keystroke)}</BrailleFont>
-                      </div>
-                    ))}
+    <div className="flex flex-col items-center space-y-2">
+      <a className="flex justify-center space-x-2" href="https://atdlab.jp/">
+        <Image src="/images/logo.png" alt="AT&D Lab. Logo" width={48} height={48} />
+        <p className="text-2xl font-medium self-center pt-2">AT&D Lab.</p>
+      </a>
+      <Accordion type="multiple" className="px-2 w-full">
+        {Object.entries(BrailleMappings).map(([category]) => (
+          <AccordionItem key={category} value={category}>
+            <AccordionTrigger>{category}</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-wrap gap-2 justify-between">
+                {Object.entries(BrailleMappings[category].content).map(([header, item]) => (
+                  <div key={header} className="flex flex-col items-center min-w-[80px] w-[calc(20%-12px)] p-1 justify-between">
+                    <p className="text-sm text-center py-1 mb-2">{item.symbol || item.title}</p>
+                    <BrailleFont>{getUnicodeFromKeystrokes(item.keystroke)}</BrailleFont>
                   </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-      <hr />
-      <div className="flex mt-4 space-x-4">
-        <a href="https://atdlab.jp/index.html#contact" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-4 py-2 text-lg text-white bg-gray-600 rounded-md hover:bg-gray-700">
-          Contact Us
-        </a>
-      </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+      <a className="text-lg px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700" href="https://atdlab.jp/#contact" target="_blank">
+        Contact Us
+      </a>
     </div>
   );
 }
