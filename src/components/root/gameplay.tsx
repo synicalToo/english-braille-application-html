@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import { ComplexShape } from "@/components/ui/ComplexShape";
 
 import { Button } from "@/components/ui/button";
-import { BottomBar } from "@/components/root/bottomBar";
 import { Progress } from "@/components/ui/progress";
 
 import { WordList } from "@/contents/en/wordList";
@@ -9,14 +9,18 @@ import { WordList } from "@/contents/en/wordList";
 import { CiTimer } from "react-icons/ci";
 
 export function Gameplay({ onBack }: { onBack: () => void }) {
+  const [currentWord, setCurrentWord] = useState<string>("");
+  const [points, setPoints] = useState<number>(0);
+
   const [timeLeft, setTimeLeft] = useState<number>(60);
   const [progress, setProgress] = useState<number>(100);
   const [isTimerStarted, setIsTimerStarted] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(3);
   const [isCountdownComplete, setIsCountdownComplete] = useState<boolean>(false);
-  const [points, setPoints] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [countdownAudio] = useState(new Audio("/audio/countdown.wav"));
+  const [brailleCharacters, setBrailleCharacters] = useState<string[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     countdownAudio.currentTime = 0;
@@ -58,12 +62,18 @@ export function Gameplay({ onBack }: { onBack: () => void }) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
         setProgress((timeLeft - 1) * (100 / 60));
-      }, 50);
+      }, 1000);
       return () => clearInterval(timer);
     } else if (timeLeft === 0 && isCountdownComplete) {
       setIsGameOver(true);
     }
   }, [timeLeft, isCountdownComplete]);
+
+  useEffect(() => {
+    if (isCountdownComplete && !currentWord) {
+      generateNewWord();
+    }
+  }, [isCountdownComplete]);
 
   function formatTime(seconds: number) {
     const mins = Math.floor(seconds / 60);
@@ -83,6 +93,15 @@ export function Gameplay({ onBack }: { onBack: () => void }) {
 
   const handleCloseGameOver = () => {
     setIsGameOver(false);
+  };
+
+  const generateNewWord = () => {
+    const randomIndex = Math.floor(Math.random() * WordList.length);
+    const word = WordList[randomIndex];
+    setCurrentWord(word);
+
+    const brailleChars = word.split("").map((char) => char.toLowerCase());
+    setBrailleCharacters(brailleChars);
   };
 
   return (
@@ -109,26 +128,35 @@ export function Gameplay({ onBack }: { onBack: () => void }) {
         </div>
       )}
 
-      <div className="flex flex-col items-center border-2 rounded-md gap-8">
+      <div className="flex flex-col items-center border-2 rounded-md gap-4">
         <div className="flex justify-between items-center w-full p-2">
           <div className="flex justify-start">
             <Button size="sm" onClick={onBack}>
               Back
             </Button>
           </div>
-          <div className="flex justify-center items-center gap-2 p-2 rounded-sm bg-slate-200">
+          <div className="flex justify-center items-center gap-2 p-2 w-1/2 rounded-sm bg-slate-200">
             <CiTimer />
             <p className="text-lg">{formatTime(timeLeft)}</p>
-            <Progress value={progress} className="w-96 h-3" />
+            <Progress value={progress} className="h-3" />
           </div>
           <p className="flex justify-end text-lg p-2 rounded-lg bg-slate-100">Points: 0</p>
         </div>
 
         <div className="flex justify-center items-center p-2 w-full rounded-lg bg-slate-100">
-          <p className="text-2xl"> current word </p>
+          <p className="text-2xl">{currentWord} ()</p>
+        </div>
+
+        <div className="flex justify-end items-center p-4 w-full">
+          <div className={`flex gap-4 transition-all duration-500 ${isAnimating ? "flex-row" : "flex-col"}`}>
+            {brailleCharacters.map((char, index) => (
+              <div key={index} className="transition-all duration-500">
+                {/* <ComplexShape letter={char} size={40} dotSize={8} spacing={4} /> */}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <BottomBar />
     </div>
   );
 }

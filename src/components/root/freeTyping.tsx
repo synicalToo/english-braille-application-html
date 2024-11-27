@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { BottomBar } from "@/components/root/bottomBar";
 import { BrailleFont } from "@/components/customUI/brailleFont";
 import { keyToDotMap, typingMode } from "@/lib/constants";
 import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
@@ -328,82 +327,79 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   }, [currentInput, inputHistory, combinedPatternHistory, typingBoard, currentTypingMode, typingModeHistory, audioEnabled]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col items-center border-2 rounded-md gap-8">
-        <div /*{ title }*/ className="flex justify-between items-center w-full p-2">
-          <div className="w-24"></div>
-          <h1 className="text-2xl font-semibold">Free Typing</h1>
-          <div className="flex justify-end">
-            <Button size="sm" onClick={onBack}>
-              Back
-            </Button>
-          </div>
+    <div className="flex flex-col items-center border-2 rounded-md gap-8">
+      <div /*{ title }*/ className="flex justify-between items-center w-full p-2">
+        <div className="w-24"></div>
+        <h1 className="text-2xl font-semibold">Free Typing</h1>
+        <div className="flex justify-end">
+          <Button size="sm" onClick={onBack}>
+            Back
+          </Button>
         </div>
-        <div /*{ display board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg min-h-[200px]">
-          <h2 className="text-lg font-semibold mb-4 ml-2">Display Board</h2>
-          <div className="px-4 space-y-6">
-            {displayBoard.map((line, lineIndex) => (
-              <div key={lineIndex} className="space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  {line.map((item, itemIndex) => (
-                    <div key={itemIndex} className="flex flex-col items-center justify-end">
-                      <BrailleFont>{item.unicode}</BrailleFont>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-sm pl-1">{line.map((item) => item.text).join("")}</p>
+      </div>
+      <div /*{ display board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg min-h-[200px]">
+        <h2 className="text-lg font-semibold mb-4 ml-2">Display Board</h2>
+        <div className="px-4 space-y-6">
+          {displayBoard.map((line, lineIndex) => (
+            <div key={lineIndex} className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {line.map((item, itemIndex) => (
+                  <div key={itemIndex} className="flex flex-col items-center justify-end">
+                    <BrailleFont>{item.unicode}</BrailleFont>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="text-sm pl-1">{line.map((item) => item.text).join("")}</p>
+            </div>
+          ))}
         </div>
-        <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
-          <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
-          <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
-            {typingBoard.map((item, index) => (
-              <div key={index} className="flex flex-col items-center justify-end">
-                <BrailleFont>{item.unicode}</BrailleFont>
-                <p className="text-xs">{item.text}</p>
-              </div>
-            ))}
-            <BrailleFont showCursor>⠀</BrailleFont>
-          </div>
+      </div>
+      <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
+        <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
+        <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
+          {typingBoard.map((item, index) => (
+            <div key={index} className="flex flex-col items-center justify-end">
+              <BrailleFont>{item.unicode}</BrailleFont>
+              <p className="text-xs">{item.text}</p>
+            </div>
+          ))}
+          <BrailleFont showCursor>⠀</BrailleFont>
         </div>
-        <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
-          <div className="flex gap-2">
-            {Object.values(typingMode).map((value) => (
-              <span
-                key={value}
-                className={`px-3 py-1 rounded-md text-sm cursor-default
+      </div>
+      <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
+        <div className="flex gap-2">
+          {Object.values(typingMode).map((value) => (
+            <span
+              key={value}
+              className={`px-3 py-1 rounded-md text-sm cursor-default
                     ${currentTypingMode === value ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"}`}
-              >
-                {value}
-              </span>
-            ))}
-          </div>
+            >
+              {value}
+            </span>
+          ))}
         </div>
-        {debug && (
-          <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg mt-4 mb-4">
-            <h2 className="text-xl text-center font-semibold mb-4">Debugger</h2>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg">Registered Input:</h3>
-                <div className="flex gap-2">
-                  <BrailleFont>{BrailleUnicode[registeredInput.join("")]}</BrailleFont>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg">Input History:</h3>
-                <p>{combinedPatternHistory.join(", ")}</p>
-              </div>
-              <div>
-                <h3 className="text-lg">Typing Mode History:</h3>
-                <p>{typingModeHistory.join(" | ")}</p>
+      </div>
+      {debug && (
+        <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg mt-4 mb-4">
+          <h2 className="text-xl text-center font-semibold mb-4">Debugger</h2>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg">Registered Input:</h3>
+              <div className="flex gap-2">
+                <BrailleFont>{BrailleUnicode[registeredInput.join("")]}</BrailleFont>
               </div>
             </div>
+            <div>
+              <h3 className="text-lg">Input History:</h3>
+              <p>{combinedPatternHistory.join(", ")}</p>
+            </div>
+            <div>
+              <h3 className="text-lg">Typing Mode History:</h3>
+              <p>{typingModeHistory.join(" | ")}</p>
+            </div>
           </div>
-        )}
-      </div>
-      <BottomBar />
+        </div>
+      )}
     </div>
   );
 }
