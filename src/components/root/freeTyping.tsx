@@ -25,6 +25,8 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   const [displayBoard, setDisplayBoard] = useState<{ unicode: string; text: string }[][]>([]);
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  const [selectedGrade, setSelectedGrade] = useState<string>("1");
+
   useEffect(() => {
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
     if (storedAudioEnabled) {
@@ -35,9 +37,20 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
       setAudioEnabled(event.detail);
     };
 
+    const storedGradeSelected = localStorage.getItem("gradeSelect");
+    if (storedGradeSelected) {
+      setSelectedGrade(storedGradeSelected);
+    }
+
+    const handleGradeSelectedChange = (event: CustomEvent) => {
+      setSelectedGrade(event.detail);
+    };
+
     window.addEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    window.addEventListener("gradeSelectedChanged", handleGradeSelectedChange as EventListener);
     return () => {
       window.removeEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+      window.removeEventListener("gradeSelectedChanged", handleGradeSelectedChange as EventListener);
     };
   }, []);
 
@@ -91,6 +104,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                   setTypingModeHistory((prev) => prev.slice(0, -1));
                   setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
                 }
+                break;
               default:
                 break;
             }
@@ -164,10 +178,14 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
         let potentialCombination: string = "";
         let matchingResult: { title: string; keystroke: string[]; symbol?: string } | null = null;
+        let longestMatch: number = 1;
 
         for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
           potentialCombination = newCombinedHistory.slice(i).join(",");
-          matchingResult = findBrailleMatch(potentialCombination, inputHistory);
+          const result = findBrailleMatch(potentialCombination, inputHistory, selectedGrade);
+          matchingResult = result.bestMatch;
+          longestMatch = result.longestMatch;
+
           if (matchingResult) break;
         }
 
@@ -274,19 +292,29 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           ]);
 
           if (matchingResult.keystroke.length >= 2 && currentTypingMode != typingMode.number) {
-            // need another check here since keystroke for this is not being processed
-            switch (matchingResult) {
-              case BrailleMappings.Indicators.content.capital_passage:
-                setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
-                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
-                setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length + 1));
-                break;
-              default:
-                setInputHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
-                setCombinedPatternHistory((prev) => prev.slice(0, -matchingResult.keystroke.length));
-                setTypingBoard((prev) => prev.slice(0, -matchingResult.keystroke.length));
-                break;
+            let sliceOffset: number | undefined;
+
+            if (selectedGrade === "2") {
+              if (matchingResult.keystroke.length === 5 && longestMatch !== 5) {
+                sliceOffset = -matchingResult.keystroke.length + 3;
+              } else if (matchingResult.keystroke.length === 4 && longestMatch !== 4) {
+                sliceOffset = -matchingResult.keystroke.length + 2;
+              } else if ((matchingResult.keystroke.length === 4 || matchingResult.keystroke.length === 3 || longestMatch === 3) && matchingResult.keystroke.length > longestMatch) {
+                sliceOffset = -matchingResult.keystroke.length + 1;
+              } else {
+                sliceOffset = -matchingResult.keystroke.length;
+              }
+            } else if (selectedGrade === "1") {
+              if (matchingResult.keystroke.length === 3 && matchingResult.keystroke.length > longestMatch) {
+                sliceOffset = -matchingResult.keystroke.length + 1;
+              } else {
+                sliceOffset = -matchingResult.keystroke.length;
+              }
             }
+
+            setInputHistory((prev) => prev.slice(0, sliceOffset));
+            setCombinedPatternHistory((prev) => prev.slice(0, sliceOffset));
+            setTypingBoard((prev) => prev.slice(0, sliceOffset));
 
             setInputHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
             setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);

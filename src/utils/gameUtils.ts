@@ -34,30 +34,58 @@ export function findNumberMatch(pattern: string): { title: string; symbol?: stri
 
   return null;
 }
-
-export function findBrailleMatch(pattern: string, inputHistory: string[]): { title: string; symbol?: string; keystroke: string[] } | null {
+export function findBrailleMatch(
+  pattern: string,
+  inputHistory: string[],
+  grade: string
+): {
+  bestMatch: { title: string; symbol?: string; keystroke: string[] } | null;
+  longestMatch: number;
+} {
   const updatedInputHistory = [...inputHistory, pattern];
-  let bestMatch = null;
+  let bestMatch: { title: string; symbol?: string; keystroke: string[] } | null = null;
   let longestMatch = 0;
 
-  // work around for repeating patterns that has a match previously (capital word -> capital passage)
-  if (updatedInputHistory.slice(-2).join("") === BrailleMappings.Indicators.content.capital_passage.keystroke.join("")) {
-    return BrailleMappings.Indicators.content.capital_passage;
-  }
+  // Determine maximum slice length based on grade
+  const maxSliceLength = grade === "1" ? 3 : 4;
 
   for (const category in BrailleMappings) {
-    const content = BrailleMappings[category].content;
+    const mapping = BrailleMappings[category];
+
+    if ((mapping.Compatibility !== parseInt(grade) && mapping.Compatibility !== 3) || category == "Numbers") continue;
+
+    const { content } = mapping;
+
     for (const entry in content) {
       const item = content[entry];
-      const keystrokes = item.keystroke;
+      const { keystroke } = item;
 
-      const recentInputs = updatedInputHistory.slice(-keystrokes.length);
-      if (keystrokes.length > longestMatch && keystrokes.every((stroke, index) => stroke === recentInputs[index])) {
-        longestMatch = keystrokes.length;
-        bestMatch = item;
+      if (keystroke.length > 2) {
+        for (let sliceLength = Math.min(maxSliceLength, keystroke.length); sliceLength >= 1; sliceLength--) {
+          const mergedInput = updatedInputHistory.slice(-sliceLength).join("");
+          const joinedKeystrokes = keystroke.join("");
+
+          if (joinedKeystrokes === mergedInput && sliceLength > longestMatch) {
+            longestMatch = sliceLength;
+            bestMatch = item;
+            break;
+          }
+        }
+      } else {
+        // Handle cases where keystrokes are 2 or fewer
+        const recentInputs = updatedInputHistory.slice(-keystroke.length);
+        const isMatch = keystroke.every((stroke, index) => stroke === recentInputs[index]);
+
+        if (isMatch && keystroke.length > longestMatch) {
+          longestMatch = keystroke.length;
+          bestMatch = item;
+        }
       }
     }
   }
 
-  return bestMatch;
+  return {
+    bestMatch,
+    longestMatch,
+  };
 }

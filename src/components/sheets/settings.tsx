@@ -9,9 +9,11 @@ import { CustomSwitch } from "@/components/customUI/customSwitch";
 import { CustomSelect } from "@/components/customUI/customSelect";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-import { audioEffectOptions, audioLangugeOptions, brailleDisplayIntervalOptions, practiceTopicOptions, languageCodeMap } from "@/lib/constants";
+import { audioEffectOptions, audioLangugeOptions, brailleDisplayIntervalOptions, practiceTopicOptions, languageCodeMap, gradeOptions } from "@/lib/constants";
 
 interface GeneralSettingProps {
+  gradeSelect: string;
+  setSelectedGrade: (grade: string) => void;
   audioEnabled: boolean;
   setAudioEnabled: (enabled: boolean) => void;
   audioLanguage: string;
@@ -29,7 +31,7 @@ interface GameplaySettingProps {
   setAudioEffect: (effect: string) => void;
 }
 
-const GeneralSettings = ({ audioEnabled, setAudioEnabled, audioLanguage, setAudioLanguage }: GeneralSettingProps) => {
+const GeneralSettings = ({ gradeSelect, setSelectedGrade, audioEnabled, setAudioEnabled, audioLanguage, setAudioLanguage }: GeneralSettingProps) => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
@@ -55,6 +57,8 @@ const GeneralSettings = ({ audioEnabled, setAudioEnabled, audioLanguage, setAudi
         <SettingIcon className="mr-2 self-center" /> General
       </div>
       <br /> <hr /> <br />
+      <CustomSelect title="Select Braille Grade: " placeholder={gradeSelect} options={gradeOptions} value={gradeSelect} onValueChange={setSelectedGrade} />
+      <br />
       <CustomSwitch id="audio-toggle" text="Enable Audio" checked={audioEnabled} onCheckedChange={setAudioEnabled} />
       <CustomSelect placeholder={audioLanguage} options={voiceOptions.length > 0 ? voiceOptions : audioLangugeOptions} value={audioLanguage} onValueChange={setAudioLanguage} />
     </div>
@@ -82,6 +86,7 @@ const GameplaySettings = ({ displayInterval, setDisplayInterval, gameLength, set
 export function SettingsSheet() {
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
 
+  const [gradeSelect, setSelectedGrade] = useState<string>("1");
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [audioLanguage, setAudioLanguage] = useState<string>("Google US English");
 
@@ -91,6 +96,7 @@ export function SettingsSheet() {
   const [audioEffect, setAudioEffect] = useState<string>("None");
 
   useEffect(() => {
+    const storedGradeSelected = localStorage.getItem("gradeSelect");
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
     const storedAudioLanguage = localStorage.getItem("audioLanguage");
 
@@ -98,6 +104,10 @@ export function SettingsSheet() {
     const storedGameLength = localStorage.getItem("gameLength");
     const storedPracticeTopic = localStorage.getItem("practiceTopic");
     const storedAudioEffect = localStorage.getItem("audioEffect");
+
+    if (storedGradeSelected) {
+      setSelectedGrade(storedGradeSelected);
+    }
 
     if (storedAudioEnabled) {
       setAudioEnabled(storedAudioEnabled === "true");
@@ -123,6 +133,12 @@ export function SettingsSheet() {
       setAudioEffect(storedAudioEffect);
     }
   }, []);
+
+  const handleGradeChange = (grade: string) => {
+    setSelectedGrade(grade);
+    localStorage.setItem("gradeSelect", grade);
+    window.dispatchEvent(new CustomEvent("gradeSelectedChanged", { detail: grade }));
+  };
 
   const handleAudioEnabledChange = (enabled: boolean) => {
     setAudioEnabled(enabled);
@@ -173,7 +189,7 @@ export function SettingsSheet() {
           <h2 className="text-3xl font-bold mb-3">Settings</h2>
           <br />
 
-          <GeneralSettings audioEnabled={audioEnabled} setAudioEnabled={handleAudioEnabledChange} audioLanguage={audioLanguage} setAudioLanguage={handleAudioLanguageChange} />
+          <GeneralSettings gradeSelect={gradeSelect} setSelectedGrade={handleGradeChange} audioEnabled={audioEnabled} setAudioEnabled={handleAudioEnabledChange} audioLanguage={audioLanguage} setAudioLanguage={handleAudioLanguageChange} />
 
           <br />
 

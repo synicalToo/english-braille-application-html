@@ -1,3 +1,4 @@
+export const gradeOptions: string[] = ["1", "2"];
 export const audioLangugeOptions: string[] = ["English", "Japanese"];
 export const languageCodeMap: { [key: string]: string } = {
   English: "en-US",
