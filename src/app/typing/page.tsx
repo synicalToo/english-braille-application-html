@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import Gameplay from "@/components/root/gameplay";
 import { Sidebar } from "@/components/root/sidebar";
-import { Gameplay } from "@/components/root/gameplay";
 import { BottomBar } from "@/components/root/bottomBar";
 import { FreeTyping } from "@/components/root/freeTyping";
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,11 @@ export default function TypingPage() {
 
   return (
     <main className="flex flex-wrap gap-4 p-4">
-      <div className="w-full md:w-3/12">
+      <div className="w-full md:w-2/6">
         <Sidebar />
       </div>
 
-      <div className="w-full md:w-6/12 p-4">
+      <div className="w-full md:w-3/6 p-4">
         {!selectedMode ? (
           <>
             <div className="flex flex-col items-center justify-center border-2 rounded-sm">
@@ -45,7 +45,7 @@ export default function TypingPage() {
         )}
       </div>
 
-      <div className="w-full md:w-3/12 bg-purple-100">{""}</div>
+      <div className="w-full md:w-1/6"></div>
     </main>
   );
 }
