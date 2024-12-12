@@ -92,6 +92,12 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     countdown: new Audio("/audio/countdown.wav"),
   });
 
+  function playSound(audio: HTMLAudioElement) {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play();
+  }
+
   // handles user input
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent): void => {
@@ -127,6 +133,18 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           setActiveCharacters((prev) => {
             const newActiveCharacters = [...prev];
             newActiveCharacters[currentIndex].completed = true;
+
+            if (currentIndex + 1 < characterList.length) {
+              newActiveCharacters.splice(currentIndex + 1);
+
+              newActiveCharacters.push({
+                keystroke: characterList[currentIndex + 1].keystroke,
+                timeToLive: 6000,
+                timestamp: Date.now(),
+                completed: false,
+              });
+            }
+
             return newActiveCharacters;
           });
 
@@ -136,13 +154,13 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           setPlayerData((prev) => ({ ...prev, correct: prev.correct + 1 }));
 
           if (currentIndex === characterList.length - 1) {
-            gameAudio.clear.play();
+            playSound(gameAudio.clear);
             generateNewWord();
           } else {
-            gameAudio.correct.play();
+            playSound(gameAudio.correct);
           }
         } else {
-          gameAudio.incorrect.play();
+          playSound(gameAudio.incorrect);
           setPlayerData((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
           setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
         }
@@ -169,7 +187,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
     gameAudio.countdown.currentTime = 1.9;
     if (gameAudio.countdown.paused && !gameAudio.countdown.ended) {
-      gameAudio.countdown.play();
+      playSound(gameAudio.countdown);
     }
 
     const timer = setInterval(() => {
@@ -183,7 +201,6 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
   // handles gameplay timer
   useEffect(() => {
-    if (true) return;
     if (gameState !== "gameplay") return;
     if (gameplayData.timer <= 0) {
       setGameState("gameover");
@@ -214,21 +231,30 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       },
     ]);
 
-    var displayIndex = 1;
     const displayInterval = setInterval(() => {
-      if (displayIndex < characterList.length) {
-        const nextIndex = displayIndex;
-        setActiveCharacters((current) => {
-          return [...current, { keystroke: characterList[nextIndex].keystroke, timeToLive: 6000, timestamp: Date.now(), completed: false }];
-        });
-        displayIndex++;
-      }
+      setActiveCharacters((current) => {
+        if (current[current.length - 1]?.completed) return current;
+
+        const nextIndex = current.length;
+
+        if (nextIndex >= characterList.length) return current;
+
+        return [
+          ...current,
+          {
+            keystroke: characterList[nextIndex].keystroke,
+            timeToLive: 6000,
+            timestamp: Date.now(),
+            completed: false,
+          },
+        ];
+      });
     }, gameplaySettings.displayInterval * 1000);
 
     return () => {
       clearInterval(displayInterval);
     };
-  }, [gameState, selectedWord]);
+  }, [gameState, selectedWord, characterList, gameplaySettings.displayInterval]);
 
   // handles time to live for active characters
   useEffect(() => {
@@ -311,7 +337,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   }
 
   function skipWord() {
-    // gameAudio.skip.play();
+    playSound(gameAudio.skip);
     setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
     setPlayerData((prev) => ({ ...prev, skipped: prev.skipped + 1 }));
 
