@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
 import { CiTimer } from "react-icons/ci";
+import { FaTimes } from "react-icons/fa";
+import { FaCheck, FaForward, FaTrophy } from "react-icons/fa6";
+
+import { cn } from "@/lib/utils";
 import { keyToDotMap } from "@/lib/constants";
 import { WordList } from "@/contents/en/wordList";
 import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
-import { FaCheck, FaForward, FaTrophy } from "react-icons/fa6";
-import { FaTimes } from "react-icons/fa";
 
 type GameState = "countdown" | "gameplay" | "gameover";
 
@@ -275,7 +278,18 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     };
   }, [gameState, activeCharacters]);
 
-  function generateNewWord() {
+  function formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  function getBrailleUnicode(text: string | null): string {
+    if (!text) return "";
+    return text.split("").reduce((result, char) => result + BrailleUnicode[BrailleMappings.Alphabet.content[char].keystroke.join("")], "");
+  }
+
+  function generateNewWord(): void {
     setHighlightedCharacter([]);
     setActiveCharacters([]);
     setCharacterList([]);
@@ -291,24 +305,21 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     setCharacterList(list);
   }
 
-  function handleRestart() {
+  function skipWord(): void {
+    playSound(gameAudio.skip);
+    setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
+    setPlayerData((prev) => ({ ...prev, skipped: prev.skipped + 1 }));
+
+    generateNewWord();
+  }
+
+  function handleRestart(): void {
     setGameState("countdown");
     setPlayerData({ points: 0, skipped: 0, correct: 0, incorrect: 0 });
     setGameplayData({ countdown: 3, progressBar: 100, timer: gameplaySettings.gameLength * 60, maxGameTimer: gameplaySettings.gameLength * 60 });
   }
 
-  function formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  }
-
-  function getBrailleUnicode(text: string | null): string {
-    if (!text) return "";
-    return text.split("").reduce((result, char) => result + BrailleUnicode[BrailleMappings.Alphabet.content[char].keystroke.join("")], "");
-  }
-
-  function renderBrailleText() {
+  function renderBrailleText(): ReactNode {
     if (!selectedWord) return null;
 
     return (
@@ -336,12 +347,21 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     );
   }
 
-  function skipWord() {
-    playSound(gameAudio.skip);
-    setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
-    setPlayerData((prev) => ({ ...prev, skipped: prev.skipped + 1 }));
-
-    generateNewWord();
+  function BrailleDot({ active, number }: { active: boolean; number: number }) {
+    return (
+      <motion.div
+        initial={{
+          scale: active ? 1 : 0.8,
+          backgroundColor: active ? "rgb(60, 60, 60)" : "rgb(226 232 240)",
+        }}
+        animate={{
+          scale: active ? 1 : 0.8,
+          backgroundColor: active ? "rgb(60, 60, 60)" : "rgb(226 232 240)",
+        }}
+        transition={{ duration: 0.2 }}
+        className={cn("w-8 h-8 rounded-full", "border-2 border-slate-300", "flex items-center justify-center")}
+      ></motion.div>
+    );
   }
 
   return (
@@ -378,12 +398,23 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
           <div className="flex justify-center items-center p-4 w-full border-y-2 font-semibold text-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">{renderBrailleText()}</div>
 
-          <div className="flex gap-4 p-8 h-[60vh] w-full bg-red-100">
+          <div className="flex gap-4 p-8 h-[60vh] w-full bg-slate-100 dark:bg-slate-800">
             {activeCharacters.map(
               (character, index) =>
                 !character.completed && (
                   <div key={index} className="flex flex-col items-center justify-center text-center gap-3">
-                    <p>{character.keystroke}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
+                        {[1, 2, 3].map((dotNumber) => (
+                          <BrailleDot key={dotNumber} number={dotNumber} active={character.keystroke.includes(dotNumber.toString())} />
+                        ))}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {[4, 5, 6].map((dotNumber) => (
+                          <BrailleDot key={dotNumber} number={dotNumber} active={character.keystroke.includes(dotNumber.toString())} />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )
             )}
