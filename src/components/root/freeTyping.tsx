@@ -10,6 +10,7 @@ import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 
+const MAX_TYPING_LIMIT = 17;
 const debug = false;
 
 export function FreeTyping({ onBack }: { onBack: () => void }) {
@@ -80,37 +81,51 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           if (typingBoard.length > 0) {
             switch (typingBoard[inputHistory.length - 1].text) {
               case " ":
+                if (typingModeHistory.length > 1) {
+                  setTypingModeHistory((prev) => prev.slice(0, -1));
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                }
+                break;
               case "Numeric":
               case "Capital letter":
+                setTypingModeHistory((prev) => prev.slice(0, -1));
                 if (currentTypingMode == "Number" || currentTypingMode == "Capital letter") {
-                  setTypingModeHistory((prev) => prev.slice(0, -1));
                   setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
                 }
                 break;
               case "Capital word":
+                setTypingModeHistory((prev) => prev.slice(0, -2));
                 if (currentTypingMode == "Capital word") {
-                  setTypingModeHistory((prev) => prev.slice(0, -2));
                   setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 3]);
                 }
                 break;
               case "Capital passage":
+                setTypingModeHistory((prev) => prev.slice(0, -3));
                 if (currentTypingMode == "Capital passage") {
-                  setTypingModeHistory((prev) => prev.slice(0, -3));
                   setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 4]);
                 }
                 break;
               case "Capital terminator":
+                setTypingModeHistory((prev) => prev.slice(0, -2));
                 if (currentTypingMode == "Alphabet") {
-                  setTypingModeHistory((prev) => prev.slice(0, -1));
-                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 3]);
                 }
                 break;
               default:
                 break;
             }
-            if (typingBoard[inputHistory.length - 2]?.text == "Capital letter" && currentTypingMode == "Alphabet") {
+            //Hzndle capital letter
+            if (typingBoard[inputHistory.length - 2]?.text == "Capital letter" && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
               setTypingModeHistory((prev) => prev.slice(0, -1));
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+            }
+            //for if gets terminated by eg alpha, punc
+            const content = BrailleMappings.Numbers.content; //
+            for (const i in content) {
+              if (typingBoard[inputHistory.length - 2]?.text == content[i].title && currentTypingMode != "Number" && typingBoard[inputHistory.length - 1].text != " ") {
+                setTypingModeHistory((prev) => prev.slice(0, -1));
+                setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+              }
             }
             setInputHistory((prev) => prev.slice(0, -1));
             setCombinedPatternHistory((prev) => prev.slice(0, -1));
@@ -125,7 +140,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           break;
         case " ":
           event.preventDefault();
-          if (typingBoard.length > 0) {
+          if (typingBoard.length > 0 && typingBoard.length < MAX_TYPING_LIMIT) {
             setInputHistory((prev) => [...prev, "0"]);
             setCombinedPatternHistory((prev) => [...prev, "0"]);
             setTypingBoard((prev) => [
@@ -136,18 +151,19 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                 tts: "",
               },
             ]);
-            if (currentTypingMode != typingMode.alphabet && currentTypingMode != typingMode.capital_passage) {
+            if (currentTypingMode == typingMode.capital_passage) {
+              setCurrentTypingMode(typingMode.capital_passage);
+              setTypingModeHistory((prev) => [...prev, typingMode.capital_passage]);
+            } else {
               setCurrentTypingMode(typingMode.alphabet);
               setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
             }
-
             speakText("space", audioEnabled);
           }
           break;
         default:
           break;
       }
-
       if (Object.keys(keyToDotMap).includes(event.key)) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
@@ -173,174 +189,179 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
         const combinedEncoding = registeredInput.join("");
         setRegisteredInput(Array(6));
-        setInputHistory((prev) => [...prev, combinedEncoding]);
+        if (typingBoard.length >= MAX_TYPING_LIMIT) {
+          //pos here such tht after eaching limit - wont lag??
+          event.preventDefault();
+          //add the incorrect sound effect
+        } else {
+          setInputHistory((prev) => [...prev, combinedEncoding]);
 
-        const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
-        let potentialCombination: string = "";
-        let matchingResult: { title: string; keystroke: string[]; symbol?: string } | null = null;
-        let longestMatch: number = 1;
+          const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
+          let potentialCombination: string = "";
+          let matchingResult: { title: string; keystroke: string[]; symbol?: string } | null = null;
+          let longestMatch: number = 1;
 
-        for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
-          potentialCombination = newCombinedHistory.slice(i).join(",");
-          const result = findBrailleMatch(potentialCombination, inputHistory, selectedGrade);
-          matchingResult = result.bestMatch;
-          longestMatch = result.longestMatch;
+          for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
+            potentialCombination = newCombinedHistory.slice(i).join(",");
+            const result = findBrailleMatch(potentialCombination, inputHistory, selectedGrade);
+            matchingResult = result.bestMatch;
+            longestMatch = result.longestMatch;
 
-          if (matchingResult) break;
-        }
+            if (matchingResult) break;
+          }
 
-        if (matchingResult) {
-          let displayText: string = matchingResult.symbol || matchingResult.title;
-          let ttsText: string = matchingResult.title;
-          switch (currentTypingMode) {
-            case typingMode.number:
-              const numberMatch = findNumberMatch(combinedEncoding);
-              if (numberMatch) {
-                displayText = numberMatch.symbol || numberMatch.title;
-                ttsText = displayText;
-              } else if (
-                matchingResult != BrailleMappings.Indicators.content.number &&
-                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
-                matchingResult != BrailleMappings.Indicators.content.capital_word &&
-                matchingResult != BrailleMappings.Indicators.content.capital_passage
-              ) {
-                setCurrentTypingMode(typingMode.alphabet);
-                setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
-              }
-              break;
-            case typingMode.capital_letter:
-              if (
-                matchingResult != BrailleMappings.Indicators.content.number &&
-                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
-                matchingResult != BrailleMappings.Indicators.content.capital_word &&
-                matchingResult != BrailleMappings.Indicators.content.capital_passage
-              ) {
-                if (matchingResult != BrailleMappings.Indicators.content.capital_terminator) {
-                  displayText = displayText.toUpperCase();
-                } else {
-                  setTypingModeHistory((prev) => prev.slice(0, -1));
-                  setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+          if (matchingResult) {
+            let displayText: string = matchingResult.symbol || matchingResult.title;
+            let ttsText: string = matchingResult.title;
+            switch (currentTypingMode) {
+              case typingMode.number:
+                const numberMatch = findNumberMatch(combinedEncoding);
+                if (numberMatch) {
+                  displayText = numberMatch.symbol || numberMatch.title;
+                  ttsText = displayText;
+                } else if (
+                  matchingResult != BrailleMappings.Indicators.content.number &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_passage
+                ) {
+                  setCurrentTypingMode(typingMode.alphabet);
+                  setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
                 }
-                setCurrentTypingMode(typingMode.alphabet);
-                setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
-              }
-              break;
-            case typingMode.capital_word:
-              if (
-                matchingResult != BrailleMappings.Indicators.content.number &&
-                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
-                matchingResult != BrailleMappings.Indicators.content.capital_word &&
-                matchingResult != BrailleMappings.Indicators.content.capital_passage
-              ) {
-                displayText = displayText.toUpperCase();
-              }
-              break;
-            case typingMode.capital_passage:
-              if (matchingResult == BrailleMappings.Indicators.content.capital_terminator) {
-                setCurrentTypingMode(typingMode.alphabet);
-                setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
-              } else if (
-                matchingResult != BrailleMappings.Indicators.content.number &&
-                matchingResult != BrailleMappings.Indicators.content.capital_letter &&
-                matchingResult != BrailleMappings.Indicators.content.capital_word &&
-                matchingResult != BrailleMappings.Indicators.content.capital_passage
-              ) {
-                displayText = displayText.toUpperCase();
-              }
-              break;
-            default:
-              break;
-          }
-
-          switch (matchingResult) {
-            case BrailleMappings.Indicators.content.number:
-              setCurrentTypingMode(typingMode.number);
-              setTypingModeHistory((prev) => [...prev, typingMode.number]);
-              ttsText = "";
-              break;
-            case BrailleMappings.Indicators.content.capital_letter:
-              if (currentTypingMode != "Capital passage") {
-                setCurrentTypingMode(typingMode.capital_letter);
-                setTypingModeHistory((prev) => [...prev, typingMode.capital_letter]);
-                ttsText = "";
-              }
-              break;
-            case BrailleMappings.Indicators.content.capital_word:
-              if (currentTypingMode != "Capital passage") {
-                setCurrentTypingMode(typingMode.capital_word);
-                setTypingModeHistory((prev) => [...prev, typingMode.capital_word]);
-                ttsText = "";
-              }
-              break;
-            case BrailleMappings.Indicators.content.capital_passage:
-              setCurrentTypingMode(typingMode.capital_passage);
-              setTypingModeHistory((prev) => [...prev, typingMode.capital_passage]);
-              ttsText = "";
-              break;
-            default:
-              break;
-          }
-
-          setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
-          setTypingBoard((prev) => [
-            ...prev,
-            {
-              unicode: BrailleUnicode[combinedEncoding],
-              text: displayText,
-              tts: ttsText,
-            },
-          ]);
-
-          if (matchingResult.keystroke.length >= 2 && currentTypingMode != typingMode.number) {
-            let sliceOffset: number | undefined;
-
-            if (selectedGrade === "2") {
-              if (matchingResult.keystroke.length === 5 && longestMatch !== 5) {
-                sliceOffset = -matchingResult.keystroke.length + 3;
-              } else if (matchingResult.keystroke.length === 4 && longestMatch !== 4) {
-                sliceOffset = -matchingResult.keystroke.length + 2;
-              } else if ((matchingResult.keystroke.length === 4 || matchingResult.keystroke.length === 3 || longestMatch === 3) && matchingResult.keystroke.length > longestMatch) {
-                sliceOffset = -matchingResult.keystroke.length + 1;
-              } else {
-                sliceOffset = -matchingResult.keystroke.length;
-              }
-            } else if (selectedGrade === "1") {
-              if (matchingResult.keystroke.length === 3 && matchingResult.keystroke.length > longestMatch) {
-                sliceOffset = -matchingResult.keystroke.length + 1;
-              } else {
-                sliceOffset = -matchingResult.keystroke.length;
-              }
+                break;
+              case typingMode.capital_letter:
+                if (
+                  matchingResult != BrailleMappings.Indicators.content.number &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_passage
+                ) {
+                  if (matchingResult != BrailleMappings.Indicators.content.capital_terminator) {
+                    displayText = displayText.toUpperCase();
+                  } else {
+                    setTypingModeHistory((prev) => prev.slice(0, -1));
+                    setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
+                  }
+                  setCurrentTypingMode(typingMode.alphabet);
+                  setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+                }
+                break;
+              case typingMode.capital_word:
+                if (
+                  matchingResult != BrailleMappings.Indicators.content.number &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_passage
+                ) {
+                  displayText = displayText.toUpperCase();
+                }
+                break;
+              case typingMode.capital_passage:
+                if (matchingResult == BrailleMappings.Indicators.content.capital_terminator) {
+                  setCurrentTypingMode(typingMode.alphabet);
+                  setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+                } else if (
+                  matchingResult != BrailleMappings.Indicators.content.number &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_letter &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_word &&
+                  matchingResult != BrailleMappings.Indicators.content.capital_passage
+                ) {
+                  displayText = displayText.toUpperCase();
+                }
+                break;
+              default:
+                break;
             }
 
-            setInputHistory((prev) => prev.slice(0, sliceOffset));
-            setCombinedPatternHistory((prev) => prev.slice(0, sliceOffset));
-            setTypingBoard((prev) => prev.slice(0, sliceOffset));
-
-            setInputHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
-            setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
+            switch (matchingResult) {
+              case BrailleMappings.Indicators.content.number:
+                setCurrentTypingMode(typingMode.number);
+                setTypingModeHistory((prev) => [...prev, typingMode.number]);
+                ttsText = "";
+                break;
+              case BrailleMappings.Indicators.content.capital_letter:
+                if (currentTypingMode != typingMode.capital_passage) {
+                  setCurrentTypingMode(typingMode.capital_letter);
+                }
+                setTypingModeHistory((prev) => [...prev, typingMode.capital_letter]);
+                ttsText = "";
+                break;
+              case BrailleMappings.Indicators.content.capital_word:
+                if (currentTypingMode != "Capital passage") {
+                  setCurrentTypingMode(typingMode.capital_word);
+                }
+                setTypingModeHistory((prev) => [...prev, typingMode.capital_word]);
+                ttsText = "";
+                break;
+              case BrailleMappings.Indicators.content.capital_passage:
+                setCurrentTypingMode(typingMode.capital_passage);
+                setTypingModeHistory((prev) => [...prev, typingMode.capital_passage]);
+                ttsText = "";
+                break;
+              default:
+                break;
+            }
+            setCombinedPatternHistory((prev) => [...prev, potentialCombination]);
             setTypingBoard((prev) => [
               ...prev,
               {
-                unicode: matchingResult.keystroke.map((dots) => BrailleUnicode[dots]).join(""),
+                unicode: BrailleUnicode[combinedEncoding],
                 text: displayText,
-                tts: displayText,
+                tts: ttsText,
+              },
+            ]);
+
+            if (matchingResult.keystroke.length >= 2 && currentTypingMode != typingMode.number) {
+              let sliceOffset: number | undefined;
+
+              if (selectedGrade === "2") {
+                if (matchingResult.keystroke.length === 5 && longestMatch !== 5) {
+                  sliceOffset = -matchingResult.keystroke.length + 3;
+                } else if (matchingResult.keystroke.length === 4 && longestMatch !== 4) {
+                  sliceOffset = -matchingResult.keystroke.length + 2;
+                } else if ((matchingResult.keystroke.length === 4 || matchingResult.keystroke.length === 3 || longestMatch === 3) && matchingResult.keystroke.length > longestMatch) {
+                  sliceOffset = -matchingResult.keystroke.length + 1;
+                } else {
+                  sliceOffset = -matchingResult.keystroke.length;
+                }
+              } else if (selectedGrade === "1") {
+                if (matchingResult.keystroke.length === 3 && matchingResult.keystroke.length > longestMatch) {
+                  sliceOffset = -matchingResult.keystroke.length + 1;
+                } else {
+                  sliceOffset = -matchingResult.keystroke.length;
+                }
+              }
+
+              setInputHistory((prev) => prev.slice(0, sliceOffset));
+              setCombinedPatternHistory((prev) => prev.slice(0, sliceOffset));
+              setTypingBoard((prev) => prev.slice(0, sliceOffset));
+
+              setInputHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
+              setCombinedPatternHistory((prev) => [...prev, matchingResult.keystroke.join("")]);
+              setTypingBoard((prev) => [
+                ...prev,
+                {
+                  unicode: matchingResult.keystroke.map((dots) => BrailleUnicode[dots]).join(""),
+                  text: displayText,
+                  tts: displayText,
+                },
+              ]);
+            }
+
+            speakText(ttsText.length > 0 ? ttsText : displayText, audioEnabled);
+          }
+
+          if (!matchingResult) {
+            setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
+            setTypingBoard((prev) => [
+              ...prev,
+              {
+                unicode: BrailleUnicode[combinedEncoding],
+                text: "",
+                tts: "",
               },
             ]);
           }
-
-          speakText(ttsText.length > 0 ? ttsText : displayText, audioEnabled);
-        }
-
-        if (!matchingResult) {
-          setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
-          setTypingBoard((prev) => [
-            ...prev,
-            {
-              unicode: BrailleUnicode[combinedEncoding],
-              text: "",
-              tts: "",
-            },
-          ]);
         }
       }
     };
