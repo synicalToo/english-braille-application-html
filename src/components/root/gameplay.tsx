@@ -204,6 +204,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
   // handles gameplay timer
   useEffect(() => {
+    if (true) return;
     if (gameState !== "gameplay") return;
     if (gameplayData.timer <= 0) {
       setGameState("gameover");
@@ -225,22 +226,29 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     if (gameState !== "gameplay") return;
     if (characterList.length === 0) return;
 
-    setActiveCharacters([
-      {
-        keystroke: characterList[0].keystroke,
-        timeToLive: 6000,
-        timestamp: Date.now(),
-        completed: false,
-      },
-    ]);
+    if (activeCharacters.length === 0) {
+      setActiveCharacters([
+        {
+          keystroke: characterList[0].keystroke,
+          timeToLive: 6000,
+          timestamp: Date.now(),
+          completed: false,
+        },
+      ]);
+    }
 
     const displayInterval = setInterval(() => {
       setActiveCharacters((current) => {
         if (current[current.length - 1]?.completed) return current;
 
         const nextIndex = current.length;
-
         if (nextIndex >= characterList.length) return current;
+
+        const lastCharacter = current[current.length - 1];
+        const timeSinceLastChar = Date.now() - lastCharacter.timestamp;
+        if (timeSinceLastChar < gameplaySettings.displayInterval * 1000) {
+          return current;
+        }
 
         return [
           ...current,
@@ -252,7 +260,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           },
         ];
       });
-    }, gameplaySettings.displayInterval * 1000);
+    }, 100);
 
     return () => {
       clearInterval(displayInterval);
@@ -351,11 +359,6 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     return (
       <motion.div
         initial={{
-          scale: active ? 1 : 0.8,
-          backgroundColor: active ? "rgb(60, 60, 60)" : "rgb(226 232 240)",
-        }}
-        animate={{
-          scale: active ? 1 : 0.8,
           backgroundColor: active ? "rgb(60, 60, 60)" : "rgb(226 232 240)",
         }}
         transition={{ duration: 0.2 }}
@@ -380,9 +383,6 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
             <Button className="bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200" size="sm" onClick={onBack}>
               Back
             </Button>
-            <Button className="bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200" size="sm" onClick={generateNewWord}>
-              New word
-            </Button>
 
             <div className="flex justify-center items-center gap-2 p-2 w-1/2 rounded-lg bg-slate-50 dark:bg-slate-700 shadow-sm">
               <CiTimer size="24" className="text-slate-700 dark:text-slate-200" />
@@ -390,31 +390,42 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
               <Progress className="bg-slate-200 dark:bg-slate-600" value={gameplayData.progressBar} />
             </div>
 
-            <Button className="bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200" size="sm" onClick={handleRestart}>
-              Restart
-            </Button>
             <p className="flex p-2 rounded-lg bg-slate-50 dark:bg-slate-700 shadow-sm font-medium text-slate-800 dark:text-slate-200">Points: {playerData.points}</p>
           </div>
 
           <div className="flex justify-center items-center p-4 w-full border-y-2 font-semibold text-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">{renderBrailleText()}</div>
 
-          <div className="flex gap-4 p-8 h-[60vh] w-full bg-slate-100 dark:bg-slate-800">
+          <div className="items-start justify-center h-[60vh] w-full bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
             {activeCharacters.map(
               (character, index) =>
                 !character.completed && (
-                  <div key={index} className="flex flex-col items-center justify-center text-center gap-3">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2">
-                        {[1, 2, 3].map((dotNumber) => (
-                          <BrailleDot key={dotNumber} number={dotNumber} active={character.keystroke.includes(dotNumber.toString())} />
-                        ))}
+                  <div key={`character-${index}`} className="absolute left-1/2 -translate-x-1/2">
+                    <motion.div initial={{ y: 0 }} animate={{ y: "calc(60vh - 100%)" }} transition={{ duration: 4.5, ease: "linear", delay: 1.5 }} className=" flex items-center justify-center">
+                      <div className="flex flex-col space-x-2">
+                        <div className="absolute right-[2rem]">
+                          <motion.div initial={{ x: 0, y: "5rem" }} animate={{ x: "-5rem", y: 0 }} transition={{ duration: 1, ease: "easeOut", delay: 0.5 }} className="absolute">
+                            <BrailleDot number={3} active={character.keystroke.includes("3")} />
+                          </motion.div>
+                          <motion.div initial={{ x: 0, y: "2.5rem" }} animate={{ x: "-2.5rem", y: 0 }} transition={{ duration: 1, ease: "easeOut", delay: 0.5 }} className="absolute">
+                            <BrailleDot number={2} active={character.keystroke.includes("2")} />
+                          </motion.div>
+                          <div className="absolute">
+                            <BrailleDot number={1} active={character.keystroke.includes("1")} />
+                          </div>
+                        </div>
+                        <div className="absolute left-[1rem]">
+                          <div className="absolute">
+                            <BrailleDot number={4} active={character.keystroke.includes("4")} />
+                          </div>
+                          <motion.div initial={{ x: 0, y: "2.5rem" }} animate={{ x: "2.5rem", y: 0 }} transition={{ duration: 1, ease: "easeOut", delay: 0.5 }} className="absolute">
+                            <BrailleDot number={5} active={character.keystroke.includes("5")} />
+                          </motion.div>
+                          <motion.div initial={{ x: 0, y: "5rem" }} animate={{ x: "5rem", y: 0 }} transition={{ duration: 1, ease: "easeOut", delay: 0.5 }} className="absolute">
+                            <BrailleDot number={6} active={character.keystroke.includes("6")} />
+                          </motion.div>
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        {[4, 5, 6].map((dotNumber) => (
-                          <BrailleDot key={dotNumber} number={dotNumber} active={character.keystroke.includes(dotNumber.toString())} />
-                        ))}
-                      </div>
-                    </div>
+                    </motion.div>
                   </div>
                 )
             )}
