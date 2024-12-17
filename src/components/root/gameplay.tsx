@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { keyToDotMap } from "@/lib/constants";
 import { WordList } from "@/contents/en/wordList";
 import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
+import { speakText } from "@/utils/audioUtils";
 
 type GameState = "countdown" | "gameplay" | "gameover";
 
@@ -97,11 +98,30 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
   const [animationCompleted, setAnimationCompleted] = useState<{ [key: number]: boolean }>({});
 
-  function playSound(audio: HTMLAudioElement) {
-    audio.pause();
-    audio.currentTime = 0;
-    audio.play();
-  }
+  // handle initial settings on load
+  useEffect(() => {
+    const storedAudioEnabled = localStorage.getItem("audioEnabled");
+    const storedDisplayInterval = localStorage.getItem("displayInterval");
+    const storedGameLength = localStorage.getItem("gameLength");
+    const storedPracticeTopic = localStorage.getItem("practiceTopic");
+    const storedAudioEffect = localStorage.getItem("audioEffect");
+
+    const initialSettings = {
+      ...gameplaySettings,
+      audioEnabled: storedAudioEnabled ? storedAudioEnabled === "true" : gameplaySettings.audioEnabled,
+      displayInterval: storedDisplayInterval ? (parseInt(storedDisplayInterval) as displayIntervalOptions) : gameplaySettings.displayInterval,
+      gameLength: storedGameLength ? (parseInt(storedGameLength) as gameLengthOptions) : gameplaySettings.gameLength,
+      practiceTopic: storedPracticeTopic ? (storedPracticeTopic as practiceTopicOptions) : gameplaySettings.practiceTopic,
+      soundEffects: storedAudioEffect ? (storedAudioEffect as soundEffectsOptions) : gameplaySettings.soundEffects,
+    };
+
+    setGameplaySettings(initialSettings);
+    setGameplayData((prev) => ({
+      ...prev,
+      timer: initialSettings.gameLength * 60,
+      maxGameTimer: initialSettings.gameLength * 60,
+    }));
+  }, []);
 
   // handles user input
   useEffect(() => {
@@ -162,6 +182,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
             generateNewWord();
           } else {
             playSound(gameAudio.correct);
+            speakText(characterList[currentIndex + 1].character, true, false);
           }
         } else {
           playSound(gameAudio.incorrect);
@@ -237,6 +258,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
         },
       ]);
       setAnimationCompleted({ 0: false });
+      speakText(characterList[0].character, true, true);
     }
 
     const displayInterval = setInterval(() => {
@@ -330,6 +352,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
     const word = WordList[Math.floor(Math.random() * WordList.length)];
     setSelectedWord(word);
+    speakText(word, true, true);
 
     const list = [];
     for (let i = 0; i < word.length; i++) {
@@ -347,9 +370,36 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   }
 
   function handleRestart(): void {
+    const storedAudioEnabled = localStorage.getItem("audioEnabled");
+    const storedDisplayInterval = localStorage.getItem("displayInterval");
+    const storedGameLength = localStorage.getItem("gameLength");
+    const storedPracticeTopic = localStorage.getItem("practiceTopic");
+    const storedAudioEffect = localStorage.getItem("audioEffect");
+
+    const updatedSettings = {
+      ...gameplaySettings,
+      audioEnabled: storedAudioEnabled ? storedAudioEnabled === "true" : gameplaySettings.audioEnabled,
+      displayInterval: storedDisplayInterval ? (parseInt(storedDisplayInterval) as displayIntervalOptions) : gameplaySettings.displayInterval,
+      gameLength: storedGameLength ? (parseInt(storedGameLength) as gameLengthOptions) : gameplaySettings.gameLength,
+      practiceTopic: storedPracticeTopic ? (storedPracticeTopic as practiceTopicOptions) : gameplaySettings.practiceTopic,
+      soundEffects: storedAudioEffect ? (storedAudioEffect as soundEffectsOptions) : gameplaySettings.soundEffects,
+    };
+
+    setGameplaySettings(updatedSettings);
     setGameState("countdown");
     setPlayerData({ points: 0, skipped: 0, correct: 0, incorrect: 0 });
-    setGameplayData({ countdown: 3, progressBar: 100, timer: gameplaySettings.gameLength * 60, maxGameTimer: gameplaySettings.gameLength * 60 });
+    setGameplayData({
+      countdown: 3,
+      progressBar: 100,
+      timer: updatedSettings.gameLength * 60,
+      maxGameTimer: updatedSettings.gameLength * 60,
+    });
+  }
+
+  function playSound(audio: HTMLAudioElement) {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play();
   }
 
   function renderBrailleText(): ReactNode {
