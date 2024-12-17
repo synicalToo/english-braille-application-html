@@ -11,6 +11,10 @@ import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 
 const MAX_TYPING_LIMIT = 17;
+interface GameAudio {
+  limit_reached: HTMLAudioElement;
+}
+
 const debug = false;
 
 export function FreeTyping({ onBack }: { onBack: () => void }) {
@@ -27,6 +31,18 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [selectedGrade, setSelectedGrade] = useState<string>("1");
+
+  const [gameAudio] = useState<GameAudio>({
+    limit_reached: new Audio("/audio/incorrect.mp3"),
+  });
+
+  function playSound(audio: HTMLAudioElement) {
+    if (!audio.paused) {
+      return; // Do not play again if already playing
+    }
+    audio.currentTime = 0; // Reset to the start
+    audio.play();
+  }
 
   useEffect(() => {
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
@@ -57,6 +73,11 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent): void => {
+      if (!gameAudio.limit_reached.paused) {
+        gameAudio.limit_reached.pause();
+        gameAudio.limit_reached.currentTime = 0; // Reset to the start if necessary
+      }
+
       switch (event.key.toLowerCase()) {
         case "enter":
           if (typingBoard.length > 0) {
@@ -120,9 +141,9 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
             }
             //for if gets terminated by eg alpha, punc
-            const content = BrailleMappings.Numbers.content; //
+            const content = BrailleMappings.Numbers.content;
             for (const i in content) {
-              if (typingBoard[inputHistory.length - 2]?.text == content[i].title && currentTypingMode != "Number" && typingBoard[inputHistory.length - 1].text != " ") {
+              if (typingBoard[inputHistory.length - 2]?.text == content[i].title && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
                 setTypingModeHistory((prev) => prev.slice(0, -1));
                 setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
               }
@@ -140,7 +161,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           break;
         case " ":
           event.preventDefault();
-          if (typingBoard.length > 0 && typingBoard.length < MAX_TYPING_LIMIT) {
+          if (typingBoard.length > 0 && typingBoard.length <= MAX_TYPING_LIMIT) {
             setInputHistory((prev) => [...prev, "0"]);
             setCombinedPatternHistory((prev) => [...prev, "0"]);
             setTypingBoard((prev) => [
@@ -164,7 +185,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         default:
           break;
       }
-      if (Object.keys(keyToDotMap).includes(event.key)) {
+      if (Object.keys(keyToDotMap).includes(event.key) && typingBoard.length <= MAX_TYPING_LIMIT) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
           const dotIndex = keyToDotMap[event.key.toLowerCase()];
@@ -187,13 +208,14 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         // start checking for potential braille match when user releases all keys
         if (updatedInput.size != 0) return;
 
-        const combinedEncoding = registeredInput.join("");
-        setRegisteredInput(Array(6));
-        if (typingBoard.length >= MAX_TYPING_LIMIT) {
-          //pos here such tht after eaching limit - wont lag??
+        if (typingBoard.length == MAX_TYPING_LIMIT) {
           event.preventDefault();
-          //add the incorrect sound effect
+          playSound(gameAudio.limit_reached);
+          return;
         } else {
+          const combinedEncoding = registeredInput.join("");
+          setRegisteredInput(Array(6));
+
           setInputHistory((prev) => [...prev, combinedEncoding]);
 
           const newCombinedHistory = [...combinedPatternHistory, combinedEncoding];
