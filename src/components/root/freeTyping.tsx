@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -84,9 +85,9 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             const sentence = typingBoard.map((item) => item.tts).join("");
             setDisplayBoard((prev) => {
               const newBoard = [...prev, [...typingBoard]];
-              return newBoard.slice(-5);
+              return newBoard.slice(-4);
             });
-
+            setRegisteredInput([]);
             setInputHistory([]);
             setCombinedPatternHistory([]);
             setTypingBoard([]);
@@ -398,8 +399,8 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   }, [currentInput, inputHistory, combinedPatternHistory, typingBoard, currentTypingMode, typingModeHistory, audioEnabled]);
 
   return (
-    <div className="flex flex-col items-center border-2 rounded-md gap-8">
-      <div /*{ title }*/ className="flex justify-between items-center w-full p-2">
+    <div className="flex flex-col items-center border-2 rounded-md gap-4">
+      <div className="flex justify-between items-center w-full p-2">
         <div className="w-24"></div>
         <h1 className="text-2xl font-semibold">Free Typing</h1>
         <div className="flex justify-end">
@@ -408,23 +409,37 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           </Button>
         </div>
       </div>
-      <div /*{ display board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg min-h-[200px]">
-        <h2 className="text-lg font-semibold mb-4 ml-2">Display Board</h2>
-        <div className="px-4 space-y-6">
-          {displayBoard.map((line, lineIndex) => (
-            <div key={lineIndex} className="space-y-2">
-              <div className="flex flex-wrap gap-2">
-                {line.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex flex-col items-center justify-end">
-                    <BrailleFont>{item.unicode}</BrailleFont>
+      {/* Display Board */}
+      <div className="flex flex-col w-full py-2 px-1 rounded-lg min-h-[200px]">
+        <div className="relative w-full h-72">
+          <Image src="/images/brailler_paper.png" alt="Brailler Paper" layout="fill" />
+          <div className="absolute bottom-0 left-0 w-full h-full flex flex-col items-center justify-start px-2 py-1 space-y-0.5">
+            <div className="w-full max-w-[440px] ml-8 pt-4 flex flex-col items-start p-3 max-h-[220px] overflow-y-auto">
+              {displayBoard.map((line, lineIndex) => (
+                <div key={lineIndex} className="w-full flex flex-col items-start">
+                  {/* Braille container */}
+                  <div className="flex gap-x-0.5">
+                    {line.map((item, itemIndex) => (
+                      <div key={itemIndex} className="flex flex-col items-center justify-end">
+                        <BrailleFont isDisplayBoard>{item.unicode}</BrailleFont>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <p className="text-sm pl-1">{line.map((item) => item.text).join("")}</p>
+                  {/* Text container */}
+                  <div className="w-full text-xs text-left break-words mt-[-0.3rem]">
+                    {line.map((item, itemIndex) => (
+                      <p key={itemIndex} className="inline">
+                        {item.text}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
+
       <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
         <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
@@ -434,7 +449,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
               <p className="text-xs">{item.text}</p>
             </div>
           ))}
-          <BrailleFont showCursor>⠀</BrailleFont>
+          {typingBoard.length <= MAX_TYPING_LIMIT && <BrailleFont showCursor>⠀</BrailleFont>}
         </div>
       </div>
       <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
@@ -443,7 +458,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             <span
               key={value}
               className={`px-3 py-1 rounded-md text-sm cursor-default
-                    ${currentTypingMode === value ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"}`}
+                        ${currentTypingMode === value ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"}`}
             >
               {value}
             </span>

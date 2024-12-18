@@ -19,7 +19,7 @@ export default function TypingPage() {
         <Sidebar />
       </div>
 
-      <div className="w-full md:w-3/6 p-4">
+      <div className="w-full md:[width:55%] p-4">
         {!selectedMode ? (
           <>
             <div className="flex flex-col items-center justify-center border-2 rounded-sm">
