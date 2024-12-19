@@ -16,7 +16,7 @@ export function BrailleFont({ children, showCursor = false, isDisplayBoard = fal
         "flex",
         brailleFont.className,
         isDisplayBoard
-          ? "text-3xl" // Smaller font size for display board
+          ? "text-4xl" // Smaller font size for display board
           : "text-4xl border border-gray-600 rounded-sm" // Styles with border for typing mode
       )}
     >

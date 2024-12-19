@@ -23,6 +23,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputHistory, setInputHistory] = useState<string[]>([]);
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
+  const [inputPosition, setinputPosition] = useState(1);
 
   const [currentTypingMode, setCurrentTypingMode] = useState<string>(typingMode.alphabet);
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
@@ -92,6 +93,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             setCombinedPatternHistory([]);
             setTypingBoard([]);
             setTypingModeHistory([]);
+            setinputPosition(1);
 
             setCurrentTypingMode(typingMode.alphabet);
             setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
@@ -149,11 +151,15 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                 setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
               }
             }
+            if (inputPosition >= 1) {
+              setinputPosition(inputPosition - typingBoard[inputHistory.length - 1]?.unicode.length);
+            }
             setInputHistory((prev) => prev.slice(0, -1));
             setCombinedPatternHistory((prev) => prev.slice(0, -1));
             setTypingBoard((prev) => prev.slice(0, -1));
 
             if (typingBoard.length === 1) {
+              setinputPosition(1);
               setTypingModeHistory([]);
               setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
             }
@@ -162,7 +168,8 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           break;
         case " ":
           event.preventDefault();
-          if (typingBoard.length > 0 && typingBoard.length <= MAX_TYPING_LIMIT) {
+          if (typingBoard.length > 0 && inputPosition < MAX_TYPING_LIMIT) {
+            setinputPosition(inputPosition + 1);
             setInputHistory((prev) => [...prev, "0"]);
             setCombinedPatternHistory((prev) => [...prev, "0"]);
             setTypingBoard((prev) => [
@@ -186,7 +193,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         default:
           break;
       }
-      if (Object.keys(keyToDotMap).includes(event.key) && typingBoard.length <= MAX_TYPING_LIMIT) {
+      if (Object.keys(keyToDotMap).includes(event.key) && inputPosition < MAX_TYPING_LIMIT) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
           const dotIndex = keyToDotMap[event.key.toLowerCase()];
@@ -209,7 +216,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         // start checking for potential braille match when user releases all keys
         if (updatedInput.size != 0) return;
 
-        if (typingBoard.length == MAX_TYPING_LIMIT) {
+        if (inputPosition >= MAX_TYPING_LIMIT) {
           event.preventDefault();
           playSound(gameAudio.limit_reached);
           return;
@@ -232,6 +239,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
             if (matchingResult) break;
           }
+          setinputPosition(inputPosition + 1);
 
           if (matchingResult) {
             let displayText: string = matchingResult.symbol || matchingResult.title;
@@ -414,11 +422,11 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         <div className="relative w-full h-72">
           <Image src="/images/brailler_paper.png" alt="Brailler Paper" layout="fill" />
           <div className="absolute bottom-0 left-0 w-full h-full flex flex-col items-center justify-start px-2 py-1 space-y-0.5">
-            <div className="w-full max-w-[440px] ml-8 pt-4 flex flex-col items-start p-3 max-h-[220px] overflow-y-auto">
+            <div className="w-full max-w-[458px] pt-3 flex flex-col items-start p-2 max-h-[220px] overflow-y-auto">
               {displayBoard.map((line, lineIndex) => (
                 <div key={lineIndex} className="w-full flex flex-col items-start">
                   {/* Braille container */}
-                  <div className="flex gap-x-0.5">
+                  <div className="flex gap-x-0.2">
                     {line.map((item, itemIndex) => (
                       <div key={itemIndex} className="flex flex-col items-center justify-end">
                         <BrailleFont isDisplayBoard>{item.unicode}</BrailleFont>
@@ -426,7 +434,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                     ))}
                   </div>
                   {/* Text container */}
-                  <div className="w-full text-xs text-left break-words mt-[-0.3rem]">
+                  <div className="w-full text-xs text-left break-words mt-[-0.5rem]">
                     {line.map((item, itemIndex) => (
                       <p key={itemIndex} className="inline">
                         {item.text}
@@ -449,7 +457,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
               <p className="text-xs">{item.text}</p>
             </div>
           ))}
-          {typingBoard.length <= MAX_TYPING_LIMIT && <BrailleFont showCursor>⠀</BrailleFont>}
+          {inputPosition < MAX_TYPING_LIMIT && <BrailleFont showCursor>⠀</BrailleFont>}
         </div>
       </div>
       <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
