@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BrailleFont } from "@/components/customUI/brailleFont";
-import { keyToDotMap, typingMode } from "@/lib/constants";
+import { keyToDotMap, TYPING_MODE_OPTIONS } from "@/lib/constants";
 import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
 
 import { speakText } from "@/utils/audioUtils";
@@ -25,8 +25,8 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
   const [inputPosition, setinputPosition] = useState(1);
 
-  const [currentTypingMode, setCurrentTypingMode] = useState<string>(typingMode.alphabet);
-  const [typingModeHistory, setTypingModeHistory] = useState<string[]>([typingMode.alphabet]);
+  const [currentTypingMode, setCurrentTypingMode] = useState<string>("Alphabet");
+  const [typingModeHistory, setTypingModeHistory] = useState<string[]>(["Alphabet"]);
 
   const [typingBoard, setTypingBoard] = useState<{ unicode: string; text: string; tts: string }[]>([]);
   const [displayBoard, setDisplayBoard] = useState<{ unicode: string; text: string }[][]>([]);
@@ -95,8 +95,8 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             setTypingModeHistory([]);
             setinputPosition(1);
 
-            setCurrentTypingMode(typingMode.alphabet);
-            setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+            setCurrentTypingMode("Alphabet");
+            setTypingModeHistory((prev) => [...prev, "Alphabet"]);
 
             speakText(sentence, audioEnabled);
           }
@@ -161,7 +161,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             if (typingBoard.length === 1) {
               setinputPosition(1);
               setTypingModeHistory([]);
-              setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+              setTypingModeHistory((prev) => [...prev, "Alphabet"]);
             }
             speakText("backspace", audioEnabled);
           }
@@ -180,12 +180,12 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                 tts: "",
               },
             ]);
-            if (currentTypingMode == typingMode.capital_passage) {
-              setCurrentTypingMode(typingMode.capital_passage);
-              setTypingModeHistory((prev) => [...prev, typingMode.capital_passage]);
+            if (currentTypingMode == "Capital passage") {
+              setCurrentTypingMode("Capital passage");
+              setTypingModeHistory((prev) => [...prev, "Capital passage"]);
             } else {
-              setCurrentTypingMode(typingMode.alphabet);
-              setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+              setCurrentTypingMode("Alphabet");
+              setTypingModeHistory((prev) => [...prev, "Alphabet"]);
             }
             speakText("space", audioEnabled);
           }
@@ -245,7 +245,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             let displayText: string = matchingResult.symbol || matchingResult.title;
             let ttsText: string = matchingResult.title;
             switch (currentTypingMode) {
-              case typingMode.number:
+              case "Number":
                 const numberMatch = findNumberMatch(combinedEncoding);
                 if (numberMatch) {
                   displayText = numberMatch.symbol || numberMatch.title;
@@ -256,11 +256,11 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                   matchingResult != BrailleMappings.Indicators.content.capital_word &&
                   matchingResult != BrailleMappings.Indicators.content.capital_passage
                 ) {
-                  setCurrentTypingMode(typingMode.alphabet);
-                  setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+                  setCurrentTypingMode("Alphabet");
+                  setTypingModeHistory((prev) => [...prev, "Alphabet"]);
                 }
                 break;
-              case typingMode.capital_letter:
+              case "Capital letter":
                 if (
                   matchingResult != BrailleMappings.Indicators.content.number &&
                   matchingResult != BrailleMappings.Indicators.content.capital_letter &&
@@ -273,11 +273,11 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                     setTypingModeHistory((prev) => prev.slice(0, -1));
                     setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
                   }
-                  setCurrentTypingMode(typingMode.alphabet);
-                  setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+                  setCurrentTypingMode("Alphabet");
+                  setTypingModeHistory((prev) => [...prev, "Alphabet"]);
                 }
                 break;
-              case typingMode.capital_word:
+              case "Capital word":
                 if (
                   matchingResult != BrailleMappings.Indicators.content.number &&
                   matchingResult != BrailleMappings.Indicators.content.capital_letter &&
@@ -287,10 +287,10 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                   displayText = displayText.toUpperCase();
                 }
                 break;
-              case typingMode.capital_passage:
+              case "Capital passage":
                 if (matchingResult == BrailleMappings.Indicators.content.capital_terminator) {
-                  setCurrentTypingMode(typingMode.alphabet);
-                  setTypingModeHistory((prev) => [...prev, typingMode.alphabet]);
+                  setCurrentTypingMode("Alphabet");
+                  setTypingModeHistory((prev) => [...prev, "Alphabet"]);
                 } else if (
                   matchingResult != BrailleMappings.Indicators.content.number &&
                   matchingResult != BrailleMappings.Indicators.content.capital_letter &&
@@ -306,27 +306,27 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
             switch (matchingResult) {
               case BrailleMappings.Indicators.content.number:
-                setCurrentTypingMode(typingMode.number);
-                setTypingModeHistory((prev) => [...prev, typingMode.number]);
+                setCurrentTypingMode("Number");
+                setTypingModeHistory((prev) => [...prev, "Number"]);
                 ttsText = "";
                 break;
               case BrailleMappings.Indicators.content.capital_letter:
-                if (currentTypingMode != typingMode.capital_passage) {
-                  setCurrentTypingMode(typingMode.capital_letter);
+                if (currentTypingMode != "Capital passage") {
+                  setCurrentTypingMode("Capital letter");
                 }
-                setTypingModeHistory((prev) => [...prev, typingMode.capital_letter]);
+                setTypingModeHistory((prev) => [...prev, "Capital letter"]);
                 ttsText = "";
                 break;
               case BrailleMappings.Indicators.content.capital_word:
                 if (currentTypingMode != "Capital passage") {
-                  setCurrentTypingMode(typingMode.capital_word);
+                  setCurrentTypingMode("Capital word");
                 }
-                setTypingModeHistory((prev) => [...prev, typingMode.capital_word]);
+                setTypingModeHistory((prev) => [...prev, "Capital word"]);
                 ttsText = "";
                 break;
               case BrailleMappings.Indicators.content.capital_passage:
-                setCurrentTypingMode(typingMode.capital_passage);
-                setTypingModeHistory((prev) => [...prev, typingMode.capital_passage]);
+                setCurrentTypingMode("Capital passage");
+                setTypingModeHistory((prev) => [...prev, "Capital passage"]);
                 ttsText = "";
                 break;
               default:
@@ -342,7 +342,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
               },
             ]);
 
-            if (matchingResult.keystroke.length >= 2 && currentTypingMode != typingMode.number) {
+            if (matchingResult.keystroke.length >= 2 && currentTypingMode != "Number") {
               let sliceOffset: number | undefined;
 
               if (selectedGrade === "2") {
@@ -462,7 +462,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
       </div>
       <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
         <div className="flex gap-2">
-          {Object.values(typingMode).map((value) => (
+          {TYPING_MODE_OPTIONS.map((value) => (
             <span
               key={value}
               className={`px-3 py-1 rounded-md text-sm cursor-default

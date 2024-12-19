@@ -9,12 +9,10 @@ import { FaTimes } from "react-icons/fa";
 import { FaCheck, FaForward, FaTrophy } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
-import { keyToDotMap } from "@/lib/constants";
+import { speakText } from "@/utils/audioUtils";
 import { WordList } from "@/contents/en/wordList";
 import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
-import { speakText } from "@/utils/audioUtils";
-
-type GameState = "countdown" | "gameplay" | "gameover";
+import { GameState, keyToDotMap, AudioLanguage, BrailleDisplayInterval, GameLength, PracticeTopic, AudioEffect } from "@/lib/constants";
 
 interface PlayerData {
   points: number;
@@ -30,19 +28,13 @@ interface GameplayData {
   maxGameTimer: number;
 }
 
-type TextToSpeechOptions = "Google US English" | "Google 日本語";
-type displayIntervalOptions = 1 | 2 | 3 | 4 | 5 | 6 | 7;
-type gameLengthOptions = 1 | 2 | 3 | 4 | 5;
-type practiceTopicOptions = "Alphabet" | "Number" | "Capital Letters" | "Capital Word" | "Capital Passage";
-type soundEffectsOptions = "None" | "Quiz" | "Cyber";
-
 interface GameplaySettings {
   audioEnabled: boolean;
-  tts: TextToSpeechOptions;
-  displayInterval: displayIntervalOptions;
-  gameLength: gameLengthOptions;
-  practiceTopic: practiceTopicOptions;
-  soundEffects: soundEffectsOptions;
+  tts: AudioLanguage;
+  displayInterval: BrailleDisplayInterval;
+  gameLength: GameLength;
+  practiceTopic: PracticeTopic;
+  soundEffects: AudioEffect;
 }
 
 interface GameAudio {
@@ -71,12 +63,12 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   const [gameplaySettings, setGameplaySettings] = useState<GameplaySettings>({
     audioEnabled: true,
     tts: "Google US English",
-    displayInterval: 1,
-    gameLength: 1,
-    practiceTopic: "Alphabet",
+    displayInterval: "1",
+    gameLength: "1",
+    practiceTopic: "Alphabetical",
     soundEffects: "None",
   });
-  const [gameplayData, setGameplayData] = useState<GameplayData>({ countdown: 3, progressBar: 100, timer: gameplaySettings.gameLength * 60, maxGameTimer: gameplaySettings.gameLength * 60 });
+  const [gameplayData, setGameplayData] = useState<GameplayData>({ countdown: 3, progressBar: 100, timer: parseInt(gameplaySettings.gameLength) * 60, maxGameTimer: parseInt(gameplaySettings.gameLength) * 60 });
 
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
@@ -109,17 +101,17 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     const initialSettings = {
       ...gameplaySettings,
       audioEnabled: storedAudioEnabled ? storedAudioEnabled === "true" : gameplaySettings.audioEnabled,
-      displayInterval: storedDisplayInterval ? (parseInt(storedDisplayInterval) as displayIntervalOptions) : gameplaySettings.displayInterval,
-      gameLength: storedGameLength ? (parseInt(storedGameLength) as gameLengthOptions) : gameplaySettings.gameLength,
-      practiceTopic: storedPracticeTopic ? (storedPracticeTopic as practiceTopicOptions) : gameplaySettings.practiceTopic,
-      soundEffects: storedAudioEffect ? (storedAudioEffect as soundEffectsOptions) : gameplaySettings.soundEffects,
+      displayInterval: storedDisplayInterval ? (storedDisplayInterval as BrailleDisplayInterval) : gameplaySettings.displayInterval,
+      gameLength: storedGameLength ? (storedGameLength as GameLength) : gameplaySettings.gameLength,
+      practiceTopic: storedPracticeTopic ? (storedPracticeTopic as PracticeTopic) : gameplaySettings.practiceTopic,
+      soundEffects: storedAudioEffect ? (storedAudioEffect as AudioEffect) : gameplaySettings.soundEffects,
     };
 
     setGameplaySettings(initialSettings);
     setGameplayData((prev) => ({
       ...prev,
-      timer: initialSettings.gameLength * 60,
-      maxGameTimer: initialSettings.gameLength * 60,
+      timer: parseInt(initialSettings.gameLength) * 60,
+      maxGameTimer: parseInt(initialSettings.gameLength) * 60,
     }));
   }, []);
 
@@ -127,6 +119,49 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent): void => {
       if (gameState !== "gameplay") return;
+
+      if (event.code === "Space") {
+        event.preventDefault();
+        if (activeCharacters[currentIndex]?.keystroke === "0") {
+          setActiveCharacters((prev) => {
+            const newActiveCharacters = [...prev];
+            newActiveCharacters[currentIndex].completed = true;
+
+            const nextIndex = currentIndex + 1;
+            if (nextIndex < characterList.length && !newActiveCharacters[nextIndex]) {
+              newActiveCharacters[nextIndex] = {
+                keystroke: characterList[nextIndex].keystroke,
+                timeToLive: 6000,
+                timestamp: Date.now(),
+                completed: false,
+              };
+            }
+
+            return newActiveCharacters;
+          });
+
+          setCurrentIndex((prev) => prev + 1);
+          setHighlightedCharacter((prev) => [...prev, currentIndex]);
+          setPlayerData((prev) => ({ ...prev, points: prev.points + 10 }));
+          setPlayerData((prev) => ({ ...prev, correct: prev.correct + 1 }));
+
+          if (currentIndex === characterList.length - 1) {
+            playSound(gameAudio.clear);
+            generateNewWord();
+          } else {
+            playSound(gameAudio.correct);
+            const nextChar = characterList[currentIndex + 1].character;
+            speakText(nextChar === " " ? "space" : nextChar, true, false);
+          }
+          return;
+        } else {
+          playSound(gameAudio.incorrect);
+          setPlayerData((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
+          setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
+          return;
+        }
+      }
+
       if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
@@ -143,6 +178,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
     const handleKeyup = (event: KeyboardEvent): void => {
       if (gameState !== "gameplay") return;
+      if (event.code === "Space") return;
+
       if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
         const updatedInput = new Set(currentInput);
         updatedInput.delete(event.key.toLowerCase());
@@ -182,7 +219,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
             generateNewWord();
           } else {
             playSound(gameAudio.correct);
-            speakText(characterList[currentIndex + 1].character, true, false);
+            const nextChar = characterList[currentIndex + 1].character;
+            speakText(nextChar === " " ? "space" : nextChar, true, false);
           }
         } else {
           playSound(gameAudio.incorrect);
@@ -226,7 +264,6 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
   // handles gameplay timer
   useEffect(() => {
-    if (true) return;
     if (gameState !== "gameplay") return;
     if (gameplayData.timer <= 0) {
       setGameState("gameover");
@@ -288,7 +325,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
         const lastCharacter = current[current.length - 1];
         const timeSinceLastChar = Date.now() - lastCharacter.timestamp;
 
-        if (timeSinceLastChar < gameplaySettings.displayInterval * 1000 || !animationCompleted[nextIndex - 1]) {
+        if (timeSinceLastChar < parseInt(gameplaySettings.displayInterval) * 1000 || !animationCompleted[nextIndex - 1]) {
           return current;
         }
 
@@ -341,7 +378,32 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
   function getBrailleUnicode(text: string | null): string {
     if (!text) return "";
-    return text.split("").reduce((result, char) => result + BrailleUnicode[BrailleMappings.Alphabet.content[char].keystroke.join("")], "");
+
+    const containsNumbers = /\d/.test(text);
+    let result = containsNumbers ? BrailleUnicode[BrailleMappings.Indicators.content.number.keystroke.join("")] : "";
+
+    return text.split("").reduce((result, char) => {
+      if (char === " ") {
+        return result + BrailleUnicode["0"];
+      }
+      if (char === ",") {
+        return result + BrailleUnicode[BrailleMappings.Punctuation.content.comma.keystroke.join("")];
+      }
+      if (char === ".") {
+        return result + BrailleUnicode[BrailleMappings.Punctuation.content.period.keystroke.join("")];
+      }
+      if (char !== char.toLowerCase()) {
+        return result + BrailleUnicode[BrailleMappings.Indicators.content.capital_letter.keystroke.join("")] + BrailleUnicode[BrailleMappings.Alphabet.content[char.toLowerCase()].keystroke.join("")];
+      }
+      if (/\d/.test(char)) {
+        return result + BrailleUnicode[BrailleMappings.Numbers.content[char].keystroke.join("")];
+      }
+      if (BrailleMappings.Alphabet.content[char]) {
+        return result + BrailleUnicode[BrailleMappings.Alphabet.content[char].keystroke.join("")];
+      }
+      console.warn(`Character ${char} not found in mappings`);
+      return result + char;
+    }, result);
   }
 
   function generateNewWord(): void {
@@ -350,14 +412,65 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     setCharacterList([]);
     setCurrentIndex(0);
 
-    const word = WordList[Math.floor(Math.random() * WordList.length)];
+    let word: string;
+    if (gameplaySettings.practiceTopic === "All") {
+      const topics = Object.keys(WordList).filter((topic) => topic !== "All") as PracticeTopic[];
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      word = WordList[randomTopic][Math.floor(Math.random() * WordList[randomTopic].length)];
+    } else {
+      word = WordList[gameplaySettings.practiceTopic][Math.floor(Math.random() * WordList[gameplaySettings.practiceTopic].length)];
+    }
+
     setSelectedWord(word);
     speakText(word, true, true);
-
     const list = [];
-    for (let i = 0; i < word.length; i++) {
-      list.push({ character: word[i], keystroke: BrailleMappings.Alphabet.content[word[i]].keystroke.join("") });
+
+    const containsNumbers = /\d/.test(word);
+    if (containsNumbers) {
+      list.push({
+        character: BrailleMappings.Indicators.content.number.title,
+        keystroke: BrailleMappings.Indicators.content.number.keystroke.join(""),
+      });
     }
+
+    for (let i = 0; i < word.length; i++) {
+      if (word[i].toLowerCase() === " ") {
+        list.push({
+          character: word[i],
+          keystroke: "0",
+        });
+      } else if (word[i].toLowerCase() === ",") {
+        list.push({
+          character: word[i],
+          keystroke: BrailleMappings.Punctuation.content.comma.keystroke.join(""),
+        });
+      } else if (word[i].toLowerCase() === ".") {
+        list.push({
+          character: word[i],
+          keystroke: BrailleMappings.Punctuation.content.period.keystroke.join(""),
+        });
+      } else if (word[i] !== word[i].toLowerCase()) {
+        list.push({
+          character: BrailleMappings.Indicators.content.capital_letter.title,
+          keystroke: BrailleMappings.Indicators.content.capital_letter.keystroke.join(""),
+        });
+        list.push({
+          character: word[i],
+          keystroke: BrailleMappings.Alphabet.content[word[i].toLowerCase()].keystroke.join(""),
+        });
+      } else if (/\d/.test(word[i])) {
+        list.push({
+          character: word[i],
+          keystroke: BrailleMappings.Numbers.content[word[i]].keystroke.join(""),
+        });
+      } else if (BrailleMappings.Alphabet.content[word[i]]) {
+        list.push({
+          character: word[i],
+          keystroke: BrailleMappings.Alphabet.content[word[i]].keystroke.join(""),
+        });
+      }
+    }
+
     setCharacterList(list);
   }
 
@@ -379,10 +492,10 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     const updatedSettings = {
       ...gameplaySettings,
       audioEnabled: storedAudioEnabled ? storedAudioEnabled === "true" : gameplaySettings.audioEnabled,
-      displayInterval: storedDisplayInterval ? (parseInt(storedDisplayInterval) as displayIntervalOptions) : gameplaySettings.displayInterval,
-      gameLength: storedGameLength ? (parseInt(storedGameLength) as gameLengthOptions) : gameplaySettings.gameLength,
-      practiceTopic: storedPracticeTopic ? (storedPracticeTopic as practiceTopicOptions) : gameplaySettings.practiceTopic,
-      soundEffects: storedAudioEffect ? (storedAudioEffect as soundEffectsOptions) : gameplaySettings.soundEffects,
+      displayInterval: storedDisplayInterval ? (storedDisplayInterval as BrailleDisplayInterval) : gameplaySettings.displayInterval,
+      gameLength: storedGameLength ? (storedGameLength as GameLength) : gameplaySettings.gameLength,
+      practiceTopic: storedPracticeTopic ? (storedPracticeTopic as PracticeTopic) : gameplaySettings.practiceTopic,
+      soundEffects: storedAudioEffect ? (storedAudioEffect as AudioEffect) : gameplaySettings.soundEffects,
     };
 
     setGameplaySettings(updatedSettings);
@@ -391,8 +504,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     setGameplayData({
       countdown: 3,
       progressBar: 100,
-      timer: updatedSettings.gameLength * 60,
-      maxGameTimer: updatedSettings.gameLength * 60,
+      timer: parseInt(updatedSettings.gameLength) * 60,
+      maxGameTimer: parseInt(updatedSettings.gameLength) * 60,
     });
   }
 
@@ -406,16 +519,33 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     if (!selectedWord) return null;
 
     return (
-      <div className="flex gap-2">
-        <p>
-          {selectedWord.split("").map((char, index) => (
-            <span key={index} className={`${highlightedCharacter.includes(index) ? "text-green-500" : "text-slate-800 dark:text-slate-200"}`}>
-              {char}
-            </span>
-          ))}
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="break-words">
+          {selectedWord.split("").map((char, index) => {
+            let adjustedIndex = index;
+
+            if (gameplaySettings.practiceTopic === "Numbers" || char !== char.toLowerCase()) {
+              adjustedIndex++;
+            }
+
+            if (gameplaySettings.practiceTopic !== "Numbers") {
+              for (let i = 0; i < index; i++) {
+                if (selectedWord[i] !== selectedWord[i].toLowerCase()) {
+                  adjustedIndex++;
+                }
+              }
+            }
+
+            const shouldHighlight = highlightedCharacter.includes(adjustedIndex);
+            return (
+              <span key={index} className={`${shouldHighlight ? "text-green-500" : "text-slate-800 dark:text-slate-200"}`}>
+                {char}
+              </span>
+            );
+          })}
         </p>
 
-        <p>
+        <p className="break-words">
           (
           {getBrailleUnicode(selectedWord)
             .split("")
@@ -437,12 +567,17 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           backgroundColor: active ? "rgb(60, 60, 60)" : "rgb(226 232 240)",
         }}
         transition={{ duration: 0.2 }}
-        className={cn("w-8 h-8 rounded-full", "border-2 border-slate-300", "flex items-center justify-center")}
+        className={cn("w-6 h-6 rounded-full", "border-2 border-slate-300", "flex items-center justify-center")}
       ></motion.div>
     );
   }
 
   function renderBrailleCharacter(character: ActiveCharacter, index: number) {
+    const dots = character.keystroke
+      .split("")
+      .map(Number)
+      .filter((n) => n > 0);
+
     return (
       <div key={`character-${index}`} className="absolute left-1/2 -translate-x-1/2">
         <motion.div initial={{ y: 0 }} animate={{ y: "60vh" }} transition={{ duration: 6, ease: "linear", delay: 0 }} className="flex items-center justify-center">
@@ -460,24 +595,24 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
                 }}
                 className="absolute"
               >
-                <BrailleDot number={3} active={character.keystroke.includes("3")} />
+                <BrailleDot number={3} active={dots.includes(3)} />
               </motion.div>
               <motion.div initial={{ x: 0, y: "2.5rem" }} animate={{ x: "-2.5rem", y: 0 }} transition={{ duration: 0.5, ease: "easeOut", delay: 0.5 }} className="absolute">
-                <BrailleDot number={2} active={character.keystroke.includes("2")} />
+                <BrailleDot number={2} active={dots.includes(2)} />
               </motion.div>
               <div className="absolute">
-                <BrailleDot number={1} active={character.keystroke.includes("1")} />
+                <BrailleDot number={1} active={dots.includes(1)} />
               </div>
             </div>
             <div className="absolute left-[1rem]">
               <div className="absolute">
-                <BrailleDot number={4} active={character.keystroke.includes("4")} />
+                <BrailleDot number={4} active={dots.includes(4)} />
               </div>
               <motion.div initial={{ x: 0, y: "2.5rem" }} animate={{ x: "2.5rem", y: 0 }} transition={{ duration: 0.5, ease: "easeOut", delay: 0.5 }} className="absolute">
-                <BrailleDot number={5} active={character.keystroke.includes("5")} />
+                <BrailleDot number={5} active={dots.includes(5)} />
               </motion.div>
               <motion.div initial={{ x: 0, y: "5rem" }} animate={{ x: "5rem", y: 0 }} transition={{ duration: 0.5, ease: "easeOut", delay: 0.5 }} className="absolute">
-                <BrailleDot number={6} active={character.keystroke.includes("6")} />
+                <BrailleDot number={6} active={dots.includes(6)} />
               </motion.div>
             </div>
           </div>

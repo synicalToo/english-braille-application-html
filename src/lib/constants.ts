@@ -1,22 +1,20 @@
-export const gradeOptions: string[] = ["1", "2"];
-export const audioLangugeOptions: string[] = ["English", "Japanese"];
-export const languageCodeMap: { [key: string]: string } = {
-  English: "en-US",
-  Japanese: "ja-JP",
+import { WordList } from "@/contents/en/wordList";
+
+export const GRADE_OPTIONS = ["1", "2"] as const;
+export const AUDIO_LANGUAGE_OPTIONS = ["Google US English", "Google 日本語"] as const;
+export const LANGUAGE_CODE_MAP: { [key: string]: string } = {
+  "Google US English": "en-US",
+  "Google 日本語": "ja-JP",
 };
 
-export const brailleDisplayIntervalOptions: string[] = ["1", "2", "3", "4", "5", "6", "7"];
-export const gameLengthOptions: string[] = ["1", "2", "3", "4", "5"];
-export const practiceTopicOptions: string[] = ["Words", "Numbers"];
-export const audioEffectOptions: string[] = ["None", "Quiz", "Cyber"];
+export const BRAILLE_DISPLAY_INTERVAL_OPTIONS = ["1", "2", "3", "4", "5", "6", "7"] as const;
+export const GAME_LENGTH_OPTIONS = ["1", "2", "3", "4", "5"] as const;
+export const PRACTICE_TOPIC_OPTIONS = ["Alphabetical", "Numbers", "3-syllabus words", "4-syllabus words", "5-syllabus words", "Short sentences", "All"] as const;
+export const AUDIO_EFFECT_OPTIONS = ["None", "Quiz", "Cyber"] as const;
+export const TYPING_MODE_OPTIONS = ["Alphabet", "Number", "Capital letter", "Capital word", "Capital passage"] as const;
 
-export const typingMode: { [mode: string]: string } = {
-  alphabet: "Alphabet",
-  number: "Number",
-  capital_letter: "Capital letter",
-  capital_word: "Capital word",
-  capital_passage: "Capital passage",
-};
+export type GameState = "countdown" | "gameplay" | "gameover";
+export type TypingMode = (typeof TYPING_MODE_OPTIONS)[number];
 
 export const keyToDotMap: { [key: string]: number } = {
   f: 0,
@@ -26,3 +24,10 @@ export const keyToDotMap: { [key: string]: number } = {
   k: 4,
   l: 5,
 };
+
+export type Grade = (typeof GRADE_OPTIONS)[number];
+export type AudioLanguage = (typeof AUDIO_LANGUAGE_OPTIONS)[number];
+export type BrailleDisplayInterval = (typeof BRAILLE_DISPLAY_INTERVAL_OPTIONS)[number];
+export type GameLength = (typeof GAME_LENGTH_OPTIONS)[number];
+export type PracticeTopic = (typeof PRACTICE_TOPIC_OPTIONS)[number];
+export type AudioEffect = (typeof AUDIO_EFFECT_OPTIONS)[number];
