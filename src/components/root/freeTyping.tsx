@@ -11,7 +11,7 @@ import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 
-const MAX_TYPING_LIMIT = 17;
+const MAX_TYPING_LIMIT = 16;
 interface GameAudio {
   limit_reached: HTMLAudioElement;
 }
@@ -23,7 +23,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputHistory, setInputHistory] = useState<string[]>([]);
   const [combinedPatternHistory, setCombinedPatternHistory] = useState<string[]>([]);
-  const [inputPosition, setinputPosition] = useState(1);
+  const [inputPosition, setinputPosition] = useState(0);
 
   const [currentTypingMode, setCurrentTypingMode] = useState<string>("Alphabet");
   const [typingModeHistory, setTypingModeHistory] = useState<string[]>(["Alphabet"]);
@@ -93,7 +93,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             setCombinedPatternHistory([]);
             setTypingBoard([]);
             setTypingModeHistory([]);
-            setinputPosition(1);
+            setinputPosition(0);
 
             setCurrentTypingMode("Alphabet");
             setTypingModeHistory((prev) => [...prev, "Alphabet"]);
@@ -138,7 +138,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
               default:
                 break;
             }
-            //Hzndle capital letter
+            //Handle capital letter
             if (typingBoard[inputHistory.length - 2]?.text == "Capital letter" && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
               setTypingModeHistory((prev) => prev.slice(0, -1));
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
@@ -151,7 +151,8 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                 setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
               }
             }
-            if (inputPosition >= 1) {
+            if (inputPosition >= 0) {
+              //since 1st character cannot be space
               setinputPosition(inputPosition - typingBoard[inputHistory.length - 1]?.unicode.length);
             }
             setInputHistory((prev) => prev.slice(0, -1));
@@ -159,7 +160,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             setTypingBoard((prev) => prev.slice(0, -1));
 
             if (typingBoard.length === 1) {
-              setinputPosition(1);
+              setinputPosition(0);
               setTypingModeHistory([]);
               setTypingModeHistory((prev) => [...prev, "Alphabet"]);
             }
@@ -193,7 +194,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
         default:
           break;
       }
-      if (Object.keys(keyToDotMap).includes(event.key) && inputPosition < MAX_TYPING_LIMIT) {
+      if (Object.keys(keyToDotMap).includes(event.key) && inputPosition <= MAX_TYPING_LIMIT) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
           const dotIndex = keyToDotMap[event.key.toLowerCase()];
@@ -211,12 +212,12 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
       if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
         const updatedInput = new Set(currentInput);
         updatedInput.delete(event.key.toLowerCase());
+
         setCurrentInput(updatedInput);
 
         // start checking for potential braille match when user releases all keys
         if (updatedInput.size != 0) return;
-
-        if (inputPosition >= MAX_TYPING_LIMIT) {
+        if (inputPosition == MAX_TYPING_LIMIT) {
           event.preventDefault();
           playSound(gameAudio.limit_reached);
           return;
@@ -421,28 +422,31 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
       <div className="flex flex-col w-full py-2 px-1 rounded-lg min-h-[200px]">
         <div className="relative w-full h-72">
           <Image src="/images/brailler_paper.png" alt="Brailler Paper" layout="fill" />
-          <div className="absolute bottom-0 left-0 w-full h-full flex flex-col items-center justify-start px-2 py-1 space-y-0.5">
-            <div className="w-full max-w-[458px] pt-3 flex flex-col items-start p-2 max-h-[220px] overflow-y-auto">
-              {displayBoard.map((line, lineIndex) => (
-                <div key={lineIndex} className="w-full flex flex-col items-start">
-                  {/* Braille container */}
-                  <div className="flex gap-x-0.2">
-                    {line.map((item, itemIndex) => (
-                      <div key={itemIndex} className="flex flex-col items-center justify-end">
-                        <BrailleFont isDisplayBoard>{item.unicode}</BrailleFont>
-                      </div>
-                    ))}
+          <div className="absolute bottom-10 left-8 w-full h-full flex flex-col-reverse items-center justify-start px-5 py-3">
+            <div className="w-full max-w-[458px] pt-3 flex flex-col-reverse items-start p-2 max-h-[220px] overflow-y-auto">
+              {displayBoard
+                .slice()
+                .reverse()
+                .map((line, lineIndex) => (
+                  <div key={lineIndex} className="w-full flex flex-col items-start dark:invert">
+                    {/* Braille container */}
+                    <div className="flex gap-x-0.2">
+                      {line.map((item, itemIndex) => (
+                        <div key={itemIndex} className="flex flex-col items-center justify-end">
+                          <BrailleFont isDisplayBoard>{item.unicode}</BrailleFont>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Text container */}
+                    <div className="w-full text-xs text-left break-words mt-[-0.4rem]">
+                      {line.map((item, itemIndex) => (
+                        <p key={itemIndex} className="inline">
+                          {item.text}
+                        </p>
+                      ))}
+                    </div>
                   </div>
-                  {/* Text container */}
-                  <div className="w-full text-xs text-left break-words mt-[-0.5rem]">
-                    {line.map((item, itemIndex) => (
-                      <p key={itemIndex} className="inline">
-                        {item.text}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
