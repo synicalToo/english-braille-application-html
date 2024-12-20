@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -38,11 +38,49 @@ interface GameplaySettings {
 }
 
 interface GameAudio {
-  clear: HTMLAudioElement;
-  skip: HTMLAudioElement;
-  correct: HTMLAudioElement;
-  incorrect: HTMLAudioElement;
-  countdown: HTMLAudioElement;
+  None: {
+    clear: HTMLAudioElement;
+    skip: HTMLAudioElement;
+    correct: HTMLAudioElement;
+    incorrect: HTMLAudioElement;
+  };
+
+  Default: {
+    clear: HTMLAudioElement;
+    skip: HTMLAudioElement;
+    correct: HTMLAudioElement;
+    incorrect: HTMLAudioElement;
+  };
+
+  Cute: {
+    clear: HTMLAudioElement;
+    skip: HTMLAudioElement;
+    correct: HTMLAudioElement;
+    incorrect: HTMLAudioElement;
+  };
+
+  Cyber: {
+    clear: HTMLAudioElement;
+    skip: HTMLAudioElement;
+    correct: HTMLAudioElement;
+    incorrect: HTMLAudioElement;
+  };
+
+  Fight: {
+    clear: HTMLAudioElement;
+    skip: HTMLAudioElement;
+    correct: HTMLAudioElement;
+    incorrect: HTMLAudioElement;
+  };
+
+  Support: {
+    clear: HTMLAudioElement;
+    skip: HTMLAudioElement;
+    correct: HTMLAudioElement;
+    incorrect: HTMLAudioElement;
+  };
+
+  Countdown: HTMLAudioElement;
 }
 
 interface CharacterList {
@@ -63,7 +101,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   const [gameplaySettings, setGameplaySettings] = useState<GameplaySettings>({
     audioEnabled: true,
     tts: "Google US English",
-    displayInterval: "1",
+    displayInterval: "3",
     gameLength: "1",
     practiceTopic: "Alphabetical",
     soundEffects: "None",
@@ -79,16 +117,47 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   const [characterList, setCharacterList] = useState<CharacterList[]>([]);
 
   const [activeCharacters, setActiveCharacters] = useState<ActiveCharacter[]>([]);
-
-  const [gameAudio] = useState<GameAudio>({
-    clear: new Audio("/audio/clear.mp3"),
-    skip: new Audio("/audio/skip.mp3"),
-    correct: new Audio("/audio/correct.mp3"),
-    incorrect: new Audio("/audio/incorrect.mp3"),
-    countdown: new Audio("/audio/countdown.wav"),
-  });
-
   const [animationCompleted, setAnimationCompleted] = useState<{ [key: number]: boolean }>({});
+
+  const gameAudio = useRef<GameAudio>({
+    None: {
+      clear: null as unknown as HTMLAudioElement,
+      skip: null as unknown as HTMLAudioElement,
+      correct: null as unknown as HTMLAudioElement,
+      incorrect: null as unknown as HTMLAudioElement,
+    },
+    Default: {
+      clear: null as unknown as HTMLAudioElement,
+      skip: null as unknown as HTMLAudioElement,
+      correct: null as unknown as HTMLAudioElement,
+      incorrect: null as unknown as HTMLAudioElement,
+    },
+    Cute: {
+      clear: null as unknown as HTMLAudioElement,
+      skip: null as unknown as HTMLAudioElement,
+      correct: null as unknown as HTMLAudioElement,
+      incorrect: null as unknown as HTMLAudioElement,
+    },
+    Cyber: {
+      clear: null as unknown as HTMLAudioElement,
+      skip: null as unknown as HTMLAudioElement,
+      correct: null as unknown as HTMLAudioElement,
+      incorrect: null as unknown as HTMLAudioElement,
+    },
+    Fight: {
+      clear: null as unknown as HTMLAudioElement,
+      skip: null as unknown as HTMLAudioElement,
+      correct: null as unknown as HTMLAudioElement,
+      incorrect: null as unknown as HTMLAudioElement,
+    },
+    Support: {
+      clear: null as unknown as HTMLAudioElement,
+      skip: null as unknown as HTMLAudioElement,
+      correct: null as unknown as HTMLAudioElement,
+      incorrect: null as unknown as HTMLAudioElement,
+    },
+    Countdown: new Audio("/audio/countdown.wav"),
+  });
 
   // handle initial settings on load
   useEffect(() => {
@@ -113,6 +182,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       timer: parseInt(initialSettings.gameLength) * 60,
       maxGameTimer: parseInt(initialSettings.gameLength) * 60,
     }));
+
+    loadAudioFiles(initialSettings.soundEffects);
   }, []);
 
   // handles user input
@@ -146,16 +217,16 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           setPlayerData((prev) => ({ ...prev, correct: prev.correct + 1 }));
 
           if (currentIndex === characterList.length - 1) {
-            playSound(gameAudio.clear);
+            playSound(gameAudio.current[gameplaySettings.soundEffects].clear);
             generateNewWord();
           } else {
-            playSound(gameAudio.correct);
+            playSound(gameAudio.current[gameplaySettings.soundEffects].correct);
             const nextChar = characterList[currentIndex + 1].character;
             speakText(nextChar === " " ? "space" : nextChar, true, false);
           }
           return;
         } else {
-          playSound(gameAudio.incorrect);
+          playSound(gameAudio.current[gameplaySettings.soundEffects].incorrect);
           setPlayerData((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
           setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
           return;
@@ -215,15 +286,15 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           setPlayerData((prev) => ({ ...prev, correct: prev.correct + 1 }));
 
           if (currentIndex === characterList.length - 1) {
-            playSound(gameAudio.clear);
+            playSound(gameAudio.current[gameplaySettings.soundEffects].clear);
             generateNewWord();
           } else {
-            playSound(gameAudio.correct);
+            playSound(gameAudio.current[gameplaySettings.soundEffects].correct);
             const nextChar = characterList[currentIndex + 1].character;
             speakText(nextChar === " " ? "space" : nextChar, true, false);
           }
         } else {
-          playSound(gameAudio.incorrect);
+          playSound(gameAudio.current[gameplaySettings.soundEffects].incorrect);
           setPlayerData((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
           setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
         }
@@ -248,9 +319,10 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    gameAudio.countdown.currentTime = 1.9;
-    if (gameAudio.countdown.paused && !gameAudio.countdown.ended) {
-      playSound(gameAudio.countdown);
+    const countdownAudio = gameAudio.current.Countdown;
+    countdownAudio.currentTime = 1.9;
+    if (countdownAudio.paused && !countdownAudio.ended) {
+      playSound(countdownAudio);
     }
 
     const timer = setInterval(() => {
@@ -475,7 +547,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   }
 
   function skipWord(): void {
-    playSound(gameAudio.skip);
+    playSound(gameAudio.current[gameplaySettings.soundEffects].skip);
     setPlayerData((prev) => ({ ...prev, points: prev.points - 10 }));
     setPlayerData((prev) => ({ ...prev, skipped: prev.skipped + 1 }));
 
@@ -499,6 +571,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       soundEffects: storedAudioEffect ? (storedAudioEffect as AudioEffect) : gameplaySettings.soundEffects,
     };
 
+    loadAudioFiles(updatedSettings.soundEffects);
+
     setGameplaySettings(updatedSettings);
     setGameState("countdown");
     setPlayerData({ points: 0, skipped: 0, correct: 0, incorrect: 0 });
@@ -510,10 +584,31 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     });
   }
 
-  function playSound(audio: HTMLAudioElement) {
-    audio.pause();
-    audio.currentTime = 0;
-    audio.play();
+  function playSound(audio: HTMLAudioElement | null) {
+    const isCountdown = audio === gameAudio.current.Countdown;
+
+    if (!audio && !isCountdown) {
+      const effect = gameplaySettings.soundEffects;
+      const type = Object.entries(gameAudio.current[effect]).find(([key, value]) => {
+        return value === null || value === undefined;
+      })?.[0];
+
+      if (type) {
+        audio = new Audio(`/audio/${effect.toLowerCase()}/${type}.mp3`);
+        gameAudio.current[effect][type as keyof (typeof gameAudio.current)[typeof effect]] = audio;
+      }
+    }
+
+    if (!isCountdown && (gameplaySettings.soundEffects === "None" || !gameplaySettings.audioEnabled)) return;
+    if (!audio) return;
+
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.play().catch((error) => console.warn("Audio playback failed:", error));
+    } catch (error) {
+      console.warn("Error playing sound effect:", error);
+    }
   }
 
   function renderBrailleText(): ReactNode {
@@ -627,6 +722,16 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       window.speechSynthesis.cancel();
     }
   }, [gameState]);
+
+  function loadAudioFiles(effect: AudioEffect) {
+    if (effect === "None") return;
+
+    const audioTypes = ["clear", "skip", "correct", "incorrect"];
+    audioTypes.forEach((type) => {
+      const audio = new Audio(`/audio/${effect.toLowerCase()}/${type}.mp3`);
+      gameAudio.current[effect][type as keyof (typeof gameAudio.current)[typeof effect]] = audio;
+    });
+  }
 
   return (
     <div className="flex flex-col gap-4">
