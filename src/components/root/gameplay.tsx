@@ -483,6 +483,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   }
 
   function handleRestart(): void {
+    window.speechSynthesis.cancel();
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
     const storedDisplayInterval = localStorage.getItem("displayInterval");
     const storedGameLength = localStorage.getItem("gameLength");
@@ -519,8 +520,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     if (!selectedWord) return null;
 
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="break-words">
+      <div className="flex flex-wrap items-center justify-center gap-2 w-full">
+        <p className="break-words text-center">
           {selectedWord.split("").map((char, index) => {
             let adjustedIndex = index;
 
@@ -545,7 +546,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           })}
         </p>
 
-        <p className="break-words">
+        <p className="break-words text-center">
           (
           {getBrailleUnicode(selectedWord)
             .split("")
@@ -621,6 +622,12 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     );
   }
 
+  useEffect(() => {
+    if (gameState === "gameover") {
+      window.speechSynthesis.cancel();
+    }
+  }, [gameState]);
+
   return (
     <div className="flex flex-col gap-4">
       {gameState === "countdown" && (
@@ -634,7 +641,14 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       {gameState === "gameplay" && (
         <div className="flex flex-col items-center border-2 border-slate-200 dark:border-slate-700 rounded-md gap-4">
           <div className="flex justify-between items-center space-x-2 w-full p-2 bg-slate-200 dark:bg-slate-800">
-            <Button className="bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200" size="sm" onClick={onBack}>
+            <Button
+              className="bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200"
+              size="sm"
+              onClick={() => {
+                window.speechSynthesis.cancel();
+                onBack();
+              }}
+            >
               Back
             </Button>
 
@@ -647,7 +661,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
             <p className="flex p-2 rounded-lg bg-slate-50 dark:bg-slate-700 shadow-sm font-medium text-slate-800 dark:text-slate-200">Points: {playerData.points}</p>
           </div>
 
-          <div className="flex justify-center items-center p-4 w-full border-y-2 font-semibold text-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">{renderBrailleText()}</div>
+          <div className="flex justify-center items-center p-4 w-full border-y-2 font-semibold text-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center">{renderBrailleText()}</div>
 
           <div className="items-start justify-center h-[60vh] w-full bg-slate-100 dark:bg-slate-800 relative overflow-hidden">{activeCharacters.map((character, index) => !character.completed && renderBrailleCharacter(character, index))}</div>
         </div>
