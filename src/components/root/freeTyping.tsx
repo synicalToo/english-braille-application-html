@@ -14,6 +14,7 @@ import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 const MAX_TYPING_LIMIT = 16;
 interface GameAudio {
   limit_reached: HTMLAudioElement;
+  next_line: HTMLAudioElement;
 }
 
 const debug = true;
@@ -36,6 +37,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
   const [gameAudio] = useState<GameAudio>({
     limit_reached: new Audio("/audio/incorrect.mp3"),
+    next_line: new Audio("/audio/_typing.mp3"),
   });
 
   function playSound(audio: HTMLAudioElement) {
@@ -100,6 +102,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
             speakText(sentence, audioEnabled);
           }
+          playSound(gameAudio.next_line);
           break;
         case "backspace":
           if (typingBoard.length > 0) {
