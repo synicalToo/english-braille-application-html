@@ -104,7 +104,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     displayInterval: "3",
     gameLength: "1",
     practiceTopic: "Alphabetical",
-    soundEffects: "None",
+    soundEffects: "Default",
   });
   const [gameplayData, setGameplayData] = useState<GameplayData>({ countdown: 3, progressBar: 100, timer: parseInt(gameplaySettings.gameLength) * 60, maxGameTimer: parseInt(gameplaySettings.gameLength) * 60 });
 

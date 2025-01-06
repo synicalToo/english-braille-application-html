@@ -213,7 +213,7 @@ export const BrailleMappings: BrailleMappingsType = {
 
       us: { title: "us", keystroke: ["136"] },
       very: { title: "very", keystroke: ["1236"] },
-      will: { title: "wwill", keystroke: ["2456"] },
+      will: { title: "will", keystroke: ["2456"] },
       it: { title: "it", keystroke: ["1346"] },
       you: { title: "you", keystroke: ["13456"] },
       as: { title: "as", keystroke: ["1356"] },
