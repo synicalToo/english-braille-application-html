@@ -23,7 +23,7 @@ export default function TypingPage() {
         {!selectedMode ? (
           <>
             <div className="flex flex-col items-center justify-center border-2 rounded-sm">
-              <h1 className="text-2xl font-semibold">Braille Typing Excercise</h1>
+              <h1 className="pt-2 text-3xl font-semibold">Braille Typing Excercise</h1>
               <Image src="/images/perkins_brailler.png" alt="Braille Typing" width={600} height={400} />
               <div className="space-x-2 mb-2">
                 <Button className="text-xl" variant="secondary" onClick={() => setSelectedMode("freeTyping")}>

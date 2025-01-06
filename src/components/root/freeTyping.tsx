@@ -17,7 +17,7 @@ interface GameAudio {
   next_line: HTMLAudioElement;
 }
 
-const debug = true;
+const debug = false;
 
 export function FreeTyping({ onBack }: { onBack: () => void }) {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
@@ -36,7 +36,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
   const [selectedGrade, setSelectedGrade] = useState<string>("1");
 
   const [gameAudio] = useState<GameAudio>({
-    limit_reached: new Audio("/audio/incorrect.mp3"),
+    limit_reached: new Audio("/audio/default/incorrect.mp3"),
     next_line: new Audio("/audio/_typing.mp3"),
   });
 
@@ -407,7 +407,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
     <div className="flex flex-col items-center border-2 rounded-md gap-4">
       <div className="flex justify-between items-center w-full p-2">
         <div className="w-24"></div>
-        <h1 className="text-2xl font-semibold">Free Typing</h1>
+        <h1 className="text-3xl font-semibold">Free Typing</h1>
         <div className="flex justify-end">
           <Button size="sm" onClick={onBack}>
             Back

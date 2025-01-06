@@ -54,9 +54,13 @@ export function Sidebar() {
         <p className="text-2xl font-medium self-center pt-2">AT&D Lab.</p>
       </a>
       {/* Search Bar */}
-      <div className="flex items-center w-5/6 px-4 py-2 border rounded-md mb-1">
+      <div
+        className="flex items-center w-5/6 px-4 py-2 border rounded-md mb-1"
+        onKeyDown={(e) => e.stopPropagation()} // Prevent key events from propagating
+        onKeyUp={(e) => e.stopPropagation()}
+      >
         <FaSearch className="w-5 h-5 text-gray-500 mr-2" />
-        <input type="text" placeholder="Search..." className="w-full px-2 py-1 text-sm border-none focus:ring-0 focus:outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} maxLength={15} />
+        <input type="text" placeholder="Search..." className="w-full px-2 py-1 text-base border-none focus:ring-0 focus:outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} maxLength={15} />
       </div>
       <Accordion type="multiple" className="px-2 w-full">
         {Object.entries(filteredMappings).map(([category, data]) => (
