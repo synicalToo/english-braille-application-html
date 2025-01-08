@@ -34,12 +34,24 @@ interface FeaturesFlag {
   temp: string;
 }
 
+interface GameAudio {
+  limit_reached: HTMLAudioElement;
+  next_line: HTMLAudioElement;
+}
+
 export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputs, setInputs] = useState<number[]>([]);
 
   const [displayBoard, setDisplayBoard] = useState<{ text: string }[]>([]);
+  const [inputPosition, setinputPosition] = useState(0);
+
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  const [gameAudio] = useState<GameAudio>({
+    limit_reached: new Audio("/audio/default/incorrect.mp3"),
+    next_line: new Audio("/audio/_typing.mp3"),
+  });
 
   const [featuresFlag, setFeaturesFlag] = useState<FeaturesFlag>({
     candidate: [],
@@ -76,6 +88,29 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
 
     temp: "",
   });
+
+  const MAX_TYPING_LIMIT = 20;
+
+  function playSound(audio: HTMLAudioElement) {
+    if (!audio.paused) {
+      return;
+    }
+    audio.currentTime = 0;
+    audio.play();
+  }
+  useEffect(() => {
+    const storedAudioEnabled = localStorage.getItem("audioEnabled");
+    if (storedAudioEnabled) {
+      setAudioEnabled(storedAudioEnabled === "true");
+    }
+    const handleAudioSettingsChange = (event: CustomEvent) => {
+      setAudioEnabled(event.detail);
+    };
+    window.addEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    return () => {
+      window.removeEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    };
+  }, []);
 
   function initValue() {
     setFeaturesFlag({
@@ -347,11 +382,19 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent): void => {
+      if (!gameAudio.limit_reached.paused) {
+        gameAudio.limit_reached.pause();
+        gameAudio.limit_reached.currentTime = 0;
+      }
+
       switch (event.key) {
         case " ":
           event.preventDefault();
-          featuresFlag.temp += " ";
-          setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
+          if (inputPosition < MAX_TYPING_LIMIT) {
+            setinputPosition(inputPosition + 1);
+            featuresFlag.temp += " ";
+            setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
+          }
           break;
         case "Enter":
           event.preventDefault();
@@ -437,12 +480,14 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
           setCurrentInput(new Set());
           setRegisteredInput(Array(6));
           setInputs([]);
+          setinputPosition(0);
+          playSound(gameAudio.next_line);
           break;
         default:
           break;
       }
 
-      if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
+      if (Object.keys(keyToDotMap).includes(event.key.toLowerCase()) && inputPosition <= MAX_TYPING_LIMIT) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
           const dotIndex = keyToDotMap[event.key.toLowerCase()];
@@ -468,10 +513,17 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
 
         if (updatedInput.size != 0) return;
 
-        const combinedEncoding = parseInt(registeredInput.map((num) => (num ? "1" : "0")).join(""), 2);
+        if (inputPosition == MAX_TYPING_LIMIT) {
+          event.preventDefault();
+          playSound(gameAudio.limit_reached);
+          return;
+        } else {
+          const combinedEncoding = parseInt(registeredInput.map((num) => (num ? "1" : "0")).join(""), 2);
 
-        setInputs((prev) => [...prev, combinedEncoding]);
-        setRegisteredInput(Array(6));
+          setInputs((prev) => [...prev, combinedEncoding]);
+          setRegisteredInput(Array(6));
+          setinputPosition(inputPosition + 1);
+        }
       }
     };
 
