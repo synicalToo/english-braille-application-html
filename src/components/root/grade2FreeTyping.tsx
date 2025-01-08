@@ -4,6 +4,7 @@ import Image from "next/image";
 import { keyToDotMap } from "@/lib/constants";
 import { ch, ch_map, num, abb, aw_map, sw_map, sc_map, sg_map, lw_map, sfw_map, ilc_map, flg_map, punc, indicator, indicators } from "@/contents/en/grade2BrailleData";
 import { Button } from "../ui/button";
+import { speakText } from "@/utils/audioUtils";
 
 interface FeaturesFlag {
   candidate: any[];
@@ -45,7 +46,6 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
   const [inputs, setInputs] = useState<number[]>([]);
 
   const [displayBoard, setDisplayBoard] = useState<{ text: string }[]>([]);
-  const [inputPosition, setinputPosition] = useState(0);
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [gameAudio] = useState<GameAudio>({
@@ -390,10 +390,10 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
       switch (event.key) {
         case " ":
           event.preventDefault();
-          if (inputPosition < MAX_TYPING_LIMIT) {
-            setinputPosition(inputPosition + 1);
+          if (inputs.length < MAX_TYPING_LIMIT) {
             featuresFlag.temp += " ";
-            setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
+            featuresFlag.didflg = true;
+            // setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
           }
           break;
         case "Enter":
@@ -480,14 +480,15 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
           setCurrentInput(new Set());
           setRegisteredInput(Array(6));
           setInputs([]);
-          setinputPosition(0);
+
+          speakText(featuresFlag.temp, audioEnabled);
           playSound(gameAudio.next_line);
           break;
         default:
           break;
       }
 
-      if (Object.keys(keyToDotMap).includes(event.key.toLowerCase()) && inputPosition <= MAX_TYPING_LIMIT) {
+      if (Object.keys(keyToDotMap).includes(event.key.toLowerCase()) && inputs.length <= MAX_TYPING_LIMIT) {
         setCurrentInput((prev) => new Set([...Array.from(prev), event.key.toLowerCase()]));
         setRegisteredInput((prev) => {
           const dotIndex = keyToDotMap[event.key.toLowerCase()];
@@ -513,7 +514,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
 
         if (updatedInput.size != 0) return;
 
-        if (inputPosition == MAX_TYPING_LIMIT) {
+        if (inputs.length == MAX_TYPING_LIMIT) {
           event.preventDefault();
           playSound(gameAudio.limit_reached);
           return;
@@ -522,7 +523,6 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
 
           setInputs((prev) => [...prev, combinedEncoding]);
           setRegisteredInput(Array(6));
-          setinputPosition(inputPosition + 1);
         }
       }
     };
@@ -558,7 +558,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
                 .slice()
                 .reverse()
                 .map((line, lineIndex) => (
-                  <div key={lineIndex} className="w-full flex flex-col items-start">
+                  <div key={lineIndex} className="w-full flex flex-col items-start dark:invert">
                     {line.text}
                   </div>
                 ))}
