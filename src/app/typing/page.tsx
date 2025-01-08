@@ -1,17 +1,34 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Gameplay from "@/components/root/gameplay";
 import { Sidebar } from "@/components/root/sidebar";
 import { BottomBar } from "@/components/root/bottomBar";
 import { FreeTyping } from "@/components/root/freeTyping";
 import { Button } from "@/components/ui/button";
+import Grade2FreeTyping from "@/components/root/grade2FreeTyping";
 
 type ApplicationMode = "" | "freeTyping" | "gameplay";
 export default function TypingPage() {
+  const [selectedGrade, setSelectedGrade] = useState<string>("1");
   const [selectedMode, setSelectedMode] = useState<ApplicationMode>("");
+
+  useEffect(() => {
+    const storedGradeSelected = localStorage.getItem("gradeSelect");
+    if (storedGradeSelected) {
+      setSelectedGrade(storedGradeSelected);
+    }
+
+    const handleGradeSelectedChange = (event: CustomEvent) => {
+      setSelectedGrade(event.detail);
+    };
+    window.addEventListener("gradeSelectedChanged", handleGradeSelectedChange as EventListener);
+    return () => {
+      window.removeEventListener("gradeSelectedChanged", handleGradeSelectedChange as EventListener);
+    };
+  }, []);
 
   return (
     <main className="flex flex-wrap gap-4 p-4">
@@ -38,7 +55,8 @@ export default function TypingPage() {
           </>
         ) : (
           <div className="">
-            {selectedMode === "freeTyping" && <FreeTyping onBack={() => setSelectedMode("")} />}
+            {selectedMode === "freeTyping" && selectedGrade === "1" && <FreeTyping onBack={() => setSelectedMode("")} />}
+            {selectedMode === "freeTyping" && selectedGrade === "2" && <Grade2FreeTyping onBack={() => setSelectedMode("")} />}
             {selectedMode === "gameplay" && <Gameplay onBack={() => setSelectedMode("")} />}
             <BottomBar />
           </div>
