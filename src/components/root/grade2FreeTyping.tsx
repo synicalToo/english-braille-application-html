@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import Image from "next/image";
 import { keyToDotMap } from "@/lib/constants";
 import { ch, ch_map, num, abb, aw_map, sw_map, sc_map, sg_map, lw_map, sfw_map, ilc_map, flg_map, punc, indicator, indicators } from "@/contents/en/grade2BrailleData";
 import { Button } from "../ui/button";
@@ -349,7 +350,11 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
       switch (event.key) {
         case " ":
           event.preventDefault();
-
+          featuresFlag.temp += " ";
+          setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
+          break;
+        case "Enter":
+          event.preventDefault();
           searchCapital();
           for (const keys in indicators) {
             removePatterns(inputs, indicators[keys as keyof typeof indicators]);
@@ -423,14 +428,15 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
             }
           }
 
-          setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
+          setDisplayBoard((prev) => {
+            const newBoard = [...prev, { text: featuresFlag.temp }];
+            return newBoard.slice(-8);
+          });
           initValue();
 
           setCurrentInput(new Set());
           setRegisteredInput(Array(6));
           setInputs([]);
-          break;
-        case "Enter":
           break;
         default:
           break;
@@ -455,6 +461,10 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
         const updatedInput = new Set(currentInput);
         updatedInput.delete(event.key.toLowerCase());
         setCurrentInput(updatedInput);
+
+        if (registeredInput.every((input) => !input)) {
+          return;
+        }
 
         if (updatedInput.size != 0) return;
 
@@ -489,14 +499,17 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
       {/* Display Board */}
       <div className="flex flex-col w-full py-2 px-1 rounded-lg min-h-[200px]">
         <div className="relative w-full h-72">
-          <img src="/images/brailler_paper.png" alt="Brailler Paper" className="w-full h-full object-cover" />
+          <Image src="/images/brailler_paper.png" alt="Brailler Paper" layout="fill" />
           <div className="absolute bottom-10 left-8 w-full h-full flex flex-col-reverse items-center justify-start px-5 py-3">
             <div className="w-full max-w-[458px] pt-3 flex flex-col-reverse items-start p-2 max-h-[220px] overflow-y-auto">
-              {displayBoard.map((line, lineIndex) => (
-                <div key={lineIndex} className="w-full flex flex-col items-start">
-                  {line.text}
-                </div>
-              ))}
+              {displayBoard
+                .slice()
+                .reverse()
+                .map((line, lineIndex) => (
+                  <div key={lineIndex} className="w-full flex flex-col items-start">
+                    {line.text}
+                  </div>
+                ))}
             </div>
           </div>
         </div>
