@@ -287,7 +287,6 @@ export const BrailleMappings: BrailleMappingsType = {
       enough: { title: "enough", keystroke: ["26"] },
       were: { title: "were", keystroke: ["2356"] },
       his: { title: "his", keystroke: ["236"] },
-      in: { title: "in", keystroke: ["35"] },
       was: { title: "was", keystroke: ["356"] },
     },
   },

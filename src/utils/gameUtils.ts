@@ -34,10 +34,10 @@ export function findNumberMatch(pattern: string): { title: string; symbol?: stri
 
   return null;
 }
+
 export function findBrailleMatch(
   pattern: string,
-  inputHistory: string[],
-  grade: string
+  inputHistory: string[]
 ): {
   bestMatch: { title: string; symbol?: string; keystroke: string[] } | null;
   longestMatch: number;
@@ -47,12 +47,12 @@ export function findBrailleMatch(
   let longestMatch = 0;
 
   // Determine maximum slice length based on grade
-  const maxSliceLength = grade === "1" ? 3 : 4;
+  const maxSliceLength = 3;
 
   for (const category in BrailleMappings) {
     const mapping = BrailleMappings[category];
 
-    if ((mapping.Compatibility !== parseInt(grade) && mapping.Compatibility !== 3) || category == "Numbers") continue;
+    if (mapping.Compatibility == 2 || category == "Numbers") continue;
 
     const { content } = mapping;
 

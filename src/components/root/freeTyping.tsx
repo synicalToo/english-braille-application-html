@@ -84,6 +84,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
       switch (event.key.toLowerCase()) {
         case "enter":
+          event.preventDefault();
           if (typingBoard.length > 0) {
             const sentence = typingBoard.map((item) => item.tts).join("");
             setDisplayBoard((prev) => {
@@ -240,7 +241,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
           for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
             potentialCombination = newCombinedHistory.slice(i).join(",");
-            const result = findBrailleMatch(potentialCombination, inputHistory, selectedGrade);
+            const result = findBrailleMatch(potentialCombination, inputHistory);
             matchingResult = result.bestMatch;
             longestMatch = result.longestMatch;
 
@@ -331,23 +332,10 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
             if (matchingResult.keystroke.length >= 2 && currentTypingMode != "Number") {
               let sliceOffset: number | undefined;
-
-              if (selectedGrade === "2") {
-                if (matchingResult.keystroke.length === 5 && longestMatch !== 5) {
-                  sliceOffset = -matchingResult.keystroke.length + 3;
-                } else if (matchingResult.keystroke.length === 4 && longestMatch !== 4) {
-                  sliceOffset = -matchingResult.keystroke.length + 2;
-                } else if ((matchingResult.keystroke.length === 4 || matchingResult.keystroke.length === 3 || longestMatch === 3) && matchingResult.keystroke.length > longestMatch) {
-                  sliceOffset = -matchingResult.keystroke.length + 1;
-                } else {
-                  sliceOffset = -matchingResult.keystroke.length;
-                }
-              } else if (selectedGrade === "1") {
-                if (matchingResult.keystroke.length === 3 && matchingResult.keystroke.length > longestMatch) {
-                  sliceOffset = -matchingResult.keystroke.length + 1;
-                } else {
-                  sliceOffset = -matchingResult.keystroke.length;
-                }
+              if (matchingResult.keystroke.length === 3 && matchingResult.keystroke.length > longestMatch) {
+                sliceOffset = -matchingResult.keystroke.length + 1;
+              } else {
+                sliceOffset = -matchingResult.keystroke.length;
               }
 
               setInputHistory((prev) => prev.slice(0, sliceOffset));
