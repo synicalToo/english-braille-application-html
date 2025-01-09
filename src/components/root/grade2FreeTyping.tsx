@@ -248,7 +248,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenNumflgIsTrue(i: any) {
+  function whenNumflgIsTrue(i: number) {
     let les: any = -1;
     for (const n of num) {
       if (inputs[i] === n["ptn"][0]) {
@@ -263,7 +263,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenGrdflgIsTrue(i: any) {
+  function whenGrdflgIsTrue(i: number) {
     let les: any = -1;
     for (const c of ch) {
       if (inputs[i] === c["ptn"][0]) {
@@ -279,7 +279,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenIlcflgIsTrue(i: any) {
+  function whenIlcflgIsTrue(i: number) {
     for (const ilcs of abb[7]) {
       if (inputs[i] === ilcs["ptn"][1] && featuresFlag.prepos === ilcs["ptn"][0]) {
         const les = searchInputWord(ilc_map, inputs[i], 1);
@@ -295,7 +295,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     featuresFlag.prepos = 0b000000;
   }
 
-  function whenFlgflgIsTrue(i: any) {
+  function whenFlgflgIsTrue(i: number) {
     for (const flgs of abb[8]) {
       if (inputs[i] === flgs["ptn"][1] && featuresFlag.prepos === flgs["ptn"][0]) {
         const les = searchInputWord(flg_map, inputs[i], 1);
@@ -311,7 +311,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     featuresFlag.prepos = 0b000000;
   }
 
-  function whenInputIsLowerGroupsigns1(i: any) {
+  function whenInputIsLowerGroupsigns1(i: number) {
     for (const lgs of abb[5]) {
       if (inputs[i] === lgs["ptn"][0] && "type" in lgs && (lgs["type"] === "fst" || lgs["type"] === "ever")) {
         featuresFlag.temp += lgs["wd"];
@@ -320,7 +320,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenInputIsLowerGroupsigns2(i: any) {
+  function whenInputIsLowerGroupsigns2(i: number) {
     for (const lgs of abb[5]) {
       if (inputs[i] === lgs["ptn"][0] && "type" in lgs && (lgs["type"] === "mid" || lgs["type"] === "ever")) {
         featuresFlag.temp += lgs["wd"];
@@ -329,7 +329,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenInputIsLowerGroupsigns3(i: any) {
+  function whenInputIsLowerGroupsigns3(i: number) {
     for (const lgs of abb[5]) {
       if (inputs[i] === lgs["ptn"][0] && "type" in lgs && lgs["type"] === "ever") {
         featuresFlag.temp += lgs["wd"];
@@ -338,7 +338,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenInputIsPunctions(i: any) {
+  function whenInputIsPunctions(i: number) {
     for (const puncs of punc) {
       if (inputs[i] === puncs["ptn"][0]) {
         if (i === inputs.length - 1 && puncs["type"] === "lst") {
@@ -355,7 +355,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function whenInputIsOthers(i: any) {
+  function whenInputIsOthers(i: number) {
     const candidate = [ch_map, sc_map, sg_map];
     const les = searchInputWord(candidate, inputs[i], 0);
     if (les === -1) {
@@ -581,9 +581,6 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
             </div>
           ))}
         </div>
-      </div>
-      <div id="typing-mode" className="mt-2 flex items-center gap-2 p-2 rounded">
-        <div className="flex gap-2"></div>
       </div>
     </div>
   );
