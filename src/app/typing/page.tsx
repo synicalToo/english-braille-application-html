@@ -9,6 +9,7 @@ import { BottomBar } from "@/components/root/bottomBar";
 import { FreeTyping } from "@/components/root/freeTyping";
 import { Button } from "@/components/ui/button";
 import Grade2FreeTyping from "@/components/root/grade2FreeTyping";
+import CustomGrade2FreeTyping from "@/components/root/customGrade2FreeTyping";
 
 type ApplicationMode = "" | "freeTyping" | "gameplay";
 export default function TypingPage() {
@@ -56,7 +57,7 @@ export default function TypingPage() {
         ) : (
           <div className="">
             {selectedMode === "freeTyping" && selectedGrade === "1" && <FreeTyping onBack={() => setSelectedMode("")} />}
-            {selectedMode === "freeTyping" && selectedGrade === "2" && <Grade2FreeTyping onBack={() => setSelectedMode("")} />}
+            {selectedMode === "freeTyping" && selectedGrade === "2" && <CustomGrade2FreeTyping onBack={() => setSelectedMode("")} />}
             {selectedMode === "gameplay" && <Gameplay onBack={() => setSelectedMode("")} />}
             <BottomBar />
           </div>
