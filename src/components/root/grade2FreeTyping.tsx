@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
 import { keyToDotMap } from "@/lib/constants";
-import { ch, ch_map, num, abb, aw_map, sw_map, sc_map, sg_map, lw_map, sfw_map, ilc_map, flg_map, punc, indicator, indicators } from "@/contents/en/grade2BrailleData";
+import { ch, ch_map, num, abb, aw_map, sw_map, sc_map, sg_map, lw_map, sfw_map, ilc_map, flg_map, punc, indicator, indicators, braille_unicode } from "@/contents/en/grade2BrailleData";
 import { Button } from "../ui/button";
 import { speakText } from "@/utils/audioUtils";
+import { BrailleFont } from "../customUI/brailleFont";
 
 interface FeaturesFlag {
   candidate: any[];
@@ -392,8 +393,6 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
           event.preventDefault();
           if (inputs.length < MAX_TYPING_LIMIT) {
             featuresFlag.temp += " ";
-            featuresFlag.didflg = true;
-            // setDisplayBoard((prev) => [...prev, { text: featuresFlag.temp }]);
           }
           break;
         case "Enter":
@@ -402,7 +401,6 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
           for (const keys in indicators) {
             removePatterns(inputs, indicators[keys as keyof typeof indicators]);
           }
-
           if (inputs.length === 1) {
             whenInputLenIsOne();
           } else if (inputs.length === 2) {
@@ -483,6 +481,13 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
 
           speakText(featuresFlag.temp, audioEnabled);
           playSound(gameAudio.next_line);
+          break;
+        case "Backspace":
+          if (inputs.length > 0) {
+            inputs.pop();
+            setCurrentInput(new Set());
+          }
+          speakText("backspace", audioEnabled);
           break;
         default:
           break;
@@ -572,7 +577,7 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
           {inputs.map((input, index) => (
             <div key={index} className="flex flex-col items-center justify-end">
-              {input}
+              <BrailleFont>{braille_unicode[input.toString(2).padStart(6, "0")]}</BrailleFont>
             </div>
           ))}
         </div>
