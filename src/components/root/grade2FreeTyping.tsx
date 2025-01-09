@@ -392,7 +392,9 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
         case " ":
           event.preventDefault();
           if (inputs.length < MAX_TYPING_LIMIT) {
-            featuresFlag.temp += " ";
+            setInputs((prev) => [...prev, 0b000000]);
+          } else {
+            playSound(gameAudio.limit_reached);
           }
           break;
         case "Enter":
@@ -413,7 +415,13 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
           if (!featuresFlag.dicidedflg && !featuresFlag.falflg) {
             for (let i = 0; i < inputs.length; i++) {
               featuresFlag.didflg = false;
-              let les = -1;
+
+              if (inputs[i] === 0b000000) {
+                featuresFlag.temp += " ";
+                featuresFlag.didflg = true;
+                continue;
+              }
+
               if (featuresFlag.numflg) {
                 whenNumflgIsTrue(i);
               }
@@ -577,7 +585,11 @@ export default function grade2FreeTyping({ onBack }: { onBack: () => void }) {
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
           {inputs.map((input, index) => (
             <div key={index} className="flex flex-col items-center justify-end">
-              <BrailleFont>{braille_unicode[input.toString(2).padStart(6, "0")]}</BrailleFont>
+              <BrailleFont>
+                {input === 0b000000
+                  ? braille_unicode["000000"] // Use the unicode for empty braille cell
+                  : braille_unicode[input.toString(2).padStart(6, "0")]}
+              </BrailleFont>
             </div>
           ))}
         </div>
