@@ -80,6 +80,8 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
   }
 
   function checkSingleInput(input: string[]) {
+    if (itemList.find((item) => item.item === BrailleData.indicators.content.number)) return;
+
     const searchInputs = [alphabetic_wordsigns_mapping, strong_contractions_mapping, strong_wordsigns_mapping, lower_wordsigns_mapping];
 
     const findKey = [parseInt(input[0])];
@@ -114,12 +116,110 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     }
   }
 
-  function checkPuncutation(input: string[]) {}
+  function checkNumbers(input: string[], startIndex: number) {
+    const findKey = [parseInt(input[startIndex])];
+    const found = Object.entries(BrailleData.numbers.content).find(([_, item]) => {
+      const keystroke = item.keystroke.map((k) => parseInt(k));
+      return keystroke.length === findKey.length && keystroke.every((val, i) => val === findKey[i]);
+    });
 
-  function checkLowerGroupsigns(input: string[]) {}
+    if (found) {
+      addToFinalString(found[1].title);
+      input.splice(startIndex, 1);
+      return true;
+    }
+    return false;
+  }
+
+  function checkSpecialCharacters(input: string[], startIndex: number) {
+    const searchCategories = [BrailleData.punctuation.content, BrailleData.signs_of_operation_and_comparison.content, BrailleData.currency_and_measurement.content, BrailleData.special_symbols.content, BrailleData.grouping_punctuation.content];
+
+    // Get maximum possible length to check (either remaining input length or max pattern length)
+    const maxLength = Math.min(input.length - startIndex, 3); // 3 is typically the max pattern length in Braille
+
+    // Try matching from longest to shortest pattern
+    for (let keyLength = maxLength; keyLength > 0; keyLength--) {
+      const findKey = input.slice(startIndex, startIndex + keyLength).map((val) => parseInt(val));
+
+      // Check lower groupsigns based on position and input length
+      const lowerGroupMatches = Array.from(lower_groupsigns_mapping.entries()).filter(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
+
+      for (const [_, item] of lowerGroupMatches) {
+        // First position check
+        if (startIndex === 0 && input.length !== 1 && (item.type === "first" || item.type === "every")) {
+          addToFinalString(item.symbol || item.title);
+          input.splice(startIndex, keyLength);
+          return true;
+        }
+
+        // Middle position check
+        if (startIndex !== input.length - 1 && input.length >= 3 && (item.type === "middle" || item.type === "every")) {
+          addToFinalString(item.symbol || item.title);
+          input.splice(startIndex, keyLength);
+          return true;
+        }
+
+        // Last position check
+        if (startIndex === input.length - 1 && input.length >= 2 && item.type === "every") {
+          addToFinalString(item.symbol || item.title);
+          input.splice(startIndex, keyLength);
+          return true;
+        }
+      }
+
+      // If no lower groupsign matches, try special characters
+      for (const category of searchCategories) {
+        const found = Object.entries(category).find(([_, item]) => {
+          const keystroke = item.keystroke.map((k) => parseInt(k));
+          return keystroke.length === findKey.length && keystroke.every((val, i) => val === findKey[i]);
+        });
+
+        if (found) {
+          addToFinalString(found[1].symbol || found[1].title);
+          input.splice(startIndex, keyLength);
+          return true;
+        }
+      }
+    }
+
+    // If no matches found, try in this order: alphabet, strong contractions, strong groupsigns
+    const findKey = [parseInt(input[startIndex])];
+
+    // Try alphabet
+    const alphabetFound = Object.entries(BrailleData.alphabet.content).find(([_, item]) => {
+      const keystroke = item.keystroke.map((k) => parseInt(k));
+      return keystroke.length === findKey.length && keystroke.every((val, i) => val === findKey[i]);
+    });
+
+    if (alphabetFound) {
+      addToFinalString(alphabetFound[1].title);
+      input.splice(startIndex, 1);
+      return true;
+    }
+
+    // Try strong contractions
+    const strongContractionFound = Array.from(strong_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
+
+    if (strongContractionFound) {
+      addToFinalString(strongContractionFound[1].symbol || strongContractionFound[1].title);
+      input.splice(startIndex, 1);
+      return true;
+    }
+
+    // Try strong groupsigns
+    const strongGroupFound = Array.from(strong_groupsigns_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
+
+    if (strongGroupFound) {
+      addToFinalString(strongGroupFound[1].symbol || strongGroupFound[1].title);
+      input.splice(startIndex, 1);
+      return true;
+    }
+
+    return false;
+  }
 
   function processInput(input: string[]) {
-    checkIndicators(input, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage]);
+    checkIndicators(input, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage, BrailleData.indicators.content.number]);
 
     if (input.length === 1) {
       checkSingleInput(input);
@@ -133,12 +233,30 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       checkShortformWords(input);
     }
 
-    if (input.length > 1) {
+    if (input.length > 0) {
+      const numberIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.number);
+
+      if (numberIndicator) {
+        let i = numberIndicator.position;
+        while (i < input.length) {
+          if (!checkNumbers(input, i)) {
+            if (!checkSpecialCharacters(input, i)) {
+              i++;
+            }
+          }
+        }
+      } else {
+        let i = 0;
+        while (i < input.length) {
+          if (!checkSpecialCharacters(input, i)) {
+            i++;
+          }
+        }
+      }
     }
 
     setTempString((prev) => prev + " ");
     setTypingBoard((prev) => [...prev, " "]);
-
     setCurrentInputHistory([]);
   }
 

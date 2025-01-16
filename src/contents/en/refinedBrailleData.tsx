@@ -170,7 +170,7 @@ export const BrailleData: BrailleData = {
     content: {
       percentage: { title: "Percentage", symbol: "%", keystroke: ["46", "356"] },
       degree: { title: "Degree", symbol: "°", keystroke: ["45", "245"] },
-      angle: { title: "Angle", symbol: "∠", keystroke: ["46", "123456"] },
+      angle: { title: "Angle", symbol: "∠", keystroke: ["456", "123456"] },
       hashtag: { title: "Hashtag", symbol: "#", keystroke: ["456", "1456"] },
       ampersand: { title: "Ampersand", symbol: "&", keystroke: ["4", "12346"] },
 
