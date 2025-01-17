@@ -520,6 +520,13 @@ export const alphabet_mapping = new Map<number[], BrailleItem>(
   })
 );
 
+export const number_mapping = new Map<number[], BrailleItem>(
+  Object.entries(BrailleData.numbers.content).map(([key, item]) => {
+    const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
+    return [ptn, item];
+  })
+);
+
 export const alphabetic_wordsigns_mapping = new Map<number[], BrailleItem>(
   Object.entries(BrailleData.alphabetic_wordsigns.content).map(([key, item]) => {
     const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
