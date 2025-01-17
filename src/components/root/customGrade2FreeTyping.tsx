@@ -47,16 +47,23 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
   }
 
   function addToFinalString(text: string) {
-    switch (itemList[0]?.item) {
-      case BrailleData.indicators.content.capital_letter:
-        setTempString((prev) => [...prev, text.charAt(0).toUpperCase() + text.slice(1)]);
-        break;
-      case BrailleData.indicators.content.capital_word:
-        setTempString((prev) => [...prev, text.toUpperCase()]);
-        break;
-      default:
-        setTempString((prev) => [...prev, text]);
-        break;
+    const capitalIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.capital_letter || item.item === BrailleData.indicators.content.capital_word || item.item === BrailleData.indicators.content.capital_passage);
+
+    if (capitalIndicator && capitalIndicator.position === 0) {
+      switch (capitalIndicator.item) {
+        case BrailleData.indicators.content.capital_letter:
+          setTempString((prev) => [...prev, text.charAt(0).toUpperCase() + text.slice(1)]);
+          itemList.splice(itemList.indexOf(capitalIndicator), 1);
+          break;
+        case BrailleData.indicators.content.capital_word:
+          setTempString((prev) => [...prev, text.toUpperCase()]);
+          break;
+        default:
+          setTempString((prev) => [...prev, text]);
+          break;
+      }
+    } else {
+      setTempString((prev) => [...prev, text]);
     }
   }
 
@@ -213,7 +220,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
 
     if (input.length === 1 && checkSingleInput(input)) {
       setTempString((prev) => [...prev, " "]);
-      setTypingBoard((prev) => [...prev, " "]);
+      setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
       return;
     }
@@ -224,14 +231,14 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
 
     if (input.length > 0 && checkShortformWords(input)) {
       setTempString((prev) => [...prev, " "]);
-      setTypingBoard((prev) => [...prev, " "]);
+      setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
       return;
     }
 
     if (input.length === 0) {
       setTempString((prev) => [...prev, " "]);
-      setTypingBoard((prev) => [...prev, " "]);
+      setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
       return;
     }
@@ -257,7 +264,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     }
 
     setTempString((prev) => [...prev, " "]);
-    setTypingBoard((prev) => [...prev, " "]);
+    setTypingBoard((prev) => [...prev, "0"]);
     setCurrentInputHistory([]);
   }
 
