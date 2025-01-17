@@ -12,8 +12,12 @@ import {
   shortform_words_mapping,
   final_letter_groupsigns_mapping,
   number_mapping,
+  BrailleUnicode,
 } from "@/contents/en/refinedBrailleData";
 import React, { useState, useEffect } from "react";
+import { Button } from "../ui/button";
+import Image from "next/image";
+import { BrailleFont } from "../customUI/brailleFont";
 
 const keyToDotMap: { [key: string]: number } = {
   f: 1,
@@ -327,7 +331,61 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
   }, [currentInput, registeredInput, typingBoard, displayBoard, currentInputHistory, itemList, tempString]);
 
   return (
-    <div className="flex flex-col justify-center gap-4">
+    <div className="flex flex-col items-center border-2 rounded-md gap-4">
+      <div className="flex justify-between items-center w-full p-2">
+        <div className="w-24"></div>
+        <h1 className="text-3xl font-semibold">Free Typing</h1>
+        <div className="flex justify-end">
+          <Button size="sm" onClick={onBack}>
+            Back
+          </Button>
+        </div>
+      </div>
+      {/* Display Board */}
+      <div className="flex flex-col w-full py-2 px-1 rounded-lg min-h-[200px]">
+        <div className="relative w-full h-72">
+          <Image src="/images/brailler_paper.png" alt="Brailler Paper" layout="fill" />
+          <div className="absolute bottom-10 left-8 w-full h-full flex flex-col-reverse items-center justify-start px-5 py-3">
+            <div className="w-full max-w-[458px] pt-3 flex flex-col-reverse items-start p-2 max-h-[220px] overflow-y-auto">
+              {displayBoard
+                .slice()
+                .reverse()
+                .map((line, lineIndex) => (
+                  <div key={lineIndex} className="w-full flex flex-col items-start dark:invert">
+                    {/* Braille container */}
+                    {/* <div className="flex gap-x-0.2">
+                      {line.map((item, itemIndex) => (  //change this to 
+                        <div key={itemIndex} className="flex flex-col items-center justify-end">
+                          <BrailleFont isDisplayBoard>{item.unicode}</BrailleFont>
+                        </div>
+                      ))}
+                    </div> */}
+                    {/* Text container */}
+                    {/* <div className="w-full text-xs text-left break-words mt-[-0.4rem]"> */}
+                    {/* {line.map((item, itemIndex) => ( // this should display  */}
+                    <p className="inline">
+                      {/* {item.text} */}
+                      {displayBoard}
+                    </p>
+                    {/* </div> */}
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
+        <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
+        <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
+          {typingBoard.map((item, index) => (
+            <div key={index} className="flex flex-col items-center justify-end">
+              <BrailleFont>{BrailleUnicode[item]}</BrailleFont>
+              <p className="text-xs">{item}</p>
+            </div>
+          ))}
+          <BrailleFont showCursor>⠀</BrailleFont>
+        </div>
+      </div>
       <div>Display board: {displayBoard.join("")}</div>
       <div>Current input history: {currentInputHistory.join("")}</div>
       <div>Typing board: {typingBoard.join("")}</div>

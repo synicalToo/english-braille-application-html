@@ -118,8 +118,8 @@ export const BrailleData: BrailleData = {
       forward_slash: { title: "Forward slash", symbol: "/", keystroke: ["456", "34"] },
       backward_slash: { title: "Backward slash", symbol: "\\", keystroke: ["456", "16"] },
 
-      opening_outer_quotation_mark: { title: "Opening outer quotation mark", symbol: "“", keystroke: ["236"] },
-      closing_outer_quatation_mark: { title: "Closing outer quatation mark", symbol: "”", keystroke: ["356"] },
+      opening_outer_quotation_mark: { title: "Opening outer quotation mark", symbol: "“", keystroke: ["45"] },
+      closing_outer_quatation_mark: { title: "Closing outer quatation mark", symbol: "”", keystroke: ["45"] },
       opening_inner_quotation_mark: { title: "Opening inner quotation mark", symbol: "‘", keystroke: ["6", "236"] },
       closing_inner_quotation_mark: { title: "Closing inner quotation mark", symbol: "’", keystroke: ["6", "356"] },
     },
@@ -170,7 +170,7 @@ export const BrailleData: BrailleData = {
     content: {
       percentage: { title: "Percentage", symbol: "%", keystroke: ["46", "356"] },
       degree: { title: "Degree", symbol: "°", keystroke: ["45", "245"] },
-      angle: { title: "Angle", symbol: "∠", keystroke: ["456", "123456"] },
+      angle: { title: "Angle", symbol: "∠", keystroke: ["46", "123456"] },
       hashtag: { title: "Hashtag", symbol: "#", keystroke: ["456", "1456"] },
       ampersand: { title: "Ampersand", symbol: "&", keystroke: ["4", "12346"] },
 
