@@ -36,13 +36,13 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
   const [typingBoard, setTypingBoard] = useState<string[]>([]);
 
   const [currentInputHistory, setCurrentInputHistory] = useState<string[]>([]);
-  const [tempString, setTempString] = useState<string[]>([]);
+  const [tempString, setTempString] = useState<string>("");
   const itemList: { position: number; item: BrailleItem }[] = [];
 
   function resetInput() {
     setTypingBoard([]);
     setCurrentInputHistory([]);
-    setTempString([]);
+    setTempString("");
     itemList.length = 0;
   }
 
@@ -52,18 +52,18 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     if (capitalIndicator && capitalIndicator.position === 0) {
       switch (capitalIndicator.item) {
         case BrailleData.indicators.content.capital_letter:
-          setTempString((prev) => [...prev, text.charAt(0).toUpperCase() + text.slice(1)]);
+          setTempString((prev) => prev + text.charAt(0).toUpperCase() + text.slice(1));
           itemList.splice(itemList.indexOf(capitalIndicator), 1);
           break;
         case BrailleData.indicators.content.capital_word:
-          setTempString((prev) => [...prev, text.toUpperCase()]);
+          setTempString((prev) => prev + text.toUpperCase());
           break;
         default:
-          setTempString((prev) => [...prev, text]);
+          setTempString((prev) => prev + text);
           break;
       }
     } else {
-      setTempString((prev) => [...prev, text]);
+      setTempString((prev) => prev + text);
     }
   }
 
@@ -219,7 +219,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     checkIndicators(input, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage, BrailleData.indicators.content.number]);
 
     if (input.length === 1 && checkSingleInput(input)) {
-      setTempString((prev) => [...prev, " "]);
+      setTempString((prev) => prev + " ");
       setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
       return;
@@ -230,14 +230,14 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     }
 
     if (input.length > 0 && checkShortformWords(input)) {
-      setTempString((prev) => [...prev, " "]);
+      setTempString((prev) => prev + " ");
       setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
       return;
     }
 
     if (input.length === 0) {
-      setTempString((prev) => [...prev, " "]);
+      setTempString((prev) => prev + " ");
       setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
       return;
@@ -263,7 +263,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       }
     }
 
-    setTempString((prev) => [...prev, " "]);
+    setTempString((prev) => prev + " ");
     setTypingBoard((prev) => [...prev, "0"]);
     setCurrentInputHistory([]);
   }
@@ -273,20 +273,18 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       switch (e.key.toLowerCase()) {
         case " ":
           e.preventDefault();
-
           processInput(currentInputHistory);
-
           break;
         case "enter":
           e.preventDefault();
 
-          setDisplayBoard((prev) => [...prev, ...tempString]);
+          setDisplayBoard((prev) => [...prev, tempString]);
           resetInput();
           break;
         case "backspace":
           setCurrentInputHistory((prev) => prev.slice(0, -1));
           setTypingBoard((prev) => prev.slice(0, -1));
-          tempString.pop();
+          setTempString((prev) => prev.slice(0, -1));
           break;
         default:
           break;
@@ -322,8 +320,6 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
         setCurrentInputHistory((prev) => [...prev, combinedEncoding]);
         setRegisteredInput(Array(6));
 
-        let results: { title: string; symbol: string } | null = null;
-
         setTypingBoard((prev) => [...prev, combinedEncoding]);
       }
     }
@@ -358,29 +354,15 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
                 .slice()
                 .reverse()
                 .map((line, lineIndex) => (
-                  <div key={lineIndex} className="w-full flex flex-col items-start dark:invert">
-                    {/* Braille container */}
-                    {/* <div className="flex gap-x-0.2">
-                      {line.map((item, itemIndex) => (  //change this to 
-                        <div key={itemIndex} className="flex flex-col items-center justify-end">
-                          <BrailleFont isDisplayBoard>{item.unicode}</BrailleFont>
-                        </div>
-                      ))}
-                    </div> */}
-                    {/* Text container */}
-                    {/* <div className="w-full text-xs text-left break-words mt-[-0.4rem]"> */}
-                    {/* {line.map((item, itemIndex) => ( // this should display  */}
-                    <p className="inline">
-                      {/* {item.text} */}
-                      {displayBoard}
-                    </p>
-                    {/* </div> */}
+                  <div key={lineIndex} className="w-full flex items-start dark:invert">
+                    <span>{line}</span>
                   </div>
                 ))}
             </div>
           </div>
         </div>
       </div>
+
       <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
         <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
@@ -393,12 +375,13 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
           <BrailleFont showCursor>⠀</BrailleFont>
         </div>
       </div>
+
       <div>Display board: {displayBoard.join("")}</div>
       <div>Current input history: {currentInputHistory.join("")}</div>
       <div>Typing board: {typingBoard.join("")}</div>
       <div>Registered input: {registeredInput.join("")}</div>
       <div>Current input: {Array.from(currentInput).join("")}</div>
-      <div>Temp string: {tempString.join("")}</div>
+      <div>Temp string: {tempString}</div>
     </div>
   );
 }
