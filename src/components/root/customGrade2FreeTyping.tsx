@@ -148,6 +148,18 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     return false;
   }
 
+  function checkStrongContraction(input: string[]) {
+    const findKey = [...input.map((val) => parseInt(val))];
+
+    const strongContractionFound = Array.from(strong_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
+    if (strongContractionFound) {
+      addToFinalString(strongContractionFound[1].symbol || strongContractionFound[1].title);
+      input.splice(0, findKey.length);
+      return true;
+    }
+    return false;
+  }
+
   function checkNumbers(input: string[], startIndex: number) {
     const findKey = [parseInt(input[startIndex])];
 
@@ -167,13 +179,6 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     const alphabetFound = Array.from(alphabet_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
     if (alphabetFound) {
       addToFinalString(alphabetFound[1].symbol || alphabetFound[1].title);
-      input.splice(startIndex, 1);
-      return true;
-    }
-
-    const strongContractionFound = Array.from(strong_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
-    if (strongContractionFound) {
-      addToFinalString(strongContractionFound[1].symbol || strongContractionFound[1].title);
       input.splice(startIndex, 1);
       return true;
     }
@@ -247,7 +252,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       checkInitialLetterContractions(input);
     }
 
-    if (input.length > 0 && checkShortformWords(input)) {
+    if (input.length > 0 && (checkShortformWords(input) || checkStrongContraction(input))) {
       setTempString((prev) => prev + " ");
       setTypingBoard((prev) => [...prev, "0"]);
       setCurrentInputHistory([]);
