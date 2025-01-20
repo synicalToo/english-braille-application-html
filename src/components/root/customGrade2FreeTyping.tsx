@@ -13,6 +13,11 @@ import {
   final_letter_groupsigns_mapping,
   number_mapping,
   BrailleUnicode,
+  punctuation_mapping,
+  signs_of_operation_and_comparison_mapping,
+  currency_and_measurement_mapping,
+  special_symbols_mapping,
+  grouping_punctuation_mapping,
 } from "@/contents/en/refinedBrailleData";
 import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
@@ -108,20 +113,23 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
   }
 
   function checkSingleInput(input: string[]) {
-    if (itemList.find((item) => item.item === BrailleData.indicators.content.number)) return false;
-
+    let searchInputs;
     const findKey = [parseInt(input[0])];
 
-    const searchInputs = [alphabetic_wordsigns_mapping, strong_contractions_mapping, strong_wordsigns_mapping, lower_wordsigns_mapping];
+    if (itemList.find((item) => item.item === BrailleData.indicators.content.number)) {
+      searchInputs = [number_mapping];
+    } else {
+      searchInputs = [alphabetic_wordsigns_mapping, strong_contractions_mapping, strong_wordsigns_mapping, lower_wordsigns_mapping];
+    }
+
     for (const mapping of searchInputs) {
       const found = Array.from(mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
       if (found) {
-        addToFinalString(found[1].symbol || found[1].title);
         input.splice(0, 1);
-        return true;
+        addToFinalString(found[1].symbol || found[1].title);
+        break;
       }
     }
-    return false;
   }
 
   function checkInitialLetterContractions(input: string[]) {
@@ -130,8 +138,8 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     if (findKey[0] === 5 || findKey[0] === 45 || findKey[0] === 456) {
       const found = Array.from(initial_letter_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
       if (found) {
-        addToFinalString(found[1].symbol || found[1].title);
         input.splice(0, 2);
+        addToFinalString(found[1].symbol || found[1].title);
       }
     }
   }
@@ -141,148 +149,85 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
 
     const shortformWordFound = Array.from(shortform_words_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
     if (shortformWordFound) {
+      input.splice(0, findKey.length);
       addToFinalString(shortformWordFound[1].symbol || shortformWordFound[1].title);
-      input.splice(0, findKey.length);
-      return true;
     }
-    return false;
-  }
-
-  function checkStrongContraction(input: string[]) {
-    const findKey = [...input.map((val) => parseInt(val))];
-
-    const strongContractionFound = Array.from(strong_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
-    if (strongContractionFound) {
-      addToFinalString(strongContractionFound[1].symbol || strongContractionFound[1].title);
-      input.splice(0, findKey.length);
-      return true;
-    }
-    return false;
-  }
-
-  function checkNumbers(input: string[], startIndex: number) {
-    const findKey = [parseInt(input[startIndex])];
-
-    const numberFound = Array.from(number_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
-    if (numberFound) {
-      addToFinalString(numberFound[1].symbol || numberFound[1].title);
-      input.splice(startIndex, 1);
-      return true;
-    }
-
-    return false;
-  }
-
-  function checkSpecialCharacters(input: string[], startIndex: number) {
-    const findKey = [parseInt(input[startIndex])];
-
-    const alphabetFound = Array.from(alphabet_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
-    if (alphabetFound) {
-      addToFinalString(alphabetFound[1].symbol || alphabetFound[1].title);
-      input.splice(startIndex, 1);
-      return true;
-    }
-
-    const strongGroupFound = Array.from(strong_groupsigns_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
-    if (strongGroupFound) {
-      addToFinalString(strongGroupFound[1].symbol || strongGroupFound[1].title);
-      input.splice(startIndex, 1);
-      return true;
-    }
-
-    const maxLength = Math.min(input.length - startIndex, 3);
-
-    for (let keyLength = maxLength; keyLength > 0; keyLength--) {
-      const findKey = input.slice(startIndex, startIndex + keyLength).map((val) => parseInt(val));
-
-      const lowerGroupMatches = Array.from(lower_groupsigns_mapping.entries()).filter(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
-
-      const numberIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.number);
-      if (!numberIndicator) {
-        for (const [_, item] of lowerGroupMatches) {
-          if (startIndex === 0 && input.length !== 1 && (item.type === "first" || item.type === "every")) {
-            addToFinalString(item.symbol || item.title);
-            input.splice(startIndex, keyLength);
-            return true;
-          }
-
-          if (startIndex !== input.length - 1 && input.length >= 3 && (item.type === "middle" || item.type === "every")) {
-            addToFinalString(item.symbol || item.title);
-            input.splice(startIndex, keyLength);
-            return true;
-          }
-
-          if (startIndex === input.length - 1 && input.length >= 2 && item.type === "every") {
-            addToFinalString(item.symbol || item.title);
-            input.splice(startIndex, keyLength);
-            return true;
-          }
-        }
-      }
-
-      const searchCategories = [BrailleData.punctuation.content, BrailleData.signs_of_operation_and_comparison.content, BrailleData.currency_and_measurement.content, BrailleData.special_symbols.content, BrailleData.grouping_punctuation.content];
-      for (const category of searchCategories) {
-        const found = Object.entries(category).find(([_, item]) => {
-          const keystroke = item.keystroke.map((k) => parseInt(k));
-          return keystroke.length === findKey.length && keystroke.every((val, i) => val === findKey[i]);
-        });
-
-        if (found) {
-          addToFinalString(found[1].symbol || found[1].title);
-          input.splice(startIndex, keyLength);
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
   function processInput(input: string[]) {
     checkIndicators(input, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage, BrailleData.indicators.content.number]);
 
-    if (input.length === 1 && checkSingleInput(input)) {
-      setTempString((prev) => prev + " ");
-      setTypingBoard((prev) => [...prev, "0"]);
-      setCurrentInputHistory([]);
-      return;
+    if (input.length === 1) {
+      checkSingleInput(input);
     }
 
     if (input.length === 2) {
       checkInitialLetterContractions(input);
     }
 
-    if (input.length > 0 && (checkShortformWords(input) || checkStrongContraction(input))) {
-      setTempString((prev) => prev + " ");
-      setTypingBoard((prev) => [...prev, "0"]);
-      setCurrentInputHistory([]);
-      return;
+    if (input.length >= 2) {
+      checkShortformWords(input);
     }
 
-    if (input.length === 0) {
-      setTempString((prev) => prev + " ");
-      setTypingBoard((prev) => [...prev, "0"]);
-      setCurrentInputHistory([]);
-      return;
-    }
+    if (input.length > 0) {
+      const searchInputs = [
+        initial_letter_contractions_mapping,
+        strong_groupsigns_mapping,
+        final_letter_groupsigns_mapping,
+        lower_groupsigns_mapping,
+        punctuation_mapping,
+        grouping_punctuation_mapping,
+        signs_of_operation_and_comparison_mapping,
+        currency_and_measurement_mapping,
+        special_symbols_mapping,
+        alphabet_mapping,
+      ];
 
-    const numberIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.number);
+      let currentIndex = 0;
+      while (currentIndex < input.length) {
+        let matchFound = false;
+        const remainingLength = input.length - currentIndex;
 
-    if (numberIndicator) {
-      let i = numberIndicator.position;
-      while (i < input.length) {
-        if (!checkNumbers(input, i)) {
-          if (!checkSpecialCharacters(input, i)) {
-            i++;
+        // Find the maximum keystroke length across all mappings
+        const maxLength = Math.min(remainingLength, Math.max(...searchInputs.flatMap((mapping) => Array.from(mapping.keys()).map((key) => key.length))));
+
+        // Try each possible length from longest to shortest
+        for (let tryLength = maxLength; tryLength > 0 && !matchFound; tryLength--) {
+          const matchSlice = input.slice(currentIndex, currentIndex + tryLength).map((val) => parseInt(val));
+
+          // Try each mapping at this length
+          for (const mapping of searchInputs) {
+            const possibleKeys = Array.from(mapping.keys()).filter((key) => key.length === tryLength);
+
+            for (const key of possibleKeys) {
+              if (key.every((val, i) => val === matchSlice[i])) {
+                const found = mapping.get(key);
+                if (found) {
+                  // Special handling for lower groupsigns based on position and type
+                  if (mapping === lower_groupsigns_mapping) {
+                    const isValid = (found.type === "first" && currentIndex === 0 && input.length !== 1) || (found.type === "middle" && currentIndex !== 0 && currentIndex !== input.length - 1 && input.length >= 3) || found.type === "every";
+
+                    if (isValid) {
+                      addToFinalString(found.symbol || found.title);
+                      input.splice(currentIndex, tryLength);
+                      matchFound = true;
+                      break;
+                    }
+                  } else {
+                    // For non-lower groupsigns, process normally
+                    addToFinalString(found.symbol || found.title);
+                    input.splice(currentIndex, tryLength);
+                    matchFound = true;
+                    break;
+                  }
+                }
+              }
+            }
+            if (matchFound) break;
           }
         }
-      }
-    } else {
-      let i = 0;
-      while (i < input.length) {
-        if (!checkSpecialCharacters(input, i)) {
-          i++;
-        }
+
+        currentIndex++;
       }
     }
 
@@ -296,6 +241,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       switch (e.key.toLowerCase()) {
         case " ":
           e.preventDefault();
+
           processInput(currentInputHistory);
           break;
         case "enter":

@@ -258,7 +258,7 @@ export const BrailleData: BrailleData = {
       ow: { title: "ow", keystroke: ["246"], type: "every" },
 
       ar: { title: "ar", keystroke: ["345"], type: "every" },
-      ing: { title: "ing", keystroke: ["346"], type: "every" },
+      ing: { title: "ing", keystroke: ["346"], type: "last" },
     },
   },
 
@@ -522,6 +522,41 @@ export const alphabet_mapping = new Map<number[], BrailleItem>(
 
 export const number_mapping = new Map<number[], BrailleItem>(
   Object.entries(BrailleData.numbers.content).map(([key, item]) => {
+    const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
+    return [ptn, item];
+  })
+);
+
+export const punctuation_mapping = new Map<number[], BrailleItem>(
+  Object.entries(BrailleData.punctuation.content).map(([key, item]) => {
+    const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
+    return [ptn, item];
+  })
+);
+
+export const grouping_punctuation_mapping = new Map<number[], BrailleItem>(
+  Object.entries(BrailleData.grouping_punctuation.content).map(([key, item]) => {
+    const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
+    return [ptn, item];
+  })
+);
+
+export const signs_of_operation_and_comparison_mapping = new Map<number[], BrailleItem>(
+  Object.entries(BrailleData.signs_of_operation_and_comparison.content).map(([key, item]) => {
+    const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
+    return [ptn, item];
+  })
+);
+
+export const currency_and_measurement_mapping = new Map<number[], BrailleItem>(
+  Object.entries(BrailleData.currency_and_measurement.content).map(([key, item]) => {
+    const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
+    return [ptn, item];
+  })
+);
+
+export const special_symbols_mapping = new Map<number[], BrailleItem>(
+  Object.entries(BrailleData.special_symbols.content).map(([key, item]) => {
     const ptn = item.keystroke.map((keystroke) => parseInt(keystroke));
     return [ptn, item];
   })
