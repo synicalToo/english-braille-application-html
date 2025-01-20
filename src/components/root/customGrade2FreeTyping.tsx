@@ -18,6 +18,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { BrailleFont } from "../customUI/brailleFont";
+import { speakText } from "@/utils/audioUtils";
 
 const keyToDotMap: { [key: string]: number } = {
   f: 1,
@@ -38,6 +39,23 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
   const [currentInputHistory, setCurrentInputHistory] = useState<string[]>([]);
   const [tempString, setTempString] = useState<string>("");
   const itemList: { position: number; item: BrailleItem }[] = [];
+
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  useEffect(() => {
+    const storedAudioEnabled = localStorage.getItem("audioEnabled");
+    if (storedAudioEnabled) {
+      setAudioEnabled(storedAudioEnabled === "true");
+    }
+
+    const handleAudioSettingsChange = (event: CustomEvent) => {
+      setAudioEnabled(event.detail);
+    };
+
+    window.addEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    return () => {
+      window.removeEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
+    };
+  }, []);
 
   function resetInput() {
     setTypingBoard([]);
@@ -366,13 +384,15 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
         <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
+          {/* Map through typingBoard to display Braille Unicode */}
           {typingBoard.map((item, index) => (
             <div key={index} className="flex flex-col items-center justify-end">
               <BrailleFont>{BrailleUnicode[item]}</BrailleFont>
-              <p className="text-xs">{item}</p>
             </div>
           ))}
-          <BrailleFont showCursor>⠀</BrailleFont>
+          <div className="w-full text-center pt-2">
+            <p className="text-s font-semibold">{tempString}</p>
+          </div>
         </div>
       </div>
 
