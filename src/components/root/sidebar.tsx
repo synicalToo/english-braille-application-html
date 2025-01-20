@@ -30,14 +30,26 @@ export function Sidebar() {
 
   const selectedGradeCompatibility = Compatibility[`grade_${selectedGrade}`];
 
+  function generateSubstrings(input: string): string[] {
+    const substrings: string[] = [];
+    for (let i = 0; i < input.length; i++) {
+      for (let j = i + 1; j <= input.length; j++) {
+        substrings.push(input.substring(i, j));
+      }
+    }
+    return substrings;
+  }
+
+  const substrings = generateSubstrings(searchQuery.toLowerCase());
+
   const filteredMappings = Object.entries(BrailleMappings).reduce((acc, [category, data]) => {
     if (data.Compatibility <= selectedGradeCompatibility || data.Compatibility === Compatibility.both) {
       const filteredContent = Object.entries(data.content).filter(
         ([header, item]) =>
           searchQuery === "" ||
-          header.toLowerCase().startsWith(searchQuery.toLowerCase()) || // Filter starts from start of the header
-          (item.symbol && item.symbol.toLowerCase().startsWith(searchQuery.toLowerCase())) || // Filter starts from start of the symbol
-          (item.title && item.title.toLowerCase().startsWith(searchQuery.toLowerCase())) // Filter starts from start of the title
+          (item.symbol && item.symbol.toLowerCase().startsWith(searchQuery.toLowerCase())) ||
+          (item.title && item.title.toLowerCase().startsWith(searchQuery.toLowerCase())) ||
+          substrings.some((substring) => header.toLowerCase() == substring || (item.symbol && item.symbol.toLowerCase() == substring.toLowerCase()) || (item.title && item.title.toLowerCase() == substring.toLowerCase()))
       );
 
       if (filteredContent.length > 0) {
@@ -60,7 +72,7 @@ export function Sidebar() {
         onKeyUp={(e) => e.stopPropagation()}
       >
         <FaSearch className="w-5 h-5 text-gray-500 mr-2" />
-        <input type="text" placeholder="Search..." className="w-full px-2 py-1 text-base border-none focus:ring-0 focus:outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} maxLength={15} />
+        <input type="text" placeholder="Search..." className="w-full px-2 py-1 text-base border-none focus:ring-0 focus:outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} maxLength={20} />
       </div>
       <Accordion type="multiple" className="px-2 w-full">
         {Object.entries(filteredMappings).map(([category, data]) => (
