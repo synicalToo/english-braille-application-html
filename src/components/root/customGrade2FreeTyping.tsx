@@ -90,6 +90,12 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     }
   }
 
+  function handleSpaceBarPressed() {
+    setTempString((prev) => prev + " ");
+    setTypingBoard((prev) => [...prev, "0"]);
+    setCurrentInputHistory([]);
+  }
+
   function checkIndicators(input: string[], patterns: BrailleItem[]) {
     patterns.sort((a, b) => b.keystroke.length - a.keystroke.length);
 
@@ -125,11 +131,11 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     for (const mapping of searchInputs) {
       const found = Array.from(mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
       if (found) {
-        input.splice(0, 1);
         addToFinalString(found[1].symbol || found[1].title);
-        break;
+        return true;
       }
     }
+    return false;
   }
 
   function checkInitialLetterContractions(input: string[]) {
@@ -138,10 +144,11 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
     if (findKey[0] === 5 || findKey[0] === 45 || findKey[0] === 456) {
       const found = Array.from(initial_letter_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
       if (found) {
-        input.splice(0, 2);
         addToFinalString(found[1].symbol || found[1].title);
+        return true;
       }
     }
+    return false;
   }
 
   function checkShortformWords(input: string[]) {
@@ -149,27 +156,56 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
 
     const shortformWordFound = Array.from(shortform_words_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
     if (shortformWordFound) {
-      input.splice(0, findKey.length);
       addToFinalString(shortformWordFound[1].symbol || shortformWordFound[1].title);
+      return true;
     }
+    return false;
   }
 
   function processInput(input: string[]) {
-    checkIndicators(input, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage, BrailleData.indicators.content.number]);
+    const workingInput = [...input];
 
-    if (input.length === 1) {
-      checkSingleInput(input);
+    checkIndicators(workingInput, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage, BrailleData.indicators.content.number]);
+
+    const numberIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.number);
+    let isInNumberMode = false;
+
+    if (numberIndicator) {
+      isInNumberMode = true;
     }
 
-    if (input.length === 2) {
-      checkInitialLetterContractions(input);
+    if (workingInput.length === 1) {
+      const tempInput = [...workingInput];
+      if (isInNumberMode) {
+        const numberMatch = Array.from(number_mapping.entries()).find(([key]) => key.length === 1 && key[0] === parseInt(tempInput[0]));
+        if (numberMatch) {
+          addToFinalString(numberMatch[1].symbol || numberMatch[1].title);
+          handleSpaceBarPressed();
+          return;
+        }
+      } else if (checkSingleInput(tempInput)) {
+        handleSpaceBarPressed();
+        return;
+      }
     }
 
-    if (input.length >= 2) {
-      checkShortformWords(input);
+    if (workingInput.length === 2) {
+      const tempInput = [...workingInput];
+      if (checkInitialLetterContractions(tempInput)) {
+        handleSpaceBarPressed();
+        return;
+      }
     }
 
-    if (input.length > 0) {
+    if (workingInput.length >= 2) {
+      const tempInput = [...workingInput];
+      if (checkShortformWords(tempInput)) {
+        handleSpaceBarPressed();
+        return;
+      }
+    }
+
+    if (workingInput.length > 0) {
       const searchInputs = [
         initial_letter_contractions_mapping,
         strong_groupsigns_mapping,
@@ -184,18 +220,38 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       ];
 
       let currentIndex = 0;
-      while (currentIndex < input.length) {
+      while (currentIndex < workingInput.length) {
         let matchFound = false;
-        const remainingLength = input.length - currentIndex;
+        let matchLength = 0;
+        const remainingLength = workingInput.length - currentIndex;
 
-        // Find the maximum keystroke length across all mappings
         const maxLength = Math.min(remainingLength, Math.max(...searchInputs.flatMap((mapping) => Array.from(mapping.keys()).map((key) => key.length))));
 
-        // Try each possible length from longest to shortest
         for (let tryLength = maxLength; tryLength > 0 && !matchFound; tryLength--) {
-          const matchSlice = input.slice(currentIndex, currentIndex + tryLength).map((val) => parseInt(val));
+          const matchSlice = workingInput.slice(currentIndex, currentIndex + tryLength).map((val) => parseInt(val));
 
-          // Try each mapping at this length
+          if (isInNumberMode) {
+            if (tryLength === 1) {
+              const numberMatch = Array.from(number_mapping.entries()).find(([key]) => key.length === 1 && key[0] === matchSlice[0]);
+
+              if (numberMatch) {
+                addToFinalString(numberMatch[1].symbol || numberMatch[1].title);
+                matchFound = true;
+                matchLength = 1;
+                continue;
+              }
+            }
+
+            const operationMatch = Array.from(signs_of_operation_and_comparison_mapping.entries()).find(([key]) => key.length === matchSlice.length && key.every((val, i) => val === matchSlice[i]));
+
+            if (operationMatch) {
+              addToFinalString(operationMatch[1].symbol || operationMatch[1].title);
+              matchFound = true;
+              matchLength = tryLength;
+              continue;
+            }
+          }
+
           for (const mapping of searchInputs) {
             const possibleKeys = Array.from(mapping.keys()).filter((key) => key.length === tryLength);
 
@@ -203,21 +259,22 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
               if (key.every((val, i) => val === matchSlice[i])) {
                 const found = mapping.get(key);
                 if (found) {
-                  // Special handling for lower groupsigns based on position and type
                   if (mapping === lower_groupsigns_mapping) {
-                    const isValid = (found.type === "first" && currentIndex === 0 && input.length !== 1) || (found.type === "middle" && currentIndex !== 0 && currentIndex !== input.length - 1 && input.length >= 3) || found.type === "every";
+                    const isFirstPosition = currentIndex === 0;
+                    const isMiddlePosition = currentIndex > 0 && currentIndex < workingInput.length - 1;
+
+                    const isValid = (found.type === "first" && isFirstPosition) || (found.type === "middle" && isMiddlePosition) || found.type === "every";
 
                     if (isValid) {
                       addToFinalString(found.symbol || found.title);
-                      input.splice(currentIndex, tryLength);
                       matchFound = true;
+                      matchLength = tryLength;
                       break;
                     }
                   } else {
-                    // For non-lower groupsigns, process normally
                     addToFinalString(found.symbol || found.title);
-                    input.splice(currentIndex, tryLength);
                     matchFound = true;
+                    matchLength = tryLength;
                     break;
                   }
                 }
@@ -227,13 +284,16 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
           }
         }
 
-        currentIndex++;
+        if (!matchFound) {
+          currentIndex++;
+          isInNumberMode = false;
+        } else {
+          currentIndex += matchLength;
+        }
       }
     }
 
-    setTempString((prev) => prev + " ");
-    setTypingBoard((prev) => [...prev, "0"]);
-    setCurrentInputHistory([]);
+    handleSpaceBarPressed();
   }
 
   useEffect(() => {
@@ -241,12 +301,10 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       switch (e.key.toLowerCase()) {
         case " ":
           e.preventDefault();
-
           processInput(currentInputHistory);
           break;
         case "enter":
           e.preventDefault();
-
           setDisplayBoard((prev) => [...prev, tempString]);
           resetInput();
           break;
@@ -320,7 +378,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
           <div className="absolute bottom-10 left-8 w-full h-full flex flex-col-reverse items-center justify-start px-5 py-3">
             <div className="w-full max-w-[458px] pt-3 flex flex-col-reverse items-start p-2 max-h-[220px] overflow-y-auto">
               {displayBoard
-                .slice()
+                .slice(-8)
                 .reverse()
                 .map((line, lineIndex) => (
                   <div key={lineIndex} className="w-full flex items-start dark:invert">
