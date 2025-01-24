@@ -292,7 +292,6 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
         }
       }
     }
-
     handleSpaceBarPressed();
   }
 
@@ -305,7 +304,13 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
           break;
         case "enter":
           e.preventDefault();
-          setDisplayBoard((prev) => [...prev, tempString]);
+          speakText(tempString, audioEnabled);
+          if (tempString.replace(/\s/g, "") != "") {
+            setDisplayBoard((prev) => {
+              const newBoard = [...prev, tempString];
+              return newBoard.slice(-8);
+            });
+          }
           resetInput();
           break;
         case "backspace":
@@ -346,7 +351,6 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
         const combinedEncoding = registeredInput.join("");
         setCurrentInputHistory((prev) => [...prev, combinedEncoding]);
         setRegisteredInput(Array(6));
-
         setTypingBoard((prev) => [...prev, combinedEncoding]);
       }
     }
@@ -378,7 +382,7 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
           <div className="absolute bottom-10 left-8 w-full h-full flex flex-col-reverse items-center justify-start px-5 py-3">
             <div className="w-full max-w-[458px] pt-3 flex flex-col-reverse items-start p-2 max-h-[220px] overflow-y-auto">
               {displayBoard
-                .slice(-8)
+                .slice()
                 .reverse()
                 .map((line, lineIndex) => (
                   <div key={lineIndex} className="w-full flex items-start dark:invert">
@@ -393,7 +397,6 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
       <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
         <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
-          {/* Map through typingBoard to display Braille Unicode */}
           {typingBoard.map((item, index) => (
             <div key={index} className="flex flex-col items-center justify-end">
               <BrailleFont>{BrailleUnicode[item]}</BrailleFont>
