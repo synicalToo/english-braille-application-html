@@ -18,7 +18,7 @@ import {
   currency_and_measurement_mapping,
   special_symbols_mapping,
   grouping_punctuation_mapping,
-} from "@/contents/en/refinedBrailleData";
+} from "@/contents/en/BrailleData";
 import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";

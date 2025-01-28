@@ -3,12 +3,11 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import Gameplay from "@/components/root/gameplay";
 import { Sidebar } from "@/components/root/sidebar";
 import { BottomBar } from "@/components/root/bottomBar";
 import { FreeTyping } from "@/components/root/freeTyping";
-import { Button } from "@/components/ui/button";
-import Grade2FreeTyping from "@/components/root/grade2FreeTyping";
 import CustomGrade2FreeTyping from "@/components/root/customGrade2FreeTyping";
 
 type ApplicationMode = "" | "freeTyping" | "gameplay";

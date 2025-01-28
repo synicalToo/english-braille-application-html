@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
+
+import Image from "next/image";
 import { BrailleFont } from "@/components/customUI/brailleFont";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { BrailleMappings, Compatibility, BrailleUnicode } from "@/contents/en/customBrailleData";
+import { BrailleData, BrailleUnicode, Compatibility } from "@/contents/en/BrailleData";
 
 function getUnicodeFromKeystrokes(keystrokes: string[]): string {
   return keystrokes.map((key) => BrailleUnicode[key]).join("");
 }
 
 export function Sidebar() {
-  const [selectedGrade, setSelectedGrade] = useState<string>("1");
+  const [selectedGrade, setSelectedGrade] = useState<string>("grade_1");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
@@ -42,8 +43,8 @@ export function Sidebar() {
 
   const substrings = generateSubstrings(searchQuery.toLowerCase());
 
-  const filteredMappings = Object.entries(BrailleMappings).reduce((acc, [category, data]) => {
-    if (data.Compatibility <= selectedGradeCompatibility || data.Compatibility === Compatibility.both) {
+  const filteredMappings = Object.entries(BrailleData).reduce((acc, [category, data]) => {
+    if (data.compatibility <= selectedGradeCompatibility || data.compatibility === Compatibility.both) {
       const filteredContent = Object.entries(data.content).filter(
         ([header, item]) =>
           searchQuery === "" ||
@@ -57,7 +58,7 @@ export function Sidebar() {
       }
     }
     return acc;
-  }, {} as typeof BrailleMappings);
+  }, {} as typeof BrailleData);
 
   return (
     <div className="flex flex-col items-center space-y-2">
@@ -77,7 +78,7 @@ export function Sidebar() {
       <Accordion type="multiple" className="px-2 w-full">
         {Object.entries(filteredMappings).map(([category, data]) => (
           <AccordionItem key={category} value={category}>
-            <AccordionTrigger>{category}</AccordionTrigger>
+            <AccordionTrigger>{data.title}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-wrap gap-2 justify-between">
                 {Object.entries(data.content).map(([header, item]) => (

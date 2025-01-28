@@ -8,18 +8,22 @@ export interface BrailleItem {
 
 export interface BrailleCategory {
   title: string;
+  compatibility: number;
   content: {
     [key: string]: BrailleItem;
   };
 }
 
-export type BrailleData = {
+export const Compatibility: { [key: string]: number } = { grade_1: 1, grade_2: 2, both: 3 };
+
+export type TypeBrailleData = {
   [key: string]: BrailleCategory;
 };
 
-export const BrailleData: BrailleData = {
+export const BrailleData: TypeBrailleData = {
   indicators: {
     title: "Indicators",
+    compatibility: Compatibility.both,
     content: {
       number: { title: "Numeric", keystroke: ["3456"] },
       capital_letter: { title: "Capital letter", keystroke: ["6"] },
@@ -51,6 +55,7 @@ export const BrailleData: BrailleData = {
 
   alphabet: {
     title: "Alphabet",
+    compatibility: Compatibility.grade_1,
     content: {
       a: { title: "a", keystroke: ["1"], type: "every" },
       b: { title: "b", keystroke: ["12"], type: "every" },
@@ -85,6 +90,7 @@ export const BrailleData: BrailleData = {
 
   numbers: {
     title: "Numbers",
+    compatibility: Compatibility.both,
     content: {
       1: { title: "1", keystroke: ["1"], type: "every" },
       2: { title: "2", keystroke: ["12"], type: "every" },
@@ -101,6 +107,7 @@ export const BrailleData: BrailleData = {
 
   punctuation: {
     title: "Punctuation",
+    compatibility: Compatibility.both,
     content: {
       comma: { title: "Comma", symbol: ",", keystroke: ["2"] },
       period: { title: "Period", symbol: ".", keystroke: ["256"] },
@@ -127,6 +134,7 @@ export const BrailleData: BrailleData = {
 
   grouping_punctuation: {
     title: "Grouping Punctuation",
+    compatibility: Compatibility.both,
     content: {
       opening_round_parentheses: { title: "Opening round parentheses", symbol: "(", keystroke: ["5", "126"] },
       closing_round_parentheses: { title: "Closing round parentheses", symbol: ")", keystroke: ["5", "345"] },
@@ -141,6 +149,7 @@ export const BrailleData: BrailleData = {
 
   signs_of_operation_and_comparison: {
     title: "Signs of Operation and Comparison",
+    compatibility: Compatibility.both,
     content: {
       plus: { title: "Plus", symbol: "+", keystroke: ["5", "235"] },
       minus: { title: "Minus", symbol: "-", keystroke: ["5", "36"] },
@@ -155,6 +164,7 @@ export const BrailleData: BrailleData = {
 
   currency_and_measurement: {
     title: "Currency and Measurement",
+    compatibility: Compatibility.both,
     content: {
       cent: { title: "Cent", symbol: "¢", keystroke: ["4", "14"] },
       dollar: { title: "Dollar", symbol: "$", keystroke: ["4", "234"] },
@@ -167,6 +177,7 @@ export const BrailleData: BrailleData = {
 
   special_symbols: {
     title: "Special Symbols",
+    compatibility: Compatibility.both,
     content: {
       percentage: { title: "Percentage", symbol: "%", keystroke: ["46", "356"] },
       degree: { title: "Degree", symbol: "°", keystroke: ["45", "245"] },
@@ -187,6 +198,7 @@ export const BrailleData: BrailleData = {
 
   alphabetic_wordsigns: {
     title: "Alphabetic Wordsigns",
+    compatibility: Compatibility.grade_2,
     content: {
       a: { title: "a", keystroke: ["1"], type: "alone" },
       but: { title: "but", keystroke: ["12"], type: "alone" },
@@ -221,6 +233,7 @@ export const BrailleData: BrailleData = {
 
   strong_contractions: {
     title: "Strong Contractions",
+    compatibility: Compatibility.grade_2,
     content: {
       and: { title: "and", keystroke: ["12346"], type: "alone" },
       for: { title: "for", keystroke: ["123456"], type: "alone" },
@@ -232,6 +245,7 @@ export const BrailleData: BrailleData = {
 
   strong_wordsigns: {
     title: "Strong Wordsigns",
+    compatibility: Compatibility.grade_2,
     content: {
       child: { title: "child", keystroke: ["16"], type: "alone" },
       shall: { title: "shall", keystroke: ["146"], type: "alone" },
@@ -244,6 +258,7 @@ export const BrailleData: BrailleData = {
 
   strong_groupsigns: {
     title: "Strong Groupsigns",
+    compatibility: Compatibility.grade_2,
     content: {
       ch: { title: "ch", keystroke: ["16"], type: "every" },
       sh: { title: "sh", keystroke: ["146"], type: "every" },
@@ -264,6 +279,7 @@ export const BrailleData: BrailleData = {
 
   lower_wordsigns: {
     title: "Lower Wordsigns",
+    compatibility: Compatibility.grade_2,
     content: {
       be: { title: "be", keystroke: ["23"], type: "alone" },
       enough: { title: "enough", keystroke: ["26"], type: "alone" },
@@ -275,6 +291,7 @@ export const BrailleData: BrailleData = {
 
   lower_groupsigns: {
     title: "Lower Groupsigns",
+    compatibility: Compatibility.grade_2,
     content: {
       ea: { title: "ea", keystroke: ["2"], type: "middle" },
       bb: { title: "bb", keystroke: ["23"], type: "middle" },
@@ -292,6 +309,7 @@ export const BrailleData: BrailleData = {
 
   initial_letter_contractions: {
     title: "Initial Letter Contractions",
+    compatibility: Compatibility.grade_2,
     content: {
       day: { title: "day", keystroke: ["5", "145"], type: "every" },
       ever: { title: "ever", keystroke: ["5", "15"], type: "every" },
@@ -333,6 +351,7 @@ export const BrailleData: BrailleData = {
 
   final_letter_groupsigns: {
     title: "Final-letter Groupsigns",
+    compatibility: Compatibility.grade_2,
     content: {
       ound: { title: "ound", keystroke: ["46", "145"], type: "last" },
       ance: { title: "ance", keystroke: ["46", "15"], type: "last" },
@@ -352,6 +371,7 @@ export const BrailleData: BrailleData = {
 
   shortform_words: {
     title: "Shortform Words",
+    compatibility: Compatibility.grade_2,
     content: {
       about: { title: "about", keystroke: ["1", "12"] },
       above: { title: "above", keystroke: ["1", "12", "1236"] },
