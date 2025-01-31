@@ -9,7 +9,7 @@ export const LANGUAGE_CODE_MAP: { [key: string]: string } = {
 
 export const BRAILLE_DISPLAY_INTERVAL_OPTIONS = ["1", "2", "3", "4", "5", "6", "7"] as const;
 export const GAME_LENGTH_OPTIONS = ["1", "2", "3", "4", "5"] as const;
-export const PRACTICE_TOPIC_OPTIONS = ["Alphabetical", "Numbers", "3-syllabus words", "4-syllabus words", "5-syllabus words", "Short sentences", "All"] as const;
+export const PRACTICE_TOPIC_OPTIONS = ["Alphabetical", "Numbers", "3-syllable words", "4-syllable words", "5-syllable words", "Short sentences", "All"] as const;
 export const AUDIO_EFFECT_OPTIONS = ["None", "Default", "Cute", "Cyber", "Fight", "Support"] as const;
 export const TYPING_MODE_OPTIONS = ["Alphabet", "Number", "Capital letter", "Capital word", "Capital passage"] as const;
 

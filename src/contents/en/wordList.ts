@@ -252,7 +252,7 @@ export const WordList: Record<(typeof PRACTICE_TOPIC_OPTIONS)[number], string[]>
     "9219946.1007",
     "9595310.1657",
   ],
-  "3-syllabus words": [
+  "3-syllable words": [
     "general",
     "audience",
     "family",
@@ -304,7 +304,7 @@ export const WordList: Record<(typeof PRACTICE_TOPIC_OPTIONS)[number], string[]>
     "tolerate",
     "headquarters",
   ],
-  "4-syllabus words": [
+  "4-syllable words": [
     "evaluate",
     "distributor",
     "professional",
@@ -356,7 +356,7 @@ export const WordList: Record<(typeof PRACTICE_TOPIC_OPTIONS)[number], string[]>
     "society",
     "photography",
   ],
-  "5-syllabus words": [
+  "5-syllable words": [
     "environmental",
     "liability",
     "anniversary",

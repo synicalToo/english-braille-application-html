@@ -11,7 +11,7 @@ import { FaCheck, FaForward, FaTrophy } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
 import { speakText } from "@/utils/audioUtils";
 import { WordList } from "@/contents/en/wordList";
-import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
+import { BrailleData, BrailleUnicode } from "@/contents/en/BrailleData";
 import { GameState, keyToDotMap, AudioLanguage, BrailleDisplayInterval, GameLength, PracticeTopic, AudioEffect } from "@/lib/constants";
 
 interface PlayerData {
@@ -452,26 +452,26 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     if (!text) return "";
 
     const containsNumbers = /\d/.test(text);
-    let result = containsNumbers ? BrailleUnicode[BrailleMappings.Indicators.content.number.keystroke.join("")] : "";
+    let result = containsNumbers ? BrailleUnicode[BrailleData.indicators.content.number.keystroke.join("")] : "";
 
     return text.split("").reduce((result, char) => {
       if (char === " ") {
         return result + BrailleUnicode["0"];
       }
       if (char === ",") {
-        return result + BrailleUnicode[BrailleMappings.Punctuation.content.comma.keystroke.join("")];
+        return result + BrailleUnicode[BrailleData.punctuation.content.comma.keystroke.join("")];
       }
       if (char === ".") {
-        return result + BrailleUnicode[BrailleMappings.Punctuation.content.period.keystroke.join("")];
+        return result + BrailleUnicode[BrailleData.punctuation.content.period.keystroke.join("")];
       }
       if (char !== char.toLowerCase()) {
-        return result + BrailleUnicode[BrailleMappings.Indicators.content.capital_letter.keystroke.join("")] + BrailleUnicode[BrailleMappings.Alphabet.content[char.toLowerCase()].keystroke.join("")];
+        return result + BrailleUnicode[BrailleData.indicators.content.capital_letter.keystroke.join("")] + BrailleUnicode[BrailleData.alphabet.content[char.toLowerCase()].keystroke.join("")];
       }
       if (/\d/.test(char)) {
-        return result + BrailleUnicode[BrailleMappings.Numbers.content[char].keystroke.join("")];
+        return result + BrailleUnicode[BrailleData.numbers.content[char].keystroke.join("")];
       }
-      if (BrailleMappings.Alphabet.content[char]) {
-        return result + BrailleUnicode[BrailleMappings.Alphabet.content[char].keystroke.join("")];
+      if (BrailleData.alphabet.content[char]) {
+        return result + BrailleUnicode[BrailleData.alphabet.content[char].keystroke.join("")];
       }
       console.warn(`Character ${char} not found in mappings`);
       return result + char;
@@ -500,8 +500,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     const containsNumbers = /\d/.test(word);
     if (containsNumbers) {
       list.push({
-        character: BrailleMappings.Indicators.content.number.title,
-        keystroke: BrailleMappings.Indicators.content.number.keystroke.join(""),
+        character: BrailleData.indicators.content.number.title,
+        keystroke: BrailleData.indicators.content.number.keystroke.join(""),
       });
     }
 
@@ -514,31 +514,31 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       } else if (word[i].toLowerCase() === ",") {
         list.push({
           character: word[i],
-          keystroke: BrailleMappings.Punctuation.content.comma.keystroke.join(""),
+          keystroke: BrailleData.punctuation.content.comma.keystroke.join(""),
         });
       } else if (word[i].toLowerCase() === ".") {
         list.push({
           character: word[i],
-          keystroke: BrailleMappings.Punctuation.content.period.keystroke.join(""),
+          keystroke: BrailleData.punctuation.content.period.keystroke.join(""),
         });
       } else if (word[i] !== word[i].toLowerCase()) {
         list.push({
-          character: BrailleMappings.Indicators.content.capital_letter.title,
-          keystroke: BrailleMappings.Indicators.content.capital_letter.keystroke.join(""),
+          character: BrailleData.indicators.content.capital_letter.title,
+          keystroke: BrailleData.indicators.content.capital_letter.keystroke.join(""),
         });
         list.push({
           character: word[i],
-          keystroke: BrailleMappings.Alphabet.content[word[i].toLowerCase()].keystroke.join(""),
+          keystroke: BrailleData.alphabet.content[word[i].toLowerCase()].keystroke.join(""),
         });
       } else if (/\d/.test(word[i])) {
         list.push({
           character: word[i],
-          keystroke: BrailleMappings.Numbers.content[word[i]].keystroke.join(""),
+          keystroke: BrailleData.numbers.content[word[i]].keystroke.join(""),
         });
-      } else if (BrailleMappings.Alphabet.content[word[i]]) {
+      } else if (BrailleData.alphabet.content[word[i]]) {
         list.push({
           character: word[i],
-          keystroke: BrailleMappings.Alphabet.content[word[i]].keystroke.join(""),
+          keystroke: BrailleData.alphabet.content[word[i]].keystroke.join(""),
         });
       }
     }

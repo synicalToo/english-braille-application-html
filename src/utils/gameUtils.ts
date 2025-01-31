@@ -1,4 +1,4 @@
-import { BrailleMappings } from "@/contents/en/customBrailleData";
+import { BrailleData } from "@/contents/en/BrailleData";
 
 export function findHighestMatchingPatternCount(pattern: string): number {
   let maxCount = 0;
@@ -12,8 +12,8 @@ export function findHighestMatchingPatternCount(pattern: string): number {
     return count;
   }
 
-  for (const category in BrailleMappings) {
-    const content = BrailleMappings[category].content;
+  for (const category in BrailleData) {
+    const content = BrailleData[category].content;
     for (const key in content) {
       const keystrokes = content[key].keystroke;
       const count = countPatternInArray(keystrokes);
@@ -26,9 +26,9 @@ export function findHighestMatchingPatternCount(pattern: string): number {
 }
 
 export function findNumberMatch(pattern: string): { title: string; symbol?: string; keystroke: string[] } | null {
-  for (const item in BrailleMappings.Numbers.content) {
-    if (BrailleMappings.Numbers.content[item].keystroke[0] === pattern) {
-      return BrailleMappings.Numbers.content[item];
+  for (const item in BrailleData.numbers.content) {
+    if (BrailleData.numbers.content[item].keystroke[0] === pattern) {
+      return BrailleData.numbers.content[item];
     }
   }
 
@@ -49,10 +49,10 @@ export function findBrailleMatch(
   // Determine maximum slice length based on grade
   const maxSliceLength = 3;
 
-  for (const category in BrailleMappings) {
-    const mapping = BrailleMappings[category];
+  for (const category in BrailleData) {
+    const mapping = BrailleData[category];
 
-    if (mapping.Compatibility == 2 || category == "Numbers") continue;
+    if (mapping.compatibility == 2 || category == "Numbers") continue;
 
     const { content } = mapping;
 

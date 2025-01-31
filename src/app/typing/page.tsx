@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import Gameplay from "@/components/root/gameplay";
 import { Sidebar } from "@/components/root/sidebar";
 import { BottomBar } from "@/components/root/bottomBar";
-import { FreeTyping } from "@/components/root/freeTyping";
-import CustomGrade2FreeTyping from "@/components/root/customGrade2FreeTyping";
+import FreeTypingGradeOne from "@/components/root/freeTypingGradeOne";
+import FreeTypingGradeTwo from "@/components/root/freeTypingGradeTwo";
 
 type ApplicationMode = "" | "freeTyping" | "gameplay";
 export default function TypingPage() {
@@ -55,8 +55,8 @@ export default function TypingPage() {
           </>
         ) : (
           <div className="">
-            {selectedMode === "freeTyping" && selectedGrade === "1" && <FreeTyping onBack={() => setSelectedMode("")} />}
-            {selectedMode === "freeTyping" && selectedGrade === "2" && <CustomGrade2FreeTyping onBack={() => setSelectedMode("")} />}
+            {selectedMode === "freeTyping" && selectedGrade === "1" && <FreeTypingGradeOne onBack={() => setSelectedMode("")} />}
+            {selectedMode === "freeTyping" && selectedGrade === "2" && <FreeTypingGradeTwo onBack={() => setSelectedMode("")} />}
             {selectedMode === "gameplay" && <Gameplay onBack={() => setSelectedMode("")} />}
             <BottomBar />
           </div>

@@ -25,6 +25,8 @@ import Image from "next/image";
 import { BrailleFont } from "../customUI/brailleFont";
 import { speakText } from "@/utils/audioUtils";
 
+const DEBUG = false;
+
 const keyToDotMap: { [key: string]: number } = {
   f: 1,
   d: 2,
@@ -34,7 +36,7 @@ const keyToDotMap: { [key: string]: number } = {
   l: 6,
 };
 
-export default function customGrade2FreeTyping({ onBack }: { onBack: () => void }) {
+export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
 
@@ -408,12 +410,16 @@ export default function customGrade2FreeTyping({ onBack }: { onBack: () => void 
         </div>
       </div>
 
-      <div>Display board: {displayBoard.join("")}</div>
-      <div>Current input history: {currentInputHistory.join("")}</div>
-      <div>Typing board: {typingBoard.join("")}</div>
-      <div>Registered input: {registeredInput.join("")}</div>
-      <div>Current input: {Array.from(currentInput).join("")}</div>
-      <div>Temp string: {tempString}</div>
+      {DEBUG && (
+        <>
+          <div>Display board: {displayBoard.join("")}</div>
+          <div>Current input history: {currentInputHistory.join("")}</div>
+          <div>Typing board: {typingBoard.join("")}</div>
+          <div>Registered input: {registeredInput.join("")}</div>
+          <div>Current input: {Array.from(currentInput).join("")}</div>
+          <div>Temp string: {tempString}</div>
+        </>
+      )}
     </div>
   );
 }

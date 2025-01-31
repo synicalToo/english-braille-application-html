@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BrailleFont } from "@/components/customUI/brailleFont";
 import { keyToDotMap, TYPING_MODE_OPTIONS } from "@/lib/constants";
-import { BrailleMappings, BrailleUnicode } from "@/contents/en/customBrailleData";
+import { BrailleData, BrailleUnicode } from "@/contents/en/BrailleData";
 
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
@@ -17,9 +17,9 @@ interface GameAudio {
   next_line: HTMLAudioElement;
 }
 
-const debug = false;
+const DEBUG = false;
 
-export function FreeTyping({ onBack }: { onBack: () => void }) {
+export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
   const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
   const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
   const [inputHistory, setInputHistory] = useState<string[]>([]);
@@ -148,7 +148,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
             }
             //for if gets terminated by eg alpha, punc
-            const content = BrailleMappings.Numbers.content;
+            const content = BrailleData.Numbers.content;
             for (const i in content) {
               if (typingBoard[inputHistory.length - 2]?.text == content[i].title && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
                 setTypingModeHistory((prev) => prev.slice(0, -1));
@@ -265,7 +265,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                 break;
               case "Capital letter":
                 if (!isIndicator(matchingResult)) {
-                  if (matchingResult != BrailleMappings.Indicators.content.capital_terminator) {
+                  if (matchingResult != BrailleData.indicators.content.capital_terminator) {
                     displayText = displayText.toUpperCase();
                   } else {
                     setTypingModeHistory((prev) => prev.slice(0, -1));
@@ -281,7 +281,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
                 }
                 break;
               case "Capital passage":
-                if (matchingResult == BrailleMappings.Indicators.content.capital_terminator) {
+                if (matchingResult == BrailleData.indicators.content.capital_terminator) {
                   setCurrentTypingMode("Alphabet");
                   setTypingModeHistory((prev) => [...prev, "Alphabet"]);
                 } else if (!isIndicator(matchingResult)) {
@@ -293,26 +293,26 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
             }
 
             switch (matchingResult) {
-              case BrailleMappings.Indicators.content.number:
+              case BrailleData.indicators.content.number:
                 setCurrentTypingMode("Number");
                 setTypingModeHistory((prev) => [...prev, "Number"]);
                 ttsText = "";
                 break;
-              case BrailleMappings.Indicators.content.capital_letter:
+              case BrailleData.indicators.content.capital_letter:
                 if (currentTypingMode != "Capital passage") {
                   setCurrentTypingMode("Capital letter");
                 }
                 setTypingModeHistory((prev) => [...prev, "Capital letter"]);
                 ttsText = "";
                 break;
-              case BrailleMappings.Indicators.content.capital_word:
+              case BrailleData.indicators.content.capital_word:
                 if (currentTypingMode != "Capital passage") {
                   setCurrentTypingMode("Capital word");
                 }
                 setTypingModeHistory((prev) => [...prev, "Capital word"]);
                 ttsText = "";
                 break;
-              case BrailleMappings.Indicators.content.capital_passage:
+              case BrailleData.indicators.content.capital_passage:
                 setCurrentTypingMode("Capital passage");
                 setTypingModeHistory((prev) => [...prev, "Capital passage"]);
                 ttsText = "";
@@ -383,11 +383,11 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
 
   function isIndicator(matchingResult: { title: string; keystroke: string[]; symbol?: string }): boolean {
     return (
-      matchingResult == BrailleMappings.Indicators.content.number ||
-      matchingResult == BrailleMappings.Indicators.content.capital_letter ||
-      matchingResult == BrailleMappings.Indicators.content.capital_word ||
-      matchingResult == BrailleMappings.Indicators.content.capital_passage ||
-      matchingResult == BrailleMappings.Indicators.content.capital_terminator
+      matchingResult == BrailleData.indicators.content.number ||
+      matchingResult == BrailleData.indicators.content.capital_letter ||
+      matchingResult == BrailleData.indicators.content.capital_word ||
+      matchingResult == BrailleData.indicators.content.capital_passage ||
+      matchingResult == BrailleData.indicators.content.capital_terminator
     );
   }
 
@@ -461,7 +461,7 @@ export function FreeTyping({ onBack }: { onBack: () => void }) {
           ))}
         </div>
       </div>
-      {debug && (
+      {DEBUG && (
         <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg mt-4 mb-4">
           <h2 className="text-xl text-center font-semibold mb-4">Debugger</h2>
           <div className="space-y-6">
