@@ -1,3 +1,6 @@
+// Shows the three buttons at the bottom of the screen
+// Keyboard mapping, settings, and theme switcher
+
 import { ThemeSwitcher } from "../providers/themeSwitcher";
 
 import { KeyboardMappingSheet } from "../sheets/keyboardMapping";

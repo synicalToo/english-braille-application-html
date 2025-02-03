@@ -96,8 +96,13 @@ interface ActiveCharacter {
 }
 
 export default function Gameplay({ onBack }: { onBack: () => void }) {
-  const [gameState, setGameState] = useState<GameState>("countdown");
-  const [playerData, setPlayerData] = useState<PlayerData>({ points: 0, skipped: 0, correct: 0, incorrect: 0 });
+  const [gameState, setGameState] = useState<GameState>("countdown"); // Keep tracks of whether the game is starting, playing, ended
+  const [playerData, setPlayerData] = useState<PlayerData>({
+    points: 0,
+    skipped: 0,
+    correct: 0,
+    incorrect: 0,
+  });
   const [gameplaySettings, setGameplaySettings] = useState<GameplaySettings>({
     audioEnabled: true,
     tts: "Google US English",
@@ -106,55 +111,61 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     practiceTopic: "Alphabetical",
     soundEffects: "Default",
   });
-  const [gameplayData, setGameplayData] = useState<GameplayData>({ countdown: 3, progressBar: 100, timer: parseInt(gameplaySettings.gameLength) * 60, maxGameTimer: parseInt(gameplaySettings.gameLength) * 60 });
+  const [gameplayData, setGameplayData] = useState<GameplayData>({
+    countdown: 3,
+    progressBar: 100,
+    timer: parseInt(gameplaySettings.gameLength) * 60,
+    maxGameTimer: parseInt(gameplaySettings.gameLength) * 60,
+  });
 
-  const [currentInput, setCurrentInput] = useState<Set<string>>(new Set());
-  const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6));
+  const [currentInput, setCurrentInput] = useState<Set<string>>(new Set()); // Register the current key presses by the user
+  const [registeredInput, setRegisteredInput] = useState<string[]>(Array(6)); // Stores the pressed key after the user has released all keys
 
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
-  const [highlightedCharacter, setHighlightedCharacter] = useState<number[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [characterList, setCharacterList] = useState<CharacterList[]>([]);
+  const [selectedWord, setSelectedWord] = useState<string | null>(null); // Randomly chosen word to be displayed
+  const [highlightedCharacter, setHighlightedCharacter] = useState<number[]>([]); // Tracks the position of the character in the chosen word to be highlighted when correct
+  const [currentIndex, setCurrentIndex] = useState<number>(0); // Position of the current character to be processed when user inputs keystroke
+  const [characterList, setCharacterList] = useState<CharacterList[]>([]); // Breaks the word into individual element to keep track based on index
 
-  const [activeCharacters, setActiveCharacters] = useState<ActiveCharacter[]>([]);
-  const [animationCompleted, setAnimationCompleted] = useState<{ [key: number]: boolean }>({});
+  const [activeCharacters, setActiveCharacters] = useState<ActiveCharacter[]>([]); // Falling braille dots
+  const [animationCompleted, setAnimationCompleted] = useState<{ [key: number]: boolean }>({}); // Mark braille dots as finished animation
 
+  // Store the game audio elements
   const gameAudio = useRef<GameAudio>({
     None: {
-      clear: null as unknown as HTMLAudioElement,
-      skip: null as unknown as HTMLAudioElement,
-      correct: null as unknown as HTMLAudioElement,
-      incorrect: null as unknown as HTMLAudioElement,
+      clear: new Audio(),
+      skip: new Audio(),
+      correct: new Audio(),
+      incorrect: new Audio(),
     },
     Default: {
-      clear: null as unknown as HTMLAudioElement,
-      skip: null as unknown as HTMLAudioElement,
-      correct: null as unknown as HTMLAudioElement,
-      incorrect: null as unknown as HTMLAudioElement,
+      clear: new Audio(),
+      skip: new Audio(),
+      correct: new Audio(),
+      incorrect: new Audio(),
     },
     Cute: {
-      clear: null as unknown as HTMLAudioElement,
-      skip: null as unknown as HTMLAudioElement,
-      correct: null as unknown as HTMLAudioElement,
-      incorrect: null as unknown as HTMLAudioElement,
+      clear: new Audio(),
+      skip: new Audio(),
+      correct: new Audio(),
+      incorrect: new Audio(),
     },
     Cyber: {
-      clear: null as unknown as HTMLAudioElement,
-      skip: null as unknown as HTMLAudioElement,
-      correct: null as unknown as HTMLAudioElement,
-      incorrect: null as unknown as HTMLAudioElement,
+      clear: new Audio(),
+      skip: new Audio(),
+      correct: new Audio(),
+      incorrect: new Audio(),
     },
     Fight: {
-      clear: null as unknown as HTMLAudioElement,
-      skip: null as unknown as HTMLAudioElement,
-      correct: null as unknown as HTMLAudioElement,
-      incorrect: null as unknown as HTMLAudioElement,
+      clear: new Audio(),
+      skip: new Audio(),
+      correct: new Audio(),
+      incorrect: new Audio(),
     },
     Support: {
-      clear: null as unknown as HTMLAudioElement,
-      skip: null as unknown as HTMLAudioElement,
-      correct: null as unknown as HTMLAudioElement,
-      incorrect: null as unknown as HTMLAudioElement,
+      clear: new Audio(),
+      skip: new Audio(),
+      correct: new Audio(),
+      incorrect: new Audio(),
     },
     Countdown: new Audio("/audio/countdown.wav"),
   });
@@ -251,22 +262,32 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       if (gameState !== "gameplay") return;
       if (event.code === "Space") return;
 
+      // Make sure the user inputs are valid key within the KeyToDotMap dictionary
       if (Object.keys(keyToDotMap).includes(event.key.toLowerCase())) {
         const updatedInput = new Set(currentInput);
         updatedInput.delete(event.key.toLowerCase());
         setCurrentInput(updatedInput);
 
+        // Only process the input when the user has released all keys
         if (updatedInput.size != 0) return;
+        // Makes sure the game is displaying words
+        // Prevents the game from minus points when the word has not been chosen yet
         if (!activeCharacters[currentIndex]) return;
 
+        // Combined input ["1","3","6"] -> "136"
         const combinedEncoding = registeredInput.join("");
+        // Clear the registered input
         setRegisteredInput(Array(6));
 
+        // If user input matches the displayed failling braille dot
         if (combinedEncoding === activeCharacters[currentIndex].keystroke) {
+          // Update the displayed braille dots
           setActiveCharacters((prev) => {
             const newActiveCharacters = [...prev];
             newActiveCharacters[currentIndex].completed = true;
 
+            // Display the next braille dot when the user completes the braille dot
+            // faster than the time to live expires
             const nextIndex = currentIndex + 1;
             if (nextIndex < characterList.length && !newActiveCharacters[nextIndex]) {
               newActiveCharacters[nextIndex] = {
@@ -280,11 +301,14 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
             return newActiveCharacters;
           });
 
+          // Update player data and highlight the character
           setCurrentIndex((prev) => prev + 1);
           setHighlightedCharacter((prev) => [...prev, currentIndex]);
           setPlayerData((prev) => ({ ...prev, points: prev.points + 10 }));
           setPlayerData((prev) => ({ ...prev, correct: prev.correct + 1 }));
 
+          // Play the clear sound when the current index matches the
+          // length of the character list
           if (currentIndex === characterList.length - 1) {
             playSound(gameAudio.current[gameplaySettings.soundEffects].clear);
             generateNewWord();
@@ -451,9 +475,11 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
   function getBrailleUnicode(text: string | null): string {
     if (!text) return "";
 
+    // Regex text for any numbers
     const containsNumbers = /\d/.test(text);
     let result = containsNumbers ? BrailleUnicode[BrailleData.indicators.content.number.keystroke.join("")] : "";
 
+    // Map each character in the text to a braille unicode
     return text.split("").reduce((result, char) => {
       if (char === " ") {
         return result + BrailleUnicode["0"];
@@ -467,7 +493,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       if (char !== char.toLowerCase()) {
         return result + BrailleUnicode[BrailleData.indicators.content.capital_letter.keystroke.join("")] + BrailleUnicode[BrailleData.alphabet.content[char.toLowerCase()].keystroke.join("")];
       }
-      if (/\d/.test(char)) {
+      if (containsNumbers) {
         return result + BrailleUnicode[BrailleData.numbers.content[char].keystroke.join("")];
       }
       if (BrailleData.alphabet.content[char]) {
@@ -554,6 +580,8 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     generateNewWord();
   }
 
+  // Update user settings if it was change mid game
+  // Reset player data
   function handleRestart(): void {
     window.speechSynthesis.cancel();
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
@@ -676,6 +704,10 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
 
     return (
       <div key={`character-${index}`} className="absolute left-1/2 -translate-x-1/2">
+        {/* 
+          Handles the animation of the failling braille dots
+          Animation is done using position which is scaled to device width and height
+        */}
         <motion.div initial={{ y: 0 }} animate={{ y: "60vh" }} transition={{ duration: 6, ease: "linear", delay: 0 }} className="flex items-center justify-center">
           <div className="flex flex-col space-x-2">
             <div className="absolute right-[2rem]">
@@ -717,12 +749,14 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     );
   }
 
+  // Stop any TTS when the game is over
   useEffect(() => {
     if (gameState === "gameover") {
       window.speechSynthesis.cancel();
     }
   }, [gameState]);
 
+  // Handles the loading of the selected audio
   function loadAudioFiles(effect: AudioEffect) {
     if (effect === "None") return;
 

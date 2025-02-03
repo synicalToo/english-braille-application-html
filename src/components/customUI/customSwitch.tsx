@@ -7,6 +7,9 @@ interface CustomSwitchProps {
   onCheckedChange: (value: boolean) => void;
 }
 
+// This code extends on the switch UI component found in
+// components/ui/switch.tsx
+// Allows props to be passed for reusability
 export function CustomSwitch({ id, text, checked, onCheckedChange }: CustomSwitchProps) {
   return (
     <div className="flex items-center mb-4">

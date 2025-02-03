@@ -1,3 +1,8 @@
+// The list of words used for Grade 1 Gameplay only
+// Braille keystrokes/unicode is generated from the words (not hardcoded needed)
+
+// Logic and words for Grade 2 have to be hardcoded
+// Rules for Grade 2 is more specific
 import { PRACTICE_TOPIC_OPTIONS } from "@/lib/constants";
 
 export const WordList: Record<(typeof PRACTICE_TOPIC_OPTIONS)[number], string[]> = {

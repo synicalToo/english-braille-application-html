@@ -1,4 +1,6 @@
-import { WordList } from "@/contents/en/wordList";
+// This is the list of the settings options for the game
+// Adding or removing options from the list will affect other files/scripts (Typed checked)
+// Make sure to update the necessary files/scripts to prevent errors
 
 export const GRADE_OPTIONS = ["1", "2"] as const;
 export const AUDIO_LANGUAGE_OPTIONS = ["Google US English", "Google 日本語"] as const;

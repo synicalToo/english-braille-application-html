@@ -1,3 +1,5 @@
+// Handles between light and dark theme
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,6 +14,7 @@ export function ThemeSwitcher() {
   const currentTheme = theme === "system" ? systemTheme : theme;
   const [isChecked, setIsChecked] = useState(false);
 
+  // Load saved theme from local storage and update state
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -22,6 +25,7 @@ export function ThemeSwitcher() {
     }
   }, [setTheme, currentTheme]);
 
+  // Save theme to local storage and update state
   const handleThemeChange = () => {
     const newTheme = currentTheme === "dark" ? "light" : "dark";
     setTheme(newTheme);

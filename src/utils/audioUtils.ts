@@ -19,6 +19,7 @@ export function speakText(text: string, enabled: boolean, shouldNotOverride?: bo
   utterance.pitch = 1;
   utterance.volume = 0.5;
 
+  // Get all the available voices
   const loadVoices = () => {
     return new Promise<SpeechSynthesisVoice[]>((resolve) => {
       const voices = window.speechSynthesis.getVoices();
@@ -32,13 +33,16 @@ export function speakText(text: string, enabled: boolean, shouldNotOverride?: bo
     });
   };
 
+  // Filter the voices to find the selected voice
   loadVoices().then((voices) => {
     const storedLanguage = localStorage.getItem("audioLanguage");
     const selectedVoice = voices.find((voice) => voice.name === storedLanguage);
 
+    // Set selected voice based on user's setting
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     } else {
+      // Defaults to English voice
       const englishVoice = voices.find((voice) => voice.name.includes("Google") && voice.lang.startsWith("en"));
       if (englishVoice) {
         utterance.voice = englishVoice;

@@ -1,3 +1,6 @@
+// Custom braille font
+// Shows the braille box with dots
+
 import { cn } from "@/lib/utils";
 import localFont from "next/font/local";
 

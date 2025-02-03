@@ -1,3 +1,5 @@
+// The main rendering of the webpage
+
 "use client";
 
 import Image from "next/image";
@@ -54,6 +56,7 @@ export default function TypingPage() {
             <BottomBar />
           </>
         ) : (
+          // Renders the individual component based on the selected mode and selecte grade in setting
           <div className="">
             {selectedMode === "freeTyping" && selectedGrade === "1" && <FreeTypingGradeOne onBack={() => setSelectedMode("")} />}
             {selectedMode === "freeTyping" && selectedGrade === "2" && <FreeTypingGradeTwo onBack={() => setSelectedMode("")} />}

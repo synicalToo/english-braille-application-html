@@ -8,6 +8,9 @@ interface CustomSelectProps {
   options: readonly string[];
 }
 
+// This code extends on the select UI component found in
+// components/ui/select.tsx
+// Allows props to be passed for reusability
 export function CustomSelect({ header, placeHolder, selectedValue, onValueChange, options }: CustomSelectProps) {
   return (
     <div>

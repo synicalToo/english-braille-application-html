@@ -1,3 +1,6 @@
+// Shows the sidebar on the left of the screen
+// Contains the search bar and the braille patterns
+
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 
@@ -6,14 +9,17 @@ import { BrailleFont } from "@/components/customUI/brailleFont";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { BrailleData, BrailleUnicode, Compatibility } from "@/contents/en/BrailleData";
 
+// Retuns a string the braille unicode for all the keystokes
+// within the keystrokes array
 function getUnicodeFromKeystrokes(keystrokes: string[]): string {
   return keystrokes.map((key) => BrailleUnicode[key]).join("");
 }
 
 export function Sidebar() {
-  const [selectedGrade, setSelectedGrade] = useState<string>("grade_1");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedGrade, setSelectedGrade] = useState<string>("grade_1"); // User seleted mode in settings
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Search bar
 
+  // Handle intial setting load
   useEffect(() => {
     const storedGradeSelected = localStorage.getItem("gradeSelect");
     if (storedGradeSelected) {
@@ -41,8 +47,8 @@ export function Sidebar() {
     return substrings;
   }
 
+  // Filter the display of the sidebar based on the search query
   const substrings = generateSubstrings(searchQuery.toLowerCase());
-
   const filteredMappings = Object.entries(BrailleData).reduce((acc, [category, data]) => {
     if (data.compatibility <= selectedGradeCompatibility || data.compatibility === Compatibility.both) {
       const filteredContent = Object.entries(data.content).filter(

@@ -8,6 +8,9 @@ interface CustomRadioProps {
   options: readonly string[];
 }
 
+// This code extends on the radio-group UI component found in
+// components/ui/radio-group.tsx
+// Allows props to be passed for reusability
 export function CustomRadio({ header, defaultValue, selectedValue, onValueChange, options }: CustomRadioProps) {
   return (
     <div>

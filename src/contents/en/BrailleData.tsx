@@ -1,3 +1,8 @@
+// Contains all the braille data for Grade 1 and Grade 2
+
+// All the interfaces are for type checking (type annotation)
+// Makes sure that all braille data has the correct type
+// with no missing values or fields
 export interface BrailleItem {
   title: string;
   symbol?: string;
@@ -532,6 +537,11 @@ export const BrailleUnicode: { [key: string]: string } = {
   "23456": "⠾",
   "123456": "⠿",
 };
+
+// For the follow codes below the result for each variable is
+// A dictionary containing an array of numbers (keystrokes) as key
+// and BrailleItem as value
+// i.e {[<number>] => BrailleItem}
 
 export const alphabet_mapping = new Map<number[], BrailleItem>(
   Object.entries(BrailleData.alphabet.content).map(([key, item]) => {

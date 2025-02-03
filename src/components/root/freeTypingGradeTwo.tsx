@@ -20,8 +20,9 @@ import {
   grouping_punctuation_mapping,
 } from "@/contents/en/BrailleData";
 import React, { useState, useEffect } from "react";
-import { Button } from "../ui/button";
 import Image from "next/image";
+
+import { Button } from "../ui/button";
 import { BrailleFont } from "../customUI/brailleFont";
 import { speakText } from "@/utils/audioUtils";
 
@@ -71,9 +72,16 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     itemList.length = 0;
   }
 
+  // Adds the processed result text to temp string
+  // Temp string is palceholder for the final string
+  // Final string is displayed when user presses enter key
+  // Symbol always takes precedences over title in order to display
+  // special chaarcters like !@#$,./?
   function addToFinalString(text: string) {
     const capitalIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.capital_letter || item.item === BrailleData.indicators.content.capital_word || item.item === BrailleData.indicators.content.capital_passage);
 
+    // Only proceed to add capitalize first character or capitalize entire word
+    // if the capital indicator is in the first possible
     if (capitalIndicator && capitalIndicator.position === 0) {
       switch (capitalIndicator.item) {
         case BrailleData.indicators.content.capital_letter:
@@ -92,12 +100,16 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     }
   }
 
+  // Reset the string and typing board when user presses the spacebar
+  // to simulate the end of a input
   function handleSpaceBarPressed() {
     setTempString((prev) => prev + " ");
     setTypingBoard((prev) => [...prev, "0"]);
     setCurrentInputHistory([]);
   }
 
+  // Checks for all the indicator that can be present in the input
+  // and remove them from the input while storing them into a list
   function checkIndicators(input: string[], patterns: BrailleItem[]) {
     patterns.sort((a, b) => b.keystroke.length - a.keystroke.length);
 
@@ -120,6 +132,8 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     }
   }
 
+  // Ran when the user only has one input remaining after
+  // removing all the indicators
   function checkSingleInput(input: string[]) {
     let searchInputs;
     const findKey = [parseInt(input[0])];
@@ -130,6 +144,8 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
       searchInputs = [alphabetic_wordsigns_mapping, strong_contractions_mapping, strong_wordsigns_mapping, lower_wordsigns_mapping];
     }
 
+    // Loops through all the search inputs and find all the entries whose
+    // all keystroke matches the findKey
     for (const mapping of searchInputs) {
       const found = Array.from(mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
       if (found) {
@@ -140,10 +156,14 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     return false;
   }
 
+  // Check for initial letter contractions of the number of input
+  // after removing indicators is 2
   function checkInitialLetterContractions(input: string[]) {
     const findKey = [parseInt(input[0]), parseInt(input[1])];
 
+    // Checks if the first inout matches the starting for initial letter contractions
     if (findKey[0] === 5 || findKey[0] === 45 || findKey[0] === 456) {
+      // Returns a braille item if the keystrokes matches the inputs keystrokes
       const found = Array.from(initial_letter_contractions_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
       if (found) {
         addToFinalString(found[1].symbol || found[1].title);
@@ -153,9 +173,13 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     return false;
   }
 
+  // Checks for short form words if the input length is
+  // more than or equals to 2 after removing indicators
+
   function checkShortformWords(input: string[]) {
     const findKey = [...input.map((val) => parseInt(val))];
 
+    // Returns a braille item if the keystrokes matches the inputs keystrokes
     const shortformWordFound = Array.from(shortform_words_mapping.entries()).find(([key]) => key.length === findKey.length && key.every((val, i) => val === findKey[i]));
     if (shortformWordFound) {
       addToFinalString(shortformWordFound[1].symbol || shortformWordFound[1].title);
