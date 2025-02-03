@@ -148,7 +148,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
             }
             //for if gets terminated by eg alpha, punc
-            const content = BrailleData.Numbers.content;
+            const content = BrailleData.numbers.content;
             for (const i in content) {
               if (typingBoard[inputHistory.length - 2]?.text == content[i].title && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
                 setTypingModeHistory((prev) => prev.slice(0, -1));
@@ -386,8 +386,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
       matchingResult == BrailleData.indicators.content.number ||
       matchingResult == BrailleData.indicators.content.capital_letter ||
       matchingResult == BrailleData.indicators.content.capital_word ||
-      matchingResult == BrailleData.indicators.content.capital_passage ||
-      matchingResult == BrailleData.indicators.content.capital_terminator
+      matchingResult == BrailleData.indicators.content.capital_passage
     );
   }
 
