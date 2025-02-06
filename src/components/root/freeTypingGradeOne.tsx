@@ -11,12 +11,14 @@ import { BrailleData, BrailleUnicode } from "@/contents/en/BrailleData";
 import { speakText } from "@/utils/audioUtils";
 import { findBrailleMatch, findNumberMatch } from "@/utils/gameUtils";
 
+// set limit for typing board
 const MAX_TYPING_LIMIT = 16;
 interface GameAudio {
   limit_reached: HTMLAudioElement;
   next_line: HTMLAudioElement;
 }
 
+// change to true for debug menu
 const DEBUG = false;
 
 export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
@@ -33,45 +35,36 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
   const [displayBoard, setDisplayBoard] = useState<{ unicode: string; text: string }[][]>([]);
 
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
-  const [selectedGrade, setSelectedGrade] = useState<string>("1");
 
   const [gameAudio] = useState<GameAudio>({
-    limit_reached: new Audio("/audio/default/incorrect.mp3"),
-    next_line: new Audio("/audio/_typing.mp3"),
+    // initialise audio files for sound effects:
+    limit_reached: new Audio("/audio/default/incorrect.mp3"), //hitting character limit on typing board
+    next_line: new Audio("/audio/_typing.mp3"), //pushing typing board to display board ( enter key)
   });
 
   function playSound(audio: HTMLAudioElement) {
     if (!audio.paused) {
-      return; // Do not play again if already playing
+      return; // Do not play again if audio file already playing
     }
     audio.currentTime = 0; // Reset to the start
-    audio.play();
+    audio.play(); // play audio
   }
 
   useEffect(() => {
+    // retrieve audio settings stored
     const storedAudioEnabled = localStorage.getItem("audioEnabled");
     if (storedAudioEnabled) {
       setAudioEnabled(storedAudioEnabled === "true");
     }
 
     const handleAudioSettingsChange = (event: CustomEvent) => {
+      //determine if user changed settings
       setAudioEnabled(event.detail);
     };
 
-    const storedGradeSelected = localStorage.getItem("gradeSelect");
-    if (storedGradeSelected) {
-      setSelectedGrade(storedGradeSelected);
-    }
-
-    const handleGradeSelectedChange = (event: CustomEvent) => {
-      setSelectedGrade(event.detail);
-    };
-
     window.addEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
-    window.addEventListener("gradeSelectedChanged", handleGradeSelectedChange as EventListener);
     return () => {
       window.removeEventListener("audioSettingsChanged", handleAudioSettingsChange as EventListener);
-      window.removeEventListener("gradeSelectedChanged", handleGradeSelectedChange as EventListener);
     };
   }, []);
 
@@ -79,16 +72,17 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
     const handleKeydown = (event: KeyboardEvent): void => {
       if (!gameAudio.limit_reached.paused) {
         gameAudio.limit_reached.pause();
-        gameAudio.limit_reached.currentTime = 0; // Reset to the start if necessary
+        gameAudio.limit_reached.currentTime = 0;
       }
 
       switch (event.key.toLowerCase()) {
         case "enter":
           event.preventDefault();
           if (typingBoard.length > 0) {
-            const sentence = typingBoard.map((item) => item.tts).join("");
+            const sentence = typingBoard.map((item) => item.tts).join(""); // string inputs together for text-to-speech
             setDisplayBoard((prev) => {
               const newBoard = [...prev, [...typingBoard]];
+              //set limit on how many lines display board shows
               return newBoard.slice(-4);
             });
             setRegisteredInput([]);
@@ -101,10 +95,11 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
             setCurrentTypingMode("Alphabet");
             setTypingModeHistory((prev) => [...prev, "Alphabet"]);
 
-            speakText(sentence, audioEnabled);
+            speakText(sentence, audioEnabled); // audio tts for stringed inputs
           }
           playSound(gameAudio.next_line);
           break;
+        //Handle deletion of normal characters, and adjust typing mode based on indicators
         case "backspace":
           if (typingBoard.length > 0) {
             switch (typingBoard[inputHistory.length - 1].text) {
@@ -142,12 +137,12 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
               default:
                 break;
             }
-            //Handle capital letter
+            //Handle capital letter: after backspace and if previous input is capital letter, set current typing mode to capital letter
             if (typingBoard[inputHistory.length - 2]?.text == "Capital letter" && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
               setTypingModeHistory((prev) => prev.slice(0, -1));
               setCurrentTypingMode(typingModeHistory[typingModeHistory.length - 2]);
             }
-            //for if gets terminated by eg alpha, punc
+            //Handle number mode: after backspace of e.g. comma, and the previous typing mode is number, set the current typing mode to number
             const content = BrailleData.numbers.content;
             for (const i in content) {
               if (typingBoard[inputHistory.length - 2]?.text == content[i].title && currentTypingMode == "Alphabet" && typingBoard[inputHistory.length - 1].text != " ") {
@@ -171,6 +166,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
             speakText("backspace", audioEnabled);
           }
           break;
+        // Handles space, adjust tying mode based on indicator rules
         case " ":
           event.preventDefault();
           if (typingBoard.length > 0 && inputPosition < MAX_TYPING_LIMIT) {
@@ -224,6 +220,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
         }
 
         if (updatedInput.size != 0) return;
+        //Handle max character inputted into typing board
         if (inputPosition == MAX_TYPING_LIMIT) {
           event.preventDefault();
           playSound(gameAudio.limit_reached);
@@ -241,17 +238,18 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
 
           for (let i = newCombinedHistory.length - 1; i >= 0; i--) {
             potentialCombination = newCombinedHistory.slice(i).join(",");
-            const result = findBrailleMatch(potentialCombination, inputHistory);
+            const result = findBrailleMatch(potentialCombination, inputHistory); // refer to gameUtils.ts, determines matching braille
             matchingResult = result.bestMatch;
             longestMatch = result.longestMatch;
 
             if (matchingResult) break;
           }
           setinputPosition(inputPosition + 1);
-
+          //set displayed braille character with its unicode, displayed text and speech
           if (matchingResult) {
             let displayText: string = matchingResult.symbol || matchingResult.title;
             let ttsText: string = matchingResult.title;
+            //adjust displayed text and speech based on typing mode
             switch (currentTypingMode) {
               case "Number":
                 const numberMatch = findNumberMatch(combinedEncoding);
@@ -291,7 +289,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
               default:
                 break;
             }
-
+            //set typing mode based on indicators matched, taking note of indicator rules
             switch (matchingResult) {
               case BrailleData.indicators.content.number:
                 setCurrentTypingMode("Number");
@@ -329,7 +327,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
                 tts: ttsText,
               },
             ]);
-
+            // slicing of braille characters based on matched input
             if (matchingResult.keystroke.length >= 2 && currentTypingMode != "Number") {
               let sliceOffset: number | undefined;
               if (matchingResult.keystroke.length === 3 && matchingResult.keystroke.length > longestMatch) {
@@ -356,7 +354,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
 
             speakText(ttsText.length > 0 ? ttsText : displayText, audioEnabled);
           }
-
+          //if no combinations are found, return input braille unicode only
           if (!matchingResult) {
             setCombinedPatternHistory((prev) => [...prev, combinedEncoding]);
             setTypingBoard((prev) => [
@@ -383,6 +381,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
 
   function isIndicator(matchingResult: { title: string; keystroke: string[]; symbol?: string }): boolean {
     return (
+      // capital terminator not included as it clashes with the capital letter indicator
       matchingResult == BrailleData.indicators.content.number ||
       matchingResult == BrailleData.indicators.content.capital_letter ||
       matchingResult == BrailleData.indicators.content.capital_word ||
@@ -434,8 +433,8 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
           </div>
         </div>
       </div>
-
-      <div /*{ typing board }*/ className="flex flex-col w-full py-4 px-2 rounded-lg">
+      {/*{ typing board }*/}
+      <div className="flex flex-col w-full py-4 px-2 rounded-lg">
         <h2 className="text-lg font-semibold mb-4 ml-2">Typing Board</h2>
         <div className="flex flex-wrap items-start pb-2 px-4 border-b border-gray-300 gap-2">
           {typingBoard.map((item, index) => (
@@ -460,6 +459,7 @@ export default function FreeTypingGradeOne({ onBack }: { onBack: () => void }) {
           ))}
         </div>
       </div>
+
       {DEBUG && (
         <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg mt-4 mb-4">
           <h2 className="text-xl text-center font-semibold mb-4">Debugger</h2>
