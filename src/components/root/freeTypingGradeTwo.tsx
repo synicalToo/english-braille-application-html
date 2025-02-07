@@ -174,8 +174,7 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
   }
 
   // Checks for short form words if the input length is
-  // more than or equals to 2 after removing indicators
-
+  // more than or equals to 2 after removing indicatorss
   function checkShortformWords(input: string[]) {
     const findKey = [...input.map((val) => parseInt(val))];
 
@@ -188,17 +187,18 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     return false;
   }
 
+  // The main logic for processing the user input
+  // This function is called when the user presses the spacebar
   function processInput(input: string[]) {
     const workingInput = [...input];
 
+    // Check for any of these indicators in the input
+    // Removes the indicators from the input and stores them in itemList
     checkIndicators(workingInput, [BrailleData.indicators.content.capital_letter, BrailleData.indicators.content.capital_word, BrailleData.indicators.content.capital_passage, BrailleData.indicators.content.number]);
 
-    const numberIndicator = itemList.find((item) => item.item === BrailleData.indicators.content.number);
-    let isInNumberMode = false;
-
-    if (numberIndicator) {
-      isInNumberMode = true;
-    }
+    // Check if the number indicator is in the itemList
+    // Sets isInNumberMode to true using JavaScript ternary operator
+    let isInNumberMode = itemList.find((item) => item.item === BrailleData.indicators.content.number) ? true : false;
 
     if (workingInput.length === 1) {
       const tempInput = [...workingInput];
@@ -251,6 +251,8 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
         let matchLength = 0;
         const remainingLength = workingInput.length - currentIndex;
 
+        // Finds the maximum length of the input that can be matched
+        // This is done by finding the maximum length of the keys in the searchInputs
         const maxLength = Math.min(remainingLength, Math.max(...searchInputs.flatMap((mapping) => Array.from(mapping.keys()).map((key) => key.length))));
 
         for (let tryLength = maxLength; tryLength > 0 && !matchFound; tryLength--) {
@@ -289,8 +291,10 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
                     const isFirstPosition = currentIndex === 0;
                     const isMiddlePosition = currentIndex > 0 && currentIndex < workingInput.length - 1;
 
+                    // Checks if the found item is a first, middle, or every position
                     const isValid = (found.type === "first" && isFirstPosition) || (found.type === "middle" && isMiddlePosition) || found.type === "every";
 
+                    // If the found item is a first, middle, or every position
                     if (isValid) {
                       addToFinalString(found.symbol || found.title);
                       matchFound = true;
@@ -298,6 +302,7 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
                       break;
                     }
                   } else {
+                    // If item found is not in the lower_groupsigns_mapping
                     addToFinalString(found.symbol || found.title);
                     matchFound = true;
                     matchLength = tryLength;
@@ -321,6 +326,7 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
     handleSpaceBarPressed();
   }
 
+  // Handles the keydown and keyup events
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       switch (e.key.toLowerCase()) {
@@ -388,6 +394,7 @@ export default function FreeTypingGradeTwo({ onBack }: { onBack: () => void }) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
+    // states to re-render the component when the it changes
   }, [currentInput, registeredInput, typingBoard, displayBoard, currentInputHistory, itemList, tempString]);
 
   return (
